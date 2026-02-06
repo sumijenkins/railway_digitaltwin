@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: Railway Digital Twin Backend
