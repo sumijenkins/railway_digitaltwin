@@ -108,7 +108,11 @@ function addTrackIfNotExists(tracks: Track[], source: Station, target: Station, 
             speedLimit: 60 + rng.next() * 60, // 60-120 km/h
             cost: dist, // simplistic cost
             gradient: rng.next() * 3, // 0-3% gradient
-            maxAxleLoad: 20 + rng.next() * 5 // 20-25 tons
+            maxAxleLoad: 20 + rng.next() * 5, // 20-25 tons
+            status: 'operational' as const,
+            healthScore: Math.floor(70 + rng.next() * 30), // 70-100
+            accumulatedTonnage: Math.floor(rng.next() * 5_000_000), // up to 5M tons
+            lastInspectionDate: '2024-01-15'
         });
 
         // Track B -> A (Assuming bidirectional travel is possible on same 'line' logic)
@@ -120,7 +124,11 @@ function addTrackIfNotExists(tracks: Track[], source: Station, target: Station, 
             speedLimit: 60 + rng.next() * 60, // may differ slightly? Let's keep distinct
             cost: dist,
             gradient: rng.next() * 3,
-            maxAxleLoad: 20 + rng.next() * 5
+            maxAxleLoad: 20 + rng.next() * 5,
+            status: 'operational' as const,
+            healthScore: Math.floor(70 + rng.next() * 30),
+            accumulatedTonnage: Math.floor(rng.next() * 5_000_000),
+            lastInspectionDate: '2024-01-15'
         });
     }
 }

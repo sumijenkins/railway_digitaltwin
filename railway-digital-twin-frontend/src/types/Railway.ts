@@ -23,6 +23,39 @@ export interface DetailedTelemetry {
     trainWeight: number;
 }
 
+/**
+ * Backend'in /api/telemetry endpoint'inden gelen gerçek format.
+ * Her kayıt tek bir sensor_reading'i temsil eder (normalize DB yapısı).
+ */
+export interface TelemetryReading {
+    readingId: number;
+    recordedAt: string;       // ISO 8601 timestamp
+    value: number;
+    channelName: string;      // örn: "ray_temperature", "train_speed"
+    unit: string;             // örn: "°C", "km/h"
+    sensorType: string;
+    sensorId: number;
+    segmentId: string;        // S1, S2, ...
+    segmentName: string;
+    riskLevel: string;
+}
+
+/**
+ * Backend'den gelen TelemetryReading listesini frontend grafiklerinin
+ * beklediği düz formata dönüştürür.
+ * Aynı segment'e ait readings'leri birleştirir.
+ */
+export function groupTelemetryBySegment(readings: TelemetryReading[]): Record<string, Record<string, number>> {
+    const result: Record<string, Record<string, number>> = {};
+    for (const r of readings) {
+        if (!result[r.segmentId]) result[r.segmentId] = {};
+        result[r.segmentId][r.channelName] = r.value;
+        result[r.segmentId]['timestamp'] = new Date(r.recordedAt).getTime();
+        result[r.segmentId]['segmentId'] = r.segmentId as any;
+    }
+    return result;
+}
+
 export interface TelemetryData {
     axleTemp: number;
     vibrationLevel: number;
