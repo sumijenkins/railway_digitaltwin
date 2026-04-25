@@ -23,6 +23,7 @@ import { telemetryService } from "../services/telemetryService";
 export default function App() {
   const [activeSection, setActiveSection] = useState("overview");
   const [sensorData, setSensorData] = useState<any[]>([]);
+  const [sensorCount, setSensorCount] = useState<number>(0);
   const [network, setNetwork] = useState<RailwayNetwork | null>(null);
   const [routeResult, setRouteResult] = useState<any>(null);
   const [trainLoad, setTrainLoad] = useState<number>(400);
@@ -55,71 +56,97 @@ export default function App() {
   // Fetch real-time telemetry from PostgreSQL
   useEffect(() => {
     const fetchData = async () => {
-      const data = await telemetryService.getLatestTelemetry();
-      if (data && data.length > 0) {
-        // 1. Transform backend data to frontend chart format
-        const chartData = data.slice(0, 20).reverse().map((d: any, index: number) => ({
-          time: new Date(new Date(d.timestamp).getTime() + (index * 1000)).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-          temperature: d.ray_temperature,
-          vibration: d.ray_vibration_x,
-          tilt: d.rail_slope,
-          trainTemp: d.train_temperature,
-          speed: d.train_speed,
-          trainVib: d.train_vibration_x
-        }));
+      const readings = await telemetryService.getLatestTelemetry(120);
+      if (readings && readings.length > 0) {
+
+        // 1. Normalize kayıtları (segment + zaman) bazında grupla
+        //    Her segment için en son okunan channelName → value eşleşmesini bul
+        const bySegment: Record<string, Record<string, number | string>> = {};
+        for (const r of readings) {
+          if (!bySegment[r.segmentId]) {
+            bySegment[r.segmentId] = { segmentId: r.segmentId, timestamp: r.recordedAt };
+          }
+          // channelName key olarak kullan (ray_temperature, train_speed, ...)
+          bySegment[r.segmentId][r.channelName] = r.value;
+        }
+
+        // 2. Her segment → grafik data noktasına dönüştür
+        const chartData = Object.values(bySegment)
+          .slice(0, 20)
+          .reverse()
+          .map((seg: any) => ({
+            time: new Date(seg.timestamp).toLocaleTimeString('tr-TR', {
+              hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }),
+            temperature:  seg['ray_temperature']   ?? 0,
+            vibration:    seg['ray_vibration_x']   ?? 0,
+            tilt:         seg['rail_slope']         ?? 0,
+            trainTemp:    seg['train_temperature']  ?? 0,
+            speed:        seg['train_speed']        ?? 0,
+            trainVib:     seg['train_vibration_x']  ?? 0,
+          }));
         setSensorData(chartData);
 
-        // 2. Real-time Anomaly Detection Logic
-        const latest: any = data[0];
+        // Unique sensor sayısını DB'den türet
+        const uniqueSensorIds = new Set(readings.map(r => r.sensorId));
+        setSensorCount(uniqueSensorIds.size);
+
+        // 3. Anomali tespiti — en son gelen segment verisini kullan
+        const latestSegments = Object.values(bySegment) as any[];
         const newDetectedAnomalies: any[] = [];
 
-        if (latest.ray_temperature > 40) {
-          newDetectedAnomalies.push({
-            time: new Date(latest.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-            type: "Kritik Sıcaklık",
-            severity: "yüksek",
-            location: `Segment ${latest.segment_id}`,
-            value: `${latest.ray_temperature.toFixed(1)}°C`,
-            status: "aktif"
+        for (const latest of latestSegments) {
+          const time = new Date(latest.timestamp).toLocaleTimeString('tr-TR', {
+            hour: '2-digit', minute: '2-digit'
           });
-        }
 
-        if (latest.train_speed > 85) {
-          newDetectedAnomalies.push({
-            time: new Date(latest.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-            type: "Aşırı Hız Limit Aşımı",
-            severity: "orta",
-            location: `Segment ${latest.segment_id}`,
-            value: `${latest.train_speed.toFixed(1)} km/h`,
-            status: "aktif"
-          });
-        }
+          if (latest['ray_temperature'] > 40) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Kritik Sıcaklık",
+              severity: "yüksek",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest['ray_temperature']).toFixed(1)}°C`,
+              status: "aktif"
+            });
+          }
 
-        if (latest.ray_vibration_x > 2.5) {
-          newDetectedAnomalies.push({
-            time: new Date(latest.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-            type: "Yüksek Ray Titreşimi",
-            severity: "yüksek",
-            location: `Segment ${latest.segment_id}`,
-            value: `${latest.ray_vibration_x.toFixed(2)} Hz`,
-            status: "aktif"
-          });
-        }
+          if (latest['train_speed'] > 85) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Aşırı Hız Limit Aşımı",
+              severity: "orta",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest['train_speed']).toFixed(1)} km/h`,
+              status: "aktif"
+            });
+          }
 
-        if (Math.abs(latest.rail_slope) > 3) {
-          newDetectedAnomalies.push({
-            time: new Date(latest.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-            type: "Hatalı Ray Eğimi",
-            severity: "orta",
-            location: `Segment ${latest.segment_id}`,
-            value: `${latest.rail_slope.toFixed(1)}°`,
-            status: "izleniyor"
-          });
+          if (latest['ray_vibration_x'] > 2.5) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Yüksek Ray Titreşimi",
+              severity: "yüksek",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest['ray_vibration_x']).toFixed(2)} Hz`,
+              status: "aktif"
+            });
+          }
+
+          if (Math.abs(latest['rail_slope'] ?? 0) > 3) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Hatalı Ray Eğimi",
+              severity: "orta",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest['rail_slope']).toFixed(1)}°`,
+              status: "izleniyor"
+            });
+          }
         }
 
         if (newDetectedAnomalies.length > 0) {
           setAnomalies(prev => {
-            // Only add unique anomalies for the same second/location combo
             const filtered = newDetectedAnomalies.filter(newA =>
               !prev.some(oldA => oldA.time === newA.time && oldA.type === newA.type)
             );
@@ -129,7 +156,7 @@ export default function App() {
       }
     };
 
-    fetchData(); // Initial fetch
+    fetchData();
     const interval = setInterval(fetchData, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -162,7 +189,7 @@ export default function App() {
           {activeSection === "overview" && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <KPICard title="Aktif Sensörler" value={247} icon={Radio} color="blue" />
+                <KPICard title="Aktif Sensörler" value={sensorCount} icon={Radio} color="blue" />
                 <KPICard title="Tespit Edilen Anomaliler" value={anomalies.length} icon={AlertTriangle} color="red" />
                 <KPICard title="Yüksek Riskli Segmentler" value={network?.tracks.filter(t => t.healthScore < 50).length || 0} icon={Activity} color="yellow" />
               </div>
@@ -266,9 +293,9 @@ export default function App() {
               <h2 className="text-white text-2xl font-bold mb-4">Gerçek Zamanlı Anomali Tespiti</h2>
               <AnomalyTimeline anomalies={anomalies} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <KPICard title="Toplam Anomaliler (24s)" value={23} icon={AlertTriangle} color="red" />
-                <KPICard title="Kritik Uyarılar" value={2} icon={AlertTriangle} color="yellow" />
-                <KPICard title="Ortalama Çözüm Süresi" value="12 Dakika" icon={Activity} color="green" />
+                <KPICard title="Toplam Anomaliler" value={anomalies.length} icon={AlertTriangle} color="red" />
+                <KPICard title="Kritik Uyarılar" value={anomalies.filter(a => a.severity === 'yüksek').length} icon={AlertTriangle} color="yellow" />
+                <KPICard title="İzlenen Segmentler" value={sensorCount > 0 ? 6 : 0} icon={Activity} color="green" />
               </div>
             </div>
           )}
@@ -278,21 +305,31 @@ export default function App() {
             <div className="space-y-8">
               <h2 className="text-white text-2xl font-bold mb-4">Öngörülü Bakım ve RUL Analizi</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { id: 'S3', health: 60, days: 45, color: 'yellow', warning: 'Öneri: 30 gün içinde muayene' },
-                  { id: 'S5', health: 22, days: 12, color: 'red', warning: '⚠️ Kritik: Acil bakım gerekli' },
-                  { id: 'S1', health: 95, days: 180, color: 'green', warning: '✓ İyi durum - Düzenli izleme' }
-                ].map(item => (
-                  <div key={item.id} className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl">
-                    <h3 className="text-white text-lg font-bold mb-4">Segment {item.id}</h3>
-                    <div className={`text-${item.color}-400 text-4xl font-bold mb-2`}>{item.days} gün</div>
-                    <p className="text-gray-500 text-sm mb-6 uppercase tracking-wider">Kalan Yararlı Ömür (RUL)</p>
-                    <div className="w-full bg-gray-700 rounded-full h-3 mb-6">
-                      <div className={`bg-${item.color}-500 h-3 rounded-full shadow-lg`} style={{ width: `${item.health}%` }}></div>
-                    </div>
-                    <div className={`text-sm font-medium ${item.health < 30 ? 'text-red-400' : 'text-gray-400'}`}>{item.warning}</div>
-                  </div>
-                ))}
+                {(network?.tracks ?? [])
+                  // Çift yönlü hatları tekilleştir (S1 ve S1-R → sadece S1)
+                  .filter((t, _, arr) => !t.id.endsWith('-R') || !arr.some(x => x.id === t.id.replace('-R', '')))
+                  .sort((a, b) => a.healthScore - b.healthScore)
+                  .slice(0, 3)
+                  .map(track => {
+                    const rul = Math.max(3, Math.round((track.healthScore - 20) * 1.8));
+                    const color = track.healthScore < 50 ? 'red' : track.healthScore < 80 ? 'yellow' : 'green';
+                    const warning = track.healthScore < 50
+                      ? '⚠️ Kritik: Acil bakım gerekli'
+                      : track.healthScore < 80
+                        ? `Öneri: ${Math.round(rul * 0.6)} gün içinde muayene`
+                        : '✓ İyi durum - Düzenli izleme';
+                    return (
+                      <div key={track.id} className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl">
+                        <h3 className="text-white text-lg font-bold mb-4">{track.id} Hattı</h3>
+                        <div className={`text-${color}-400 text-4xl font-bold mb-2`}>{rul} gün</div>
+                        <p className="text-gray-500 text-sm mb-6 uppercase tracking-wider">Kalan Yararlı Ömür (RUL)</p>
+                        <div className="w-full bg-gray-700 rounded-full h-3 mb-6">
+                          <div className={`bg-${color}-500 h-3 rounded-full shadow-lg`} style={{ width: `${track.healthScore}%` }}></div>
+                        </div>
+                        <div className={`text-sm font-medium ${track.healthScore < 50 ? 'text-red-400' : 'text-gray-400'}`}>{warning}</div>
+                      </div>
+                    );
+                  })}
               </div>
               <MaintenanceDashboard network={network} />
             </div>
