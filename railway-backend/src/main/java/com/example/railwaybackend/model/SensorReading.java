@@ -9,69 +9,46 @@ public class SensorReading {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long readingId;
 
-    private String segmentId;
-    private String sensorType;
-    private LocalDateTime timestamp;
-    private Double temperature;
-    private Double vibration;
-    private Double tilt;
+    @ManyToOne
+    @JoinColumn(name = "channel_id")
+    private SensorChannel channel;
+
+    private Double value;
+
+    private LocalDateTime recordedAt;
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Long getReadingId() {
+        return readingId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setReadingId(Long readingId) {
+        this.readingId = readingId;
     }
 
-    public String getSegmentId() {
-        return segmentId;
+    public SensorChannel getChannel() {
+        return channel;
     }
 
-    public void setSegmentId(String segmentId) {
-        this.segmentId = segmentId;
+    public void setChannel(SensorChannel channel) {
+        this.channel = channel;
     }
 
-    public String getSensorType() {
-        return sensorType;
+    public Double getValue() {
+        return value;
     }
 
-    public void setSensorType(String sensorType) {
-        this.sensorType = sensorType;
+    public void setValue(Double value) {
+        this.value = value;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public LocalDateTime getRecordedAt() {
+        return recordedAt;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Double getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(Double temperature) {
-        this.temperature = temperature;
-    }
-
-    public Double getVibration() {
-        return vibration;
-    }
-
-    public void setVibration(Double vibration) {
-        this.vibration = vibration;
-    }
-
-    public Double getTilt() {
-        return tilt;
-    }
-
-    public void setTilt(Double tilt) {
-        this.tilt = tilt;
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = recordedAt;
     }
 }
