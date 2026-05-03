@@ -7,19 +7,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AIAnomalyDetectionService {
 
     private final AnomalyResultRepository anomalyResultRepository;
+    private final ExternalAIService externalAIService;
 
     public AnomalyResult detectAnomaly(SensorFeature feature) {
 
-        // 🔹 Basit AI benzeri skor (ilk versiyon)
-        double score = calculateAnomalyScore(feature);
+        Map<String, Object> response = externalAIService.detectAnomaly(feature);
 
-        boolean isAnomaly = score > 0.7;
+        double score = (Double) response.get("anomalyScore");
+        boolean isAnomaly = (Boolean) response.get("isAnomaly");
 
         AnomalyResult result = AnomalyResult.builder()
                 .segmentId(feature.getSegmentId())
@@ -27,22 +29,9 @@ public class AIAnomalyDetectionService {
                 .detectedAt(LocalDateTime.now())
                 .anomalyScore(score)
                 .isAnomaly(isAnomaly)
-                .modelType("IsolationForest-Simulated")
+                .modelType("IsolationForest")
                 .build();
 
         return anomalyResultRepository.save(result);
-    }
-
-    private double calculateAnomalyScore(SensorFeature f) {
-
-        double score = 0.0;
-
-        if (f.getRms() > 3) score += 0.3;
-        if (f.getPeakToPeak() > 2) score += 0.2;
-        if (f.getFftEnergy() > 50) score += 0.2;
-        if (Math.abs(f.getSlopeGradient()) > 0.1) score += 0.1;
-        if (f.getSnr() < 10) score += 0.2;
-
-        return Math.min(score, 1.0);
     }
 }
