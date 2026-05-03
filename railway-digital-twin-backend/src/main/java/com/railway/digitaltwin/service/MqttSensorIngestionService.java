@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.railway.digitaltwin.entity.SensorFeature;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -37,6 +38,9 @@ public class MqttSensorIngestionService {
     private final SensorReadingRepository sensorReadingRepository;
     private final AnomalyService anomalyService;
     private final DataPreprocessingService dataPreprocessingService;
+
+    private final AIAnomalyDetectionService aiAnomalyDetectionService;
+    private final RulPredictionService rulPredictionService;
 
     public void processSensorData(MqttSensorPayload payload) {
         try {
@@ -74,14 +78,24 @@ public class MqttSensorIngestionService {
             saveReading(sensor.getSensorId(), "ray_vibration_x", payload.getVibration(), recordedAt);
             saveReading(sensor.getSensorId(), "rail_slope", payload.getTilt(), recordedAt);
 
-            dataPreprocessingService.processAndSaveFeatures(
-                    segmentId,
-                    sensor.getSensorId(),
-                    recordedAt,
-                    payload.getTemperature(),
-                    payload.getVibration(),
-                    payload.getTilt()
-            );
+            SensorFeature feature = dataPreprocessingService.processAndSaveFeatures(
+            segmentId,
+            sensor.getSensorId(),
+            recordedAt,
+            payload.getTemperature(),
+            payload.getVibration(),
+            payload.getTilt()
+    );
+
+    // AI anomaly detection
+    aiAnomalyDetectionService.detectAnomaly(feature);
+
+    // RUL prediction
+    double remainingLife = rulPredictionService.estimateRemainingLife(feature);
+
+    logger.info("Remaining useful life for segment {}: {} days",
+            segmentId,
+            remainingLife);
 
             logger.info("MQTT sensor data processed successfully for sensorId: {}", sensor.getSensorId());
 
