@@ -10,29 +10,33 @@ export const telemetryService = {
      * @param limit Kaç kayıt getirileceği (varsayılan: 100)
      */
     async getLatestTelemetry(limit: number = 100): Promise<TelemetryReading[]> {
-        try {
-            const response = await fetch(`${API_URL}/telemetry?limit=${limit}`);
-            if (!response.ok) throw new Error("Network response was not ok");
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching telemetry:", error);
-            return [];
-        }
-    },
+    try {
+        const response = await fetch(`${API_URL}/telemetry?size=${limit}`);
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        const data = await response.json();
+        return data.content ?? data;
+    } catch (error) {
+        console.error("Error fetching telemetry:", error);
+        return [];
+    }
+},
 
     /**
      * Belirli bir segment için telemetri getirir.
      */
     async getTelemetryBySegment(segmentId: string, limit: number = 50): Promise<TelemetryReading[]> {
-        try {
-            const response = await fetch(`${API_URL}/telemetry/${segmentId}?limit=${limit}`);
-            if (!response.ok) throw new Error("Network response was not ok");
-            return await response.json();
-        } catch (error) {
-            console.error(`Error fetching telemetry for segment ${segmentId}:`, error);
-            return [];
-        }
-    },
+    try {
+        const response = await fetch(`${API_URL}/telemetry/${segmentId}?size=${limit}`);
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        const data = await response.json();
+        return data.content ?? data;
+    } catch (error) {
+        console.error(`Error fetching telemetry for segment ${segmentId}:`, error);
+        return [];
+    }
+},
 
     /**
      * Yeni bir sensor reading kaydeder.
