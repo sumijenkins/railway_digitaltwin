@@ -30,6 +30,9 @@ public class MqttSensorIngestionService {
     @Autowired
     private SensorReadingRepository sensorReadingRepository;
 
+    @Autowired
+    private AnomalyService anomalyService;
+
     public void processSensorData(MqttSensorPayload payload) {
         try {
             String segmentId = payload.getSegmentId();
@@ -61,27 +64,49 @@ public class MqttSensorIngestionService {
     }
 
     private void saveReading(Integer sensorId, String channelName, Double value, LocalDateTime recordedAt) {
-        try {
-            // Find the channel
-            Optional<SensorChannel> channelOpt = sensorChannelRepository.findBySensor_SensorIdAndChannelName(sensorId, channelName);
-            if (channelOpt.isEmpty()) {
-                logger.warn("Channel not found: {} for sensor: {}", channelName, sensorId);
-                return;
-            }
-            SensorChannel channel = channelOpt.get();
+    try {
+        Optional<SensorChannel> channelOpt =
+                sensorChannelRepository.findBySensor_SensorIdAndChannelName(sensorId, channelName);
 
-            // Create and save reading
-            SensorReading reading = SensorReading.builder()
-                    .channel(channel)
-                    .value(value)
-                    .recordedAt(recordedAt)
-                    .build();
-
-            sensorReadingRepository.save(reading);
-            logger.debug("Saved reading for channel: {}, value: {}", channelName, value);
-        } catch (Exception e) {
-            logger.error("Error saving reading for channel: {}, sensor: {}", channelName, sensorId, e);
-            throw e;
+        if (channelOpt.isEmpty()) {
+            logger.warn("Channel not found: {} for sensor: {}", channelName, sensorId);
+            return;
         }
+
+        SensorChannel channel = channelOpt.get();
+
+        System.out.println("DEBUG channelName: " + channelName);
+        System.out.println("DEBUG value: " + value);
+
+        SensorReading reading = SensorReading.builder()
+                .channel(channel)
+                .value(value)
+                .recordedAt(recordedAt)
+                .build();
+
+        sensorReadingRepository.save(reading);
+
+        Sensor sensor = sensorRepository.findById(sensorId).orElse(null);
+
+        if (sensor == null || sensor.getSegment() == null) {
+            System.out.println("⚠️ Sensor veya segment bulunamadı");
+            return;
+        }
+
+        String segmentId = sensor.getSegment().getSegmentId();
+
+        anomalyService.detectAndSave(
+                segmentId,
+                channelName,
+                value,
+                recordedAt
+        );
+
+        logger.debug("Saved reading for channel: {}, value: {}", channelName, value);
+
+    } catch (Exception e) {
+        logger.error("Error saving reading for channel: {}, sensor: {}", channelName, sensorId, e);
+        throw e;
     }
+}
 }

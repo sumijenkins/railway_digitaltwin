@@ -24,12 +24,21 @@ public class Anomaly {
     @ToString.Exclude
     private RailwaySegment segment;
 
-    @Column(name = "anomaly_type", length = 20)
+    @Column(name = "anomaly_type", length = 50)
     private String anomalyType;
 
-    @Column(name = "severity", length = 10)
+    @Column(name = "severity", length = 20)
     private String severity;
 
     @Column(name = "detected_time")
     private LocalDateTime detectedTime;
+
+    @Column(name = "measured_value")
+    private Double measuredValue;
+
+    @Column(name = "threshold_value")
+    private Double thresholdValue;
+
+    @Column(name = "description", length = 255)
+    private String description;
 }

@@ -7,9 +7,16 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 @Repository
 public interface AnomalyRepository extends JpaRepository<Anomaly, Integer> {
+
     Page<Anomaly> findBySegment_SegmentId(String segmentId, Pageable pageable);
 
     Page<Anomaly> findBySeverity(String severity, Pageable pageable);
+
+    List<Anomaly> findTop50ByOrderByDetectedTimeDesc();
+
+    List<Anomaly> findBySegment_SegmentIdOrderByDetectedTimeDesc(String segmentId);
 }
