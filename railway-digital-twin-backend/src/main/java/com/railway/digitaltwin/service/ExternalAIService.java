@@ -25,4 +25,30 @@ public class ExternalAIService {
 
         return restTemplate.postForObject(url, request, Map.class);
     }
+    public Map<String, Object> predictRul(SensorFeature feature) {
+
+        String url = "http://localhost:5000/rul";
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("rms", feature.getRms());
+        request.put("peakToPeak", feature.getPeakToPeak());
+        request.put("fftEnergy", feature.getFftEnergy());
+        request.put("slopeGradient", feature.getSlopeGradient());
+        request.put("snr", feature.getSnr());
+
+        return restTemplate.postForObject(url, request, Map.class);
+    }
+    public Map<String, Object> explainPrediction(SensorFeature feature) {
+
+        String url = "http://localhost:5000/xai";
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("rms", feature.getRms());
+        request.put("peakToPeak", feature.getPeakToPeak());
+        request.put("fftEnergy", feature.getFftEnergy());
+        request.put("slopeGradient", feature.getSlopeGradient());
+        request.put("snr", feature.getSnr());
+
+        return restTemplate.postForObject(url, request, Map.class);
+    }
 }

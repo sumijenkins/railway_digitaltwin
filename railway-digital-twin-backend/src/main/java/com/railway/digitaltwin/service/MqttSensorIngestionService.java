@@ -40,7 +40,8 @@ public class MqttSensorIngestionService {
     private final DataPreprocessingService dataPreprocessingService;
 
     private final AIAnomalyDetectionService aiAnomalyDetectionService;
-    private final RulPredictionService rulPredictionService;
+    private final AIRulPredictionService aiRulPredictionService;
+    private final AIXaiExplanationService aiXaiExplanationService;
 
     public void processSensorData(MqttSensorPayload payload) {
         try {
@@ -91,11 +92,16 @@ public class MqttSensorIngestionService {
     aiAnomalyDetectionService.detectAnomaly(feature);
 
     // RUL prediction
-    double remainingLife = rulPredictionService.estimateRemainingLife(feature);
-
+    double remainingLife = aiRulPredictionService.estimateRemainingLife(feature);
     logger.info("Remaining useful life for segment {}: {} days",
             segmentId,
             remainingLife);
+    
+    String explanation = aiXaiExplanationService.generateExplanation(feature);
+
+    logger.info("XAI explanation for segment {}: {}",
+            segmentId,
+            explanation);
 
             logger.info("MQTT sensor data processed successfully for sensorId: {}", sensor.getSensorId());
 
