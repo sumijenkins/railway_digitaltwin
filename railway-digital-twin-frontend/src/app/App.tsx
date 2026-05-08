@@ -9,6 +9,8 @@ import { OperationalAnalytics } from "./components/OperationalAnalytics";
 import { SensorChart } from "./components/SensorChart";
 import { AnomalyTimeline } from "./components/AnomalyTimeline";
 import { ExplainableAIPanel } from "./components/ExplainableAIPanel";
+import { anomalyService } from "../services/anomalyService";
+import { energyRiskService } from "../services/energyRiskService";
 import {
   Activity,
   AlertTriangle,
@@ -31,6 +33,7 @@ export default function App() {
   const [endStation, setEndStation] = useState<string>('ban');
   const [mapMode, setMapMode] = useState<'status' | 'maintenance'>('status');
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+  const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
 
   // Load Network Once
   useEffect(() => {
@@ -91,69 +94,27 @@ export default function App() {
         const uniqueSensorIds = new Set(readings.map(r => r.sensorId));
         setSensorCount(uniqueSensorIds.size);
 
-        // 3. Anomali tespiti — en son gelen segment verisini kullan
-        const latestSegments = Object.values(bySegment) as any[];
-        const newDetectedAnomalies: any[] = [];
+        // 3. Backend'den anomaly kayıtlarını al    
+        const backendAnomalies = await anomalyService.getLatestAnomalies(20);
+        
+        const formattedAnomalies = backendAnomalies.map((a) => ({
+          time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit"
+          }),
+          type: a.anomalyType,
+          severity: a.severity === "HIGH" ? "yüksek" : "orta",
+          location: `${a.segmentId} - ${a.segmentName}`,
+          value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
+          status: "aktif",
+          description: a.description
+        }));
 
-        for (const latest of latestSegments) {
-          const time = new Date(latest.timestamp).toLocaleTimeString('tr-TR', {
-            hour: '2-digit', minute: '2-digit'
-          });
-
-          if (latest['ray_temperature'] > 40) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Kritik Sıcaklık",
-              severity: "yüksek",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['ray_temperature']).toFixed(1)}°C`,
-              status: "aktif"
-            });
-          }
-
-          if (latest['train_speed'] > 85) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Aşırı Hız Limit Aşımı",
-              severity: "orta",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['train_speed']).toFixed(1)} km/h`,
-              status: "aktif"
-            });
-          }
-
-          if (latest['ray_vibration_x'] > 2.5) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Yüksek Ray Titreşimi",
-              severity: "yüksek",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['ray_vibration_x']).toFixed(2)} Hz`,
-              status: "aktif"
-            });
-          }
-
-          if (Math.abs(latest['rail_slope'] ?? 0) > 3) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Hatalı Ray Eğimi",
-              severity: "orta",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['rail_slope']).toFixed(1)}°`,
-              status: "izleniyor"
-            });
-          }
-        }
-
-        if (newDetectedAnomalies.length > 0) {
-          setAnomalies(prev => {
-            const filtered = newDetectedAnomalies.filter(newA =>
-              !prev.some(oldA => oldA.time === newA.time && oldA.type === newA.type)
-            );
-            return [...filtered, ...prev].slice(0, 10);
-          });
-        }
+        setAnomalies(formattedAnomalies);
+        
       }
+      const currentEnergyRisks = await energyRiskService.getCurrentEnergyRisks();
+      setEnergyRiskResults(currentEnergyRisks);
     };
 
     fetchData();
@@ -296,6 +257,36 @@ export default function App() {
                 <KPICard title="Toplam Anomaliler" value={anomalies.length} icon={AlertTriangle} color="red" />
                 <KPICard title="Kritik Uyarılar" value={anomalies.filter(a => a.severity === 'yüksek').length} icon={AlertTriangle} color="yellow" />
                 <KPICard title="İzlenen Segmentler" value={sensorCount > 0 ? 6 : 0} icon={Activity} color="green" />
+              </div>
+
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl mt-6">
+                <h3 className="text-white text-lg font-bold mb-4">Energy & Risk Analysis</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {energyRiskResults.map((item) => (
+                    <div key={item.segmentId} className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                      <div className="text-white font-bold mb-2">
+                        {item.segmentId} - {item.segmentName}
+                      </div>
+
+                      <div className="text-gray-400 text-sm">
+                        Energy Score: <span className="text-blue-400">{item.energyScore}</span>
+                      </div>
+
+                      <div className="text-gray-400 text-sm">
+                        Risk Score: <span className="text-yellow-400">{item.riskScore}</span>
+                      </div>
+
+                      <div className="text-gray-400 text-sm">
+                        Risk Level: <span className="text-red-400">{item.riskLevel}</span>
+                      </div>
+
+                      <p className="text-gray-500 text-xs mt-3">
+                        {item.recommendation}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

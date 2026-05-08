@@ -7,7 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MqttSensorPayload {
+public class NbiotSensorPayload {
+
+    private String deviceImei;
+    private String gatewayId;
+    private Integer signalStrength;
 
     private String sensorId;
     private String segmentId;

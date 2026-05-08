@@ -18,4 +18,7 @@ public class AnomalyResponseDto {
     private LocalDateTime detectedTime;
     private String segmentId;
     private String segmentName;
+    private Double measuredValue;
+    private Double thresholdValue;
+    private String description;
 }

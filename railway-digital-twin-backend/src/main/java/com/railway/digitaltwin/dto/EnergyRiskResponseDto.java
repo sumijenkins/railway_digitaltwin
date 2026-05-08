@@ -5,18 +5,26 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * GET /api/energy-risks endpoint'inin döndürdüğü DTO.
- */
 @Data
 @Builder
 public class EnergyRiskResponseDto {
+
+    // Eski DB kayıtları için
     private Integer recordId;
     private Double energyConsumption;
-    private Double riskScore;
     private LocalDateTime calculatedTime;
-    // Segment bilgisi (flat)
+    private String segmentRiskLevel;
+
+    // Ortak alanlar
     private String segmentId;
     private String segmentName;
-    private String segmentRiskLevel;
+    private Double riskScore;
+
+    // Anlık hesaplama için
+    private Double temperature;
+    private Double vibration;
+    private Double tilt;
+    private Double energyScore;
+    private String riskLevel;
+    private String recommendation;
 }
