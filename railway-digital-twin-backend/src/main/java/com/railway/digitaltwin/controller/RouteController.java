@@ -15,6 +15,14 @@ import org.springframework.data.web.PageableDefault;
 public class RouteController {
 
     private final RouteService routeService;
+    private final com.railway.digitaltwin.service.RouteGraphService routeGraphService;
+
+    /** POST /api/routes/optimize — graph tabanlı çok kriterli optimizasyon */
+    @PostMapping("/optimize")
+    public ResponseEntity<com.railway.digitaltwin.dto.RouteOptimizationResponse> optimizeRoute(
+            @RequestBody com.railway.digitaltwin.dto.RouteOptimizationRequest request) {
+        return ResponseEntity.ok(routeGraphService.optimizeRoute(request));
+    }
 
     /** GET /api/routes — tüm rotalar */
     @GetMapping

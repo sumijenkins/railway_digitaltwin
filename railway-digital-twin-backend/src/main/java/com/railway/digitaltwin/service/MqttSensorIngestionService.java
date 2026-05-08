@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,7 +32,8 @@ public class MqttSensorIngestionService {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttSensorIngestionService.class);
 
-    private static final String SECRET_KEY = "railway-digital-twin-secret";
+    @Value("${mqtt.secret.key:railway-digital-twin-secret}")
+    private String secretKey;
 
     private final SensorRepository sensorRepository;
     private final SensorChannelRepository sensorChannelRepository;
@@ -60,8 +62,7 @@ public class MqttSensorIngestionService {
 
             logger.info("Processing MQTT sensor data. Segment: {}, Sensor Type: {}", segmentId, sensorType);
 
-            Optional<Sensor> sensorOpt =
-                    sensorRepository.findBySegment_SegmentIdAndSensorType(segmentId, sensorType);
+            Optional<Sensor> sensorOpt = sensorRepository.findBySegment_SegmentIdAndSensorType(segmentId, sensorType);
 
             if (sensorOpt.isEmpty()) {
                 logger.warn("No sensor found for segmentId: {}, sensorType: {}", segmentId, sensorType);
@@ -72,24 +73,26 @@ public class MqttSensorIngestionService {
 
             LocalDateTime recordedAt = LocalDateTime.parse(
                     payload.getTimestamp(),
-                    DateTimeFormatter.ISO_LOCAL_DATE_TIME
-            );
+                    DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
             saveReading(sensor.getSensorId(), "ray_temperature", payload.getTemperature(), recordedAt);
-            saveReading(sensor.getSensorId(), "ray_vibration_x", payload.getVibration(), recordedAt);
+            saveReading(sensor.getSensorId(), "ray_vibration_x", payload.getVibrationX(), recordedAt);
+            saveReading(sensor.getSensorId(), "ray_vibration_y", payload.getVibrationY(), recordedAt);
+            saveReading(sensor.getSensorId(), "ray_vibration_z", payload.getVibrationZ(), recordedAt);
             saveReading(sensor.getSensorId(), "rail_slope", payload.getTilt(), recordedAt);
 
             SensorFeature feature = dataPreprocessingService.processAndSaveFeatures(
-            segmentId,
-            sensor.getSensorId(),
-            recordedAt,
-            payload.getTemperature(),
-            payload.getVibration(),
-            payload.getTilt()
-    );
+                    segmentId,
+                    sensor.getSensorId(),
+                    recordedAt,
+                    payload.getTemperature(),
+                    payload.getVibrationX(),
+                    payload.getVibrationY(),
+                    payload.getVibrationZ(),
+                    payload.getTilt());
 
-    // AI anomaly detection
-    aiAnomalyDetectionService.detectAnomaly(feature);
+            // AI anomaly detection
+            aiAnomalyDetectionService.detectAnomaly(feature);
 
     // RUL prediction
     double remainingLife = aiRulPredictionService.estimateRemainingLife(feature);
@@ -105,8 +108,8 @@ public class MqttSensorIngestionService {
     }
 
     private void saveReading(Integer sensorId, String channelName, Double value, LocalDateTime recordedAt) {
-        Optional<SensorChannel> channelOpt =
-                sensorChannelRepository.findBySensor_SensorIdAndChannelName(sensorId, channelName);
+        Optional<SensorChannel> channelOpt = sensorChannelRepository.findBySensor_SensorIdAndChannelName(sensorId,
+                channelName);
 
         if (channelOpt.isEmpty()) {
             logger.warn("Channel not found: {} for sensor: {}", channelName, sensorId);
@@ -136,8 +139,7 @@ public class MqttSensorIngestionService {
                 segmentId,
                 channelName,
                 value,
-                recordedAt
-        );
+                recordedAt);
 
         logger.debug("Saved sensor reading. Channel: {}, Value: {}", channelName, value);
     }
@@ -150,7 +152,9 @@ public class MqttSensorIngestionService {
                 && payload.getTimestamp() != null
                 && payload.getSamplingFrequency() != null
                 && payload.getTemperature() != null
-                && payload.getVibration() != null
+                && payload.getVibrationX() != null
+                && payload.getVibrationY() != null
+                && payload.getVibrationZ() != null
                 && payload.getTilt() != null
                 && payload.getCrcHash() != null
                 && payload.getDigitalSignature() != null;
@@ -186,7 +190,9 @@ public class MqttSensorIngestionService {
         map.put("temperature", payload.getTemperature());
         map.put("tilt", payload.getTilt());
         map.put("timestamp", payload.getTimestamp());
-        map.put("vibration", payload.getVibration());
+        map.put("vibrationX", payload.getVibrationX());
+        map.put("vibrationY", payload.getVibrationY());
+        map.put("vibrationZ", payload.getVibrationZ());
 
         String jsonPayload = mapper.writeValueAsString(map);
 
@@ -199,9 +205,8 @@ public class MqttSensorIngestionService {
     private String calculateHmacSignature(String crcHash) throws Exception {
         Mac hmac = Mac.getInstance("HmacSHA256");
         SecretKeySpec secretKeySpec = new SecretKeySpec(
-                SECRET_KEY.getBytes(StandardCharsets.UTF_8),
-                "HmacSHA256"
-        );
+                secretKey.getBytes(StandardCharsets.UTF_8),
+                "HmacSHA256");
 
         hmac.init(secretKeySpec);
 

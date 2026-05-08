@@ -32,4 +32,10 @@ public class AnomalyResult {
     
     @Column(columnDefinition = "TEXT")
     private String xaiExplanation;
+
+    private String severity;
+
+    private String channelName;
+
+    private Long featureId;
 }

@@ -63,4 +63,14 @@ public interface SensorReadingRepository extends JpaRepository<SensorReading, Lo
             countQuery = "SELECT count(*) FROM sensor_reading sr JOIN sensor_channel sc ON sr.channel_id=sc.channel_id JOIN sensor s ON sc.sensor_id=s.sensor_id WHERE s.segment_id = :segmentId",
             nativeQuery = true)
     Page<TelemetryView> findLatestBySegment(@Param("segmentId") String segmentId, Pageable pageable);
+
+    /**
+     * Belirli bir zaman aralığındaki okumaları getirir.
+     */
+    List<SensorReading> findByRecordedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    /**
+     * Belirli bir kanal için zaman aralığına göre okumaları getirir.
+     */
+    List<SensorReading> findByChannel_ChannelIdAndRecordedAtBetween(Integer channelId, java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

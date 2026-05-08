@@ -1,20 +1,32 @@
 import json
 import time
 import random
+import hmac
+import hashlib
 import paho.mqtt.client as mqtt
 from datetime import datetime
 
 BROKER = "localhost"
 PORT = 1883
 TOPIC = "railway/sensors/data"
+SECRET_KEY = b"railway-digital-twin-secret"
 
 client = mqtt.Client()
 client.connect(BROKER, PORT, 60)
 
-segments = ["S1", "S2", "S3", "S4", "S5", "S6"]
+segments = [
+    {"segmentId": "S1", "sensorId": 1},
+    {"segmentId": "S2", "sensorId": 2},
+    {"segmentId": "S3", "sensorId": 3},
+    {"segmentId": "S4", "sensorId": 4},
+    {"segmentId": "S5", "sensorId": 5},
+    {"segmentId": "S6", "sensorId": 6}
+]
 
 while True:
-    for segment in segments:
+    for seg in segments:
+        segment = seg["segmentId"]
+        sensorId = seg["sensorId"]
 
         # Normal değerler
         temperature = random.uniform(25, 35)
@@ -29,14 +41,34 @@ while True:
         if segment == "S3":
             vibration = random.uniform(3, 5)
 
-        payload = {
+        timestamp = datetime.now().isoformat()
+        samplingFrequency = 100.0
+
+        # Construct dictionary exactly as LinkedHashMap in Java
+        map_payload = {
+            "samplingFrequency": samplingFrequency,
             "segmentId": segment,
+            "sensorId": sensorId,
             "sensorType": "RAY_SENSOR",
             "temperature": temperature,
-            "vibration": vibration,
             "tilt": tilt,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": timestamp,
+            "vibration": vibration
         }
+
+        # JSON serialize without spaces to match Jackson mapper.writeValueAsString
+        json_payload = json.dumps(map_payload, separators=(',', ':'))
+
+        # Calculate crcHash
+        crc_hash = hashlib.sha256(json_payload.encode('utf-8')).hexdigest()
+
+        # Calculate digitalSignature
+        signature = hmac.new(SECRET_KEY, crc_hash.encode('utf-8'), hashlib.sha256).hexdigest()
+
+        # Full payload
+        payload = map_payload.copy()
+        payload["crcHash"] = crc_hash
+        payload["digitalSignature"] = signature
 
         client.publish(TOPIC, json.dumps(payload))
         print(f"Sent: {payload}")

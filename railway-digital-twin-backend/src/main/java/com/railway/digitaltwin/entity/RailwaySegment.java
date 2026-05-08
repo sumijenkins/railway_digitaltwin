@@ -24,4 +24,10 @@ public class RailwaySegment {
 
     @Column(name = "risk_level", length = 10)
     private String riskLevel;
+
+    @Column(name = "start_station", length = 50)
+    private String startStation;
+
+    @Column(name = "end_station", length = 50)
+    private String endStation;
 }

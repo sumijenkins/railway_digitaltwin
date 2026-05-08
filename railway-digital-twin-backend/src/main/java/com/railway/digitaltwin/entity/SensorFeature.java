@@ -28,6 +28,9 @@ public class SensorFeature {
     private LocalDateTime recordedAt;
 
     private Double rms;
+    private Double rmsX;
+    private Double rmsY;
+    private Double rmsZ;
     private Double peakToPeak;
     private Double fftEnergy;
     private Double slopeGradient;
