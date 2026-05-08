@@ -31,7 +31,9 @@ public class NbiotGatewayService {
                 payload.getTimestamp(),
                 payload.getSamplingFrequency(),
                 payload.getTemperature(),
-                payload.getVibration(),
+                payload.getVibrationX(),
+                payload.getVibrationY(),
+                payload.getVibrationZ(),
                 payload.getTilt(),
                 payload.getCrcHash(),
                 payload.getDigitalSignature()

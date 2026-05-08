@@ -29,4 +29,10 @@ public class AnomalyResult {
     private Boolean isAnomaly;
 
     private String modelType; // IsolationForest / LSTM / RuleBased
+
+    private String severity;
+
+    private String channelName;
+
+    private Long featureId;
 }

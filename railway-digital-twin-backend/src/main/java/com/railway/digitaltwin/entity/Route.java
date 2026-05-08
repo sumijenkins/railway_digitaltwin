@@ -31,4 +31,10 @@ public class Route {
 
     @Column(name = "is_optimal")
     private Boolean isOptimal;
+
+    @Column(name = "segment_path", length = 500)
+    private String segmentPath; // comma separated segment ids e.g. "S1,S2,S3"
+
+    @Column(name = "route_rank")
+    private Integer rank;
 }

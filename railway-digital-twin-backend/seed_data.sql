@@ -5,13 +5,13 @@
 
 -- ① RAILWAY SEGMENTS (6 segment, gerçek hat verileri)
 -- ============================================================
-INSERT INTO railway_segment (segment_id, name, length_km, risk_level) VALUES
-  ('S1', 'Izmir - Manisa',         36.0, 'LOW'),
-  ('S2', 'Manisa - Akhisar',       52.0, 'LOW'),
-  ('S3', 'Akhisar - Soma',         45.0, 'MEDIUM'),
-  ('S4', 'Soma - Balikesir',       88.0, 'LOW'),
-  ('S5', 'Balikesir - Susurluk',   45.0, 'MEDIUM'),
-  ('S6', 'Susurluk - Bandirma',    42.0, 'LOW')
+INSERT INTO railway_segment (segment_id, name, length_km, risk_level, start_station, end_station) VALUES
+  ('S1', 'Izmir - Manisa',         36.0, 'LOW',    'Izmir',     'Manisa'),
+  ('S2', 'Manisa - Akhisar',       52.0, 'LOW',    'Manisa',    'Akhisar'),
+  ('S3', 'Akhisar - Soma',         45.0, 'MEDIUM', 'Akhisar',   'Soma'),
+  ('S4', 'Soma - Balikesir',       88.0, 'LOW',    'Soma',      'Balikesir'),
+  ('S5', 'Balikesir - Susurluk',   45.0, 'MEDIUM', 'Balikesir', 'Susurluk'),
+  ('S6', 'Susurluk - Bandirma',    42.0, 'LOW',    'Susurluk',  'Bandirma')
 ON CONFLICT (segment_id) DO NOTHING;
 
 
@@ -90,9 +90,9 @@ ON CONFLICT DO NOTHING;
 
 -- ⑥ ROUTE
 -- ============================================================
-INSERT INTO route (start_point, end_point, total_energy, total_risk, is_optimal) VALUES
-  ('Izmir', 'Bandirma', 850.5, 0.15, true),
-  ('Izmir', 'Soma',     420.0, 0.20, false);
+INSERT INTO route (start_point, end_point, total_energy, total_risk, is_optimal, segment_path, route_rank) VALUES
+  ('Izmir', 'Bandirma', 850.5, 0.15, true, 'S1,S2,S3,S4,S5,S6', 1),
+  ('Izmir', 'Soma',     420.0, 0.20, false, 'S1,S2,S3', 2);
 
 
 -- ⑦ TRAIN

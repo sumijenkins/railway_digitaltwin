@@ -20,30 +20,62 @@ public class DataPreprocessingService {
             Integer sensorId,
             LocalDateTime recordedAt,
             Double temperature,
-            Double vibration,
+            Double vibrationX,
+            Double vibrationY,
+            Double vibrationZ,
+            Double tilt
+    ) {
+        SensorFeature feature = calculateTransientFeatures(segmentId, sensorId, recordedAt, temperature, vibrationX, vibrationY, vibrationZ, tilt);
+        return sensorFeatureRepository.save(feature);
+    }
+
+    public SensorFeature calculateTransientFeatures(
+            String segmentId,
+            Integer sensorId,
+            LocalDateTime recordedAt,
+            Double temperature,
+            Double vibrationX,
+            Double vibrationY,
+            Double vibrationZ,
             Double tilt
     ) {
         List<Double> values = Arrays.asList(
                 safeValue(temperature),
-                safeValue(vibration),
+                safeValue(vibrationX),
+                safeValue(vibrationY),
+                safeValue(vibrationZ),
                 safeValue(tilt)
         );
 
         double filteredTemperature = applyLowPassFilter(safeValue(temperature));
-        double filteredVibration = applyLowPassFilter(safeValue(vibration));
+        double filteredVibrationX = applyLowPassFilter(safeValue(vibrationX));
+        double filteredVibrationY = applyLowPassFilter(safeValue(vibrationY));
+        double filteredVibrationZ = applyLowPassFilter(safeValue(vibrationZ));
         double filteredTilt = applyLowPassFilter(safeValue(tilt));
 
         List<Double> filteredValues = Arrays.asList(
                 filteredTemperature,
-                filteredVibration,
+                filteredVibrationX,
+                filteredVibrationY,
+                filteredVibrationZ,
                 filteredTilt
         );
 
-        SensorFeature feature = SensorFeature.builder()
+        // Combined vibration for legacy overall RMS if needed, or we can use the max/average
+        double combinedVibration = Math.sqrt(
+                Math.pow(filteredVibrationX, 2) + 
+                Math.pow(filteredVibrationY, 2) + 
+                Math.pow(filteredVibrationZ, 2)
+        );
+
+        return SensorFeature.builder()
                 .segmentId(segmentId)
                 .sensorId(sensorId)
                 .recordedAt(recordedAt)
-                .rms(calculateRms(filteredValues))
+                .rms(calculateRms(Arrays.asList(combinedVibration))) // Overall vibration RMS
+                .rmsX(calculateRms(Arrays.asList(filteredVibrationX)))
+                .rmsY(calculateRms(Arrays.asList(filteredVibrationY)))
+                .rmsZ(calculateRms(Arrays.asList(filteredVibrationZ)))
                 .peakToPeak(calculatePeakToPeak(filteredValues))
                 .fftEnergy(calculateFftEnergy(filteredValues))
                 .slopeGradient(calculateSlopeGradient(filteredTilt))
@@ -52,8 +84,6 @@ public class DataPreprocessingService {
                 .snr(calculateSnr(values, filteredValues))
                 .dataLossRate(0.0)
                 .build();
-
-        return sensorFeatureRepository.save(feature);
     }
 
     public double applyLowPassFilter(double value) {

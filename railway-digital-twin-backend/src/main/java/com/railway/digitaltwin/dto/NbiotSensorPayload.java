@@ -13,14 +13,16 @@ public class NbiotSensorPayload {
     private String gatewayId;
     private Integer signalStrength;
 
-    private String sensorId;
+    private Integer sensorId;
     private String segmentId;
     private String sensorType;
     private String timestamp;
-    private Integer samplingFrequency;
+    private Double samplingFrequency;
 
     private Double temperature;
-    private Double vibration;
+    private Double vibrationX;
+    private Double vibrationY;
+    private Double vibrationZ;
     private Double tilt;
 
     private String crcHash;
