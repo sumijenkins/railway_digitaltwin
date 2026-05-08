@@ -47,6 +47,37 @@ services:
     profiles:
       - tools
 
+  # 🚀 Backend Service
+  backend:
+    build: ./railway-digital-twin-backend
+    container_name: railway_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_dt
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MQTT_BROKER_URL=tcp://mosquitto:1883
+      - AI_SERVICE_URL=http://ai-service:5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+
+  # 🧠 AI Service (Anomaly Detection)
+  ai-service:
+    build: ./ai-service
+    container_name: railway_ai_service
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+
+
 volumes:
   postgres_data:
     driver: local
