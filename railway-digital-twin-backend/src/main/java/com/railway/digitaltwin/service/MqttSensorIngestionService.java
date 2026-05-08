@@ -97,12 +97,6 @@ public class MqttSensorIngestionService {
             segmentId,
             remainingLife);
     
-    String explanation = aiXaiExplanationService.generateExplanation(feature);
-
-    logger.info("XAI explanation for segment {}: {}",
-            segmentId,
-            explanation);
-
             logger.info("MQTT sensor data processed successfully for sensorId: {}", sensor.getSensorId());
 
         } catch (Exception e) {

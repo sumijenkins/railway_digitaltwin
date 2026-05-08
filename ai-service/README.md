@@ -20,3 +20,6 @@ POST /xai
 
 ```bash
 python app.py
+
+## Example Request
+curl -X POST http://localhost:5000/anomaly -H "Content-Type: application/json" -d "{\"rms\":35,\"peakToPeak\":45,\"fftEnergy\":1800,\"slopeGradient\":0.09,\"snr\":30}"

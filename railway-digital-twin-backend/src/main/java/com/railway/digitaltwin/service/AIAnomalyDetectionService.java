@@ -15,6 +15,7 @@ public class AIAnomalyDetectionService {
 
     private final AnomalyResultRepository anomalyResultRepository;
     private final ExternalAIService externalAIService;
+    private final AIXaiExplanationService aiXaiExplanationService;
 
     public AnomalyResult detectAnomaly(SensorFeature feature) {
 
@@ -22,6 +23,7 @@ public class AIAnomalyDetectionService {
 
         double score = (Double) response.get("anomalyScore");
         boolean isAnomaly = (Boolean) response.get("isAnomaly");
+        String explanation = aiXaiExplanationService.generateExplanation(feature);
 
         AnomalyResult result = AnomalyResult.builder()
                 .segmentId(feature.getSegmentId())
@@ -30,8 +32,9 @@ public class AIAnomalyDetectionService {
                 .anomalyScore(score)
                 .isAnomaly(isAnomaly)
                 .modelType("IsolationForest")
+                .xaiExplanation(explanation)
                 .build();
-
+                
         return anomalyResultRepository.save(result);
     }
 }

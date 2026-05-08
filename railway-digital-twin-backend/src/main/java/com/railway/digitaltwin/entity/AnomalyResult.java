@@ -29,4 +29,7 @@ public class AnomalyResult {
     private Boolean isAnomaly;
 
     private String modelType; // IsolationForest / LSTM / RuleBased
+    
+    @Column(columnDefinition = "TEXT")
+    private String xaiExplanation;
 }
