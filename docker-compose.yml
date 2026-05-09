@@ -74,8 +74,30 @@ services:
     profiles:
       - tools
 
+  # Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: railway_digital_twin_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"    # MQTT protocol
+      - "9001:9001"    # WebSocket protocol
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1883", "-t", "$SYS/broker/version", "-W", "1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
+    driver: local
+  mosquitto_data:
+    driver: local
+  mosquitto_logs:
     driver: local
 
 networks:

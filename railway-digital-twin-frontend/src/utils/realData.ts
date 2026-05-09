@@ -21,16 +21,16 @@ export function getRealNetwork(): RailwayNetwork {
         { id: 'S2-R', sourceStationId: 'akh', targetStationId: 'man', distance: 52, speedLimit: 110, cost: 52, gradient: 0.5, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 38, vibrationLevel: 2.5, trafficDensity: 0.2 }, healthScore: 87, accumulatedTonnage: 620000, lastInspectionDate: '2025-10-15' },
 
         // S3: Akhisar - Soma
-        { id: 'S3', sourceStationId: 'akh', targetStationId: 'som', distance: 45, speedLimit: 100, cost: 45, gradient: 1.2, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 42, vibrationLevel: 3, trafficDensity: 0.5 }, healthScore: 82, accumulatedTonnage: 800000, lastInspectionDate: '2025-09-10' },
-        { id: 'S3-R', sourceStationId: 'som', targetStationId: 'akh', distance: 45, speedLimit: 100, cost: 45, gradient: 1.2, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 42, vibrationLevel: 3, trafficDensity: 0.4 }, healthScore: 81, accumulatedTonnage: 820000, lastInspectionDate: '2025-09-10' },
+        { id: 'S3', sourceStationId: 'akh', targetStationId: 'som', distance: 45, speedLimit: 100, cost: 45, gradient: 1.2, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 42, vibrationLevel: 3, trafficDensity: 0.5 }, healthScore: 92, accumulatedTonnage: 800000, lastInspectionDate: '2025-09-10' },
+        { id: 'S3-R', sourceStationId: 'som', targetStationId: 'akh', distance: 45, speedLimit: 100, cost: 45, gradient: 1.2, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 42, vibrationLevel: 3, trafficDensity: 0.4 }, healthScore: 91, accumulatedTonnage: 820000, lastInspectionDate: '2025-09-10' },
 
         // S4: Soma - Balikesir
         { id: 'S4', sourceStationId: 'som', targetStationId: 'bal', distance: 88, speedLimit: 120, cost: 88, gradient: 0.9, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 40, vibrationLevel: 2.8, trafficDensity: 0.3 }, healthScore: 85, accumulatedTonnage: 1100000, lastInspectionDate: '2025-08-05' },
         { id: 'S4-R', sourceStationId: 'bal', targetStationId: 'som', distance: 88, speedLimit: 120, cost: 88, gradient: 0.9, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 40, vibrationLevel: 2.8, trafficDensity: 0.2 }, healthScore: 84, accumulatedTonnage: 1150000, lastInspectionDate: '2025-08-05' },
 
         // S5: Balikesir - Susurluk
-        { id: 'S5', sourceStationId: 'bal', targetStationId: 'sus', distance: 45, speedLimit: 90, cost: 45, gradient: 1.5, maxAxleLoad: 20, status: 'operational', telemetry: { axleTemp: 45, vibrationLevel: 4, trafficDensity: 0.2 }, healthScore: 78, accumulatedTonnage: 2500000, lastInspectionDate: '2025-11-30' },
-        { id: 'S5-R', sourceStationId: 'sus', targetStationId: 'bal', distance: 45, speedLimit: 90, cost: 45, gradient: 1.5, maxAxleLoad: 20, status: 'operational', telemetry: { axleTemp: 45, vibrationLevel: 4, trafficDensity: 0.1 }, healthScore: 76, accumulatedTonnage: 2550000, lastInspectionDate: '2025-11-30' },
+        { id: 'S5', sourceStationId: 'bal', targetStationId: 'sus', distance: 45, speedLimit: 90, cost: 45, gradient: 1.5, maxAxleLoad: 20, status: 'operational', telemetry: { axleTemp: 45, vibrationLevel: 4, trafficDensity: 0.2 }, healthScore: 90, accumulatedTonnage: 2500000, lastInspectionDate: '2025-11-30' },
+        { id: 'S5-R', sourceStationId: 'sus', targetStationId: 'bal', distance: 45, speedLimit: 90, cost: 45, gradient: 1.5, maxAxleLoad: 20, status: 'operational', telemetry: { axleTemp: 45, vibrationLevel: 4, trafficDensity: 0.1 }, healthScore: 89, accumulatedTonnage: 2550000, lastInspectionDate: '2025-11-30' },
 
         // Susurluk - Bandirma
         { id: 'S6', sourceStationId: 'sus', targetStationId: 'ban', distance: 42, speedLimit: 80, cost: 42, gradient: 0.5, maxAxleLoad: 22.5, status: 'operational', telemetry: { axleTemp: 38, vibrationLevel: 2, trafficDensity: 0.1 }, healthScore: 94, accumulatedTonnage: 500000, lastInspectionDate: '2025-12-05' },
