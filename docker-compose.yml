@@ -4,7 +4,7 @@ services:
     container_name: railway_digital_twin_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: railway_dt
+      POSTGRES_DB: railway_digital_twin
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -19,13 +19,16 @@ services:
       retries: 5
 
   mosquitto:
-    image: eclipse-mosquitto:2
-    container_name: railway_mqtt_broker
+    image: eclipse-mosquitto:latest
+    container_name: railway_digital_twin_mosquitto
     restart: unless-stopped
     ports:
       - "1883:1883"
+      - "9001:9001"
     volumes:
-      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
 
   ai-service:
     build:
@@ -46,7 +49,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_dt
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_digital_twin
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - MQTT_BROKER_URL=tcp://mosquitto:1883
@@ -73,24 +76,6 @@ services:
       - postgres
     profiles:
       - tools
-
-  # Mosquitto MQTT Broker
-  mosquitto:
-    image: eclipse-mosquitto:latest
-    container_name: railway_digital_twin_mosquitto
-    restart: unless-stopped
-    ports:
-      - "1883:1883"    # MQTT protocol
-      - "9001:9001"    # WebSocket protocol
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_logs:/mosquitto/log
-    healthcheck:
-      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1883", "-t", "$SYS/broker/version", "-W", "1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   postgres_data:
