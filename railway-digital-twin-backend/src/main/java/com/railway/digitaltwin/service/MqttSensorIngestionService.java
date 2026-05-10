@@ -80,6 +80,9 @@ public class MqttSensorIngestionService {
             saveReading(sensor.getSensorId(), "ray_vibration_y", payload.getVibrationY(), recordedAt);
             saveReading(sensor.getSensorId(), "ray_vibration_z", payload.getVibrationZ(), recordedAt);
             saveReading(sensor.getSensorId(), "rail_slope", payload.getTilt(), recordedAt);
+            saveReading(sensor.getSensorId(), "train_temperature", payload.getTrainTemperature(), recordedAt);
+            saveReading(sensor.getSensorId(), "train_speed", payload.getTrainSpeed(), recordedAt);
+            saveReading(sensor.getSensorId(), "train_vibration_x", payload.getTrainVibrationX(), recordedAt);
 
             SensorFeature feature = dataPreprocessingService.processAndSaveFeatures(
                     segmentId,

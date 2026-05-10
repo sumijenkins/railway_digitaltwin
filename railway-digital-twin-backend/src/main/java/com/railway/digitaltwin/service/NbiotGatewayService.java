@@ -36,7 +36,10 @@ public class NbiotGatewayService {
                 payload.getVibrationZ(),
                 payload.getTilt(),
                 payload.getCrcHash(),
-                payload.getDigitalSignature()
+                payload.getDigitalSignature(),
+                null,
+                null,
+                null
         );
 
         sensorIngestionService.processSensorData(convertedPayload);

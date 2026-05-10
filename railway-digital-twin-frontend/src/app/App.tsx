@@ -40,6 +40,7 @@ export default function App() {
   const [userRole, setUserRole] = useState<string>("engineer");
   const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
+  const [initialTelemetryLoaded, setInitialTelemetryLoaded] = useState<boolean>(false);
   const [anomalies, setAnomalies] = useState<any[]>([]);
 
   useEffect(() => {
@@ -63,7 +64,9 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setTelemetryLoading(true);
+      if (sensorData.length === 0) {
+        setTelemetryLoading(true);
+      }
       setTelemetryError(null);
 
       try {
@@ -237,6 +240,8 @@ export default function App() {
         console.error(error);
       } finally {
         setTelemetryLoading(false);
+        setInitialTelemetryLoaded(true);
+
       }
     };
 
@@ -619,7 +624,7 @@ export default function App() {
           {activeSection === "energy-risk" && (
             <div className="space-y-6">
               <h2 className="text-white text-2xl font-bold mb-4">Enerji & Risk Analizi</h2>
-              <EnergyRiskDashboard />
+              <EnergyRiskDashboard energyRiskResults={energyRiskResults} />
             </div>
           )}
 

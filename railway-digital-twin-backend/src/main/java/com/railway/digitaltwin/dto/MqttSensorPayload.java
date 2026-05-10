@@ -26,4 +26,8 @@ public class MqttSensorPayload {
 
     private String crcHash;
     private String digitalSignature;
+
+    private Double trainSpeed;
+    private Double trainTemperature;
+    private Double trainVibrationX;
 }

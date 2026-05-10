@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -60,8 +60,116 @@ const getEfficiencyColor = (score: number): string => {
   return '#ef4444'; // Red
 };
 
-export function EnergyRiskDashboard() {
-  return (
+export function EnergyRiskDashboard({
+    energyRiskResults = [],
+  }: {
+    energyRiskResults?: any[];
+  }) {
+    const dynamicData = energyRiskResults.map((item) => {
+      const energy = Number(item.energyScore ?? 0);
+      const risk = Number(item.riskScore ?? 0);
+
+      const efficiency = Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            100
+            - (risk * 0.6)
+            - ((energy - 100) * 0.2)
+          )
+        )
+      );
+
+      return {
+        segment: item.segmentId,
+        segmentName: item.segmentName,
+        energy,
+        baseline: 200,
+        efficiency,
+        riskScore: risk,
+        risk,
+        temperature: risk * 0.45,
+        vibration: risk * 0.35,
+        slope: risk * 0.2,
+        size: Math.max(40, risk),
+        riskLevel: item.riskLevel,
+        recommendation: item.recommendation,
+      };
+    });
+
+    const displayEnergyData =
+      dynamicData.length > 0 ? dynamicData : energyData;
+
+    const displayRiskData =
+      dynamicData.length > 0 ? dynamicData : riskData;
+
+    const displayTradeoffData =
+      dynamicData.length > 0 ? dynamicData : tradeoffData;
+
+    const averageEnergy =
+      displayEnergyData.length > 0
+        ? (
+            displayEnergyData.reduce(
+              (sum, item) => sum + Number(item.energy),
+              0
+            ) / displayEnergyData.length
+          ).toFixed(1)
+        : "0.0";
+
+    const averageRisk =
+      displayRiskData.length > 0
+        ? (
+            displayRiskData.reduce(
+              (sum, item) => sum + Number(item.riskScore),
+              0
+            ) / displayRiskData.length
+          ).toFixed(1)
+        : "0.0";
+
+    const averageEfficiency =
+      displayEnergyData.length > 0
+        ? (
+            displayEnergyData.reduce(
+              (sum, item) => sum + Number(item.efficiency),
+              0
+            ) / displayEnergyData.length
+          ).toFixed(1)
+        : "0.0";
+
+    const warningSegmentCount =
+      displayRiskData.filter(
+        (item) => Number(item.riskScore) >= 50
+      ).length;
+
+      const [dynamicTimelineData, setDynamicTimelineData] = useState<any[]>([]);
+
+      useEffect(() => {
+        if (displayRiskData.length === 0) return;
+
+      const currentTime = new Date().toLocaleTimeString("tr-TR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      const newPoint = {
+        time: currentTime,
+        S1: Number(displayRiskData.find((item: any) => item.segment === "S1")?.riskScore ?? 0),
+        S2: Number(displayRiskData.find((item: any) => item.segment === "S2")?.riskScore ?? 0),
+        S3: Number(displayRiskData.find((item: any) => item.segment === "S3")?.riskScore ?? 0),
+        S4: Number(displayRiskData.find((item: any) => item.segment === "S4")?.riskScore ?? 0),
+        S5: Number(displayRiskData.find((item: any) => item.segment === "S5")?.riskScore ?? 0),
+        S6: Number(displayRiskData.find((item: any) => item.segment === "S6")?.riskScore ?? 0),
+      };
+
+      setDynamicTimelineData((prev) => {
+        const updated = [...prev, newPoint];
+        return updated.slice(-10);
+      });
+    }, [energyRiskResults]);
+
+    return (
     <div className="space-y-6">
       {/* Özet Kartlar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -73,8 +181,8 @@ export function EnergyRiskDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">214.2 kWh</div>
-            <p className="text-xs text-blue-200 mt-1">+2.3% geçen saatten</p>
+            <div className="text-2xl font-bold text-white">{averageEnergy} kWh</div>
+            <p className="text-xs text-blue-200 mt-1">{warningSegmentCount} segment aktif izleniyor</p>
           </CardContent>
         </Card>
 
@@ -86,8 +194,10 @@ export function EnergyRiskDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">36.8%</div>
-            <p className="text-xs text-red-200 mt-1">⚠️ 3 segment uyarı seviyesi</p>
+            <div className="text-2xl font-bold text-white">{averageRisk}%</div>
+            <p className="text-xs text-red-200 mt-1">
+              ⚠️ {warningSegmentCount} segment uyarı seviyesi
+            </p>
           </CardContent>
         </Card>
 
@@ -99,8 +209,8 @@ export function EnergyRiskDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">77.2%</div>
-            <p className="text-xs text-green-200 mt-1">↓ 1.2% düşüş geçen günden</p>
+            <div className="text-2xl font-bold text-white">{averageEfficiency}</div>
+            <p className="text-xs text-green-200 mt-1">Enerji-risk dengesine göre hesaplandı</p>
           </CardContent>
         </Card>
       </div>
@@ -117,7 +227,7 @@ export function EnergyRiskDashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={energyData}>
+              <BarChart data={displayEnergyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="segment" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -146,7 +256,7 @@ export function EnergyRiskDashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={riskData}>
+              <BarChart data={displayRiskData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="segment" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -185,20 +295,34 @@ export function EnergyRiskDashboard() {
               <YAxis type="number" dataKey="risk" name="Risk (%)" stroke="#9ca3af" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  color: '#fff',
+                  backgroundColor: '#111827',
+                  border: '1px solid #4b5563',
+                  borderRadius: '8px',
+                  color: '#ffffff',
+                }}
+                itemStyle={{
+                  color: '#ffffff',
+                }}
+                labelStyle={{
+                  color: '#ffffff',
+                  fontWeight: 'bold',
                 }}
                 cursor={{ strokeDasharray: '3 3' }}
                 formatter={(value: any, name: any) => {
-                  if (name === 'Enerji (kWh)') return [value.toFixed(1), name];
-                  if (name === 'Risk (%)') return [value.toFixed(1), name];
+                  if (name === 'energy') {
+                    return [`${Number(value).toFixed(1)} kWh`, 'Enerji'];
+                  }
+
+                  if (name === 'risk') {
+                    return [`${Number(value).toFixed(1)} %`, 'Risk'];
+                  }
+
                   return [value, name];
                 }}
               />
               <Scatter
                 name="Segmentler"
-                data={tradeoffData}
+                data={displayTradeoffData}
                 fill="#a78bfa"
                 fillOpacity={0.6}
                 shape="circle"
@@ -208,7 +332,7 @@ export function EnergyRiskDashboard() {
 
           {/* Segment Açıklamaları */}
           <div className="mt-4 grid grid-cols-3 gap-2">
-            {tradeoffData.map((item) => (
+            {displayTradeoffData.map((item) => (
               <div key={item.segment} className="text-xs bg-gray-900 p-2 rounded border border-gray-700">
                 <p className="font-semibold text-white">{item.segment}</p>
                 <p className="text-gray-400">Enerji: {item.energy.toFixed(1)} kWh</p>
@@ -224,12 +348,12 @@ export function EnergyRiskDashboard() {
         <CardHeader>
           <CardTitle className="text-white">Risk Seviyesi Zaman Serisi</CardTitle>
           <CardDescription className="text-gray-400">
-            Son 6 saatte risk değişimi
+            Son 10 ölçümde segment bazlı risk değişimi
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={timelineData}>
+            <LineChart data={dynamicTimelineData.length > 0 ? dynamicTimelineData : timelineData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="time" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" label={{ value: 'Risk (%)', angle: -90, position: 'insideLeft' }} />
@@ -281,6 +405,14 @@ export function EnergyRiskDashboard() {
                 strokeWidth={2}
                 dot={{ r: 4 }}
               />
+              <Line
+                type="monotone"
+                dataKey="S6"
+                stroke="#a78bfa"
+                name="S6"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -304,37 +436,65 @@ export function EnergyRiskDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {energyData.map((item, idx) => (
-                  <tr key={item.segment} className="hover:bg-gray-900/50 transition">
-                    <td className="py-3 text-white font-semibold">{item.segment}</td>
-                    <td className="text-right text-gray-200">{item.energy.toFixed(1)} kWh</td>
-                    <td className="text-right">
-                      <Badge variant="outline" style={{ borderColor: getEfficiencyColor(item.efficiency) }}>
-                        <span style={{ color: getEfficiencyColor(item.efficiency) }}>
-                          {item.efficiency}%
-                        </span>
-                      </Badge>
-                    </td>
-                    <td className="text-right">
-                      <Badge variant="outline" style={{ borderColor: getRiskColor(riskData[idx].riskScore) }}>
-                        <span style={{ color: getRiskColor(riskData[idx].riskScore) }}>
-                          {riskData[idx].riskScore}%
-                        </span>
-                      </Badge>
-                    </td>
-                    <td className="text-center">
-                      {riskData[idx].riskScore >= 70 && (
-                        <Badge variant="destructive" className="text-xs">🚨 ACİL</Badge>
-                      )}
-                      {riskData[idx].riskScore >= 50 && riskData[idx].riskScore < 70 && (
-                        <Badge variant="secondary" className="text-xs">⚠️ UYARI</Badge>
-                      )}
-                      {riskData[idx].riskScore < 50 && (
-                        <Badge variant="outline" className="text-xs">✅ NORMAL</Badge>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {displayEnergyData.map((item: any, idx) => {
+                  const riskScore = Number(displayRiskData[idx]?.riskScore ?? 0);
+
+                  const riskLevel =
+                    item.riskLevel ??
+                    (riskScore >= 70 ? "HIGH" : riskScore >= 50 ? "MEDIUM" : "LOW");
+
+                  return (
+                    <tr key={item.segment} className="hover:bg-gray-900/50 transition">
+                      <td className="py-3 text-white font-semibold">{item.segment}</td>
+
+                      <td className="text-right text-gray-200">
+                        {Number(item.energy).toFixed(1)} kWh
+                      </td>
+
+                      <td className="text-right">
+                        <Badge
+                          variant="outline"
+                          style={{ borderColor: getEfficiencyColor(Number(item.efficiency)) }}
+                        >
+                          <span style={{ color: getEfficiencyColor(Number(item.efficiency)) }}>
+                            {item.efficiency}%
+                          </span>
+                        </Badge>
+                      </td>
+
+                      <td className="text-right">
+                        <Badge
+                          variant="outline"
+                          style={{ borderColor: getRiskColor(riskScore) }}
+                        >
+                          <span style={{ color: getRiskColor(riskScore) }}>
+                            {riskScore}%
+                          </span>
+                        </Badge>
+                      </td>
+
+                      <td className="text-center">
+                        {riskLevel === "HIGH" && (
+                          <Badge variant="destructive" className="text-xs">
+                            🚨 ACİL
+                          </Badge>
+                        )}
+
+                        {riskLevel === "MEDIUM" && (
+                          <Badge variant="secondary" className="text-xs">
+                            ⚠️ UYARI
+                          </Badge>
+                        )}
+
+                        {riskLevel === "LOW" && (
+                          <Badge variant="outline" className="text-xs">
+                            ✅ NORMAL
+                          </Badge>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

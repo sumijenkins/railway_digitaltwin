@@ -13,6 +13,8 @@ SECRET_KEY = b"railway-digital-twin-secret"
 
 segments = ["S1", "S2", "S3", "S4", "S5", "S6"]
 
+SCENARIO = "normal"
+
 SENSORS = {
     "S1": 109,
     "S2": 110,
@@ -40,17 +42,48 @@ def calculate_digital_signature(crc_hash):
 
 
 def generate_sensor_data(segment_id):
-    temperature = round(random.uniform(25, 38), 2)
-    vibration_x = round(random.uniform(0.5, 2.2), 2)
-    vibration_y = round(random.uniform(0.3, 1.8), 2)
-    vibration_z = round(random.uniform(0.3, 1.8), 2)
-    tilt = round(random.uniform(-1.5, 1.5), 2)
+    temperature = round(random.uniform(25, 35), 2)
+    vibration_x = round(random.uniform(0.5, 1.8), 2)
+    vibration_y = round(random.uniform(0.3, 1.5), 2)
+    vibration_z = round(random.uniform(0.3, 1.5), 2)
+    tilt = round(random.uniform(-1.0, 1.0), 2)
 
-    if segment_id == "S5" and random.random() < 0.25:
-        temperature = round(random.uniform(41, 48), 2)
+    train_speed = round(random.uniform(50, 80), 2)
+    train_temperature = round(random.uniform(22, 35), 2)
+    train_vibration_x = round(random.uniform(0.3, 1.6), 2)
 
-    if segment_id == "S3" and random.random() < 0.20:
-        vibration_x = round(random.uniform(2.8, 4.0), 2)
+    if SCENARIO == "high_temperature":
+        if segment_id == "S5":
+            temperature = round(random.uniform(42, 50), 2)
+            train_temperature = round(random.uniform(38, 45), 2)
+
+    elif SCENARIO == "high_vibration":
+        if segment_id == "S3":
+            vibration_x = round(random.uniform(3.0, 4.5), 2)
+            vibration_y = round(random.uniform(2.0, 3.0), 2)
+            vibration_z = round(random.uniform(2.0, 3.0), 2)
+            train_vibration_x = round(random.uniform(2.5, 3.8), 2)
+
+    elif SCENARIO == "slope_deformation":
+        if segment_id == "S4":
+            tilt = round(random.uniform(2.0, 3.5), 2)
+
+    elif SCENARIO == "mixed_critical":
+        if segment_id == "S3":
+            vibration_x = round(random.uniform(3.0, 4.5), 2)
+            vibration_y = round(random.uniform(2.0, 3.0), 2)
+            vibration_z = round(random.uniform(2.0, 3.0), 2)
+            train_vibration_x = round(random.uniform(2.5, 3.8), 2)
+
+        if segment_id == "S5":
+            temperature = round(random.uniform(42, 50), 2)
+            train_temperature = round(random.uniform(38, 45), 2)
+
+        if segment_id == "S4":
+            tilt = round(random.uniform(2.0, 3.5), 2)
+
+        if segment_id == "S2":
+            train_speed = round(random.uniform(90, 110), 2)
 
     payload = {
         "sensorId": SENSORS[segment_id],
@@ -62,7 +95,10 @@ def generate_sensor_data(segment_id):
         "vibrationX": vibration_x,
         "vibrationY": vibration_y,
         "vibrationZ": vibration_z,
-        "tilt": tilt
+        "tilt": tilt,
+        "trainSpeed": train_speed,
+        "trainTemperature": train_temperature,
+        "trainVibrationX": train_vibration_x
     }
 
     crc_hash = calculate_crc_hash(payload)
