@@ -90,10 +90,10 @@ services:
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "health", "-m", "ok"]
+      test: [ "CMD", "mosquitto_pub", "-h", "localhost", "-t", "health", "-m", "ok" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 5s
 
   # 🛰️ Sensor Simulator
   sensor-simulator:
@@ -102,7 +102,7 @@ services:
     restart: unless-stopped
     depends_on:
       mosquitto:
-        condition: service_healthy
+        condition: service_started
 
 volumes:
   postgres_data:
