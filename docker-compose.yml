@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: railway_digital_twin
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 110319
+      POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
@@ -42,7 +42,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_dt
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_digital_twin
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - MQTT_BROKER_URL=tcp://mosquitto:1883
@@ -90,7 +90,7 @@ services:
       test: [ "CMD", "mosquitto_pub", "-h", "localhost", "-t", "health", "-m", "ok" ]
       interval: 10s
       timeout: 5s
-      retries: 5s
+      retries: 5
 
   # 🛰️ Sensor Simulator
   sensor-simulator:

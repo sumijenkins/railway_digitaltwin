@@ -6,9 +6,9 @@ import hmac
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-BROKER = "localhost"
+BROKER = "mosquitto"
 PORT = 1883
-
+TOPIC = "railway/sensors/data"
 SECRET_KEY = b"railway-digital-twin-secret"
 
 segments = ["S1", "S2", "S3", "S4", "S5", "S6"]

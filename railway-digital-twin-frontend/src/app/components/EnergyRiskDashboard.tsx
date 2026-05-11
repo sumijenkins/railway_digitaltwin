@@ -65,9 +65,20 @@ export function EnergyRiskDashboard({
   }: {
     energyRiskResults?: any[];
   }) {
+    console.log("EnergyRiskDashboard energyRiskResults:", energyRiskResults);
+    
     const dynamicData = energyRiskResults.map((item) => {
-      const energy = Number(item.energyScore ?? 0);
-      const risk = Number(item.riskScore ?? 0);
+      const energy = Number(
+        item.energyScore ??
+        item.energyConsumption ??
+        item.energy ??
+        0
+      );
+      const risk = Number(
+        item.riskScore ??
+        item.risk ??
+        0
+      );
 
       const efficiency = Math.max(
         0,

@@ -14,7 +14,7 @@ public class ExternalAIService {
 
     public Map<String, Object> detectAnomaly(SensorFeature feature) {
 
-        String url = "http://localhost:5000/anomaly";
+        String url = "http://ai-service:5000/anomaly";
 
         Map<String, Object> request = new HashMap<>();
         request.put("rms", feature.getRms());

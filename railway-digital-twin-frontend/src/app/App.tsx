@@ -103,6 +103,46 @@ export default function App() {
 
         const latestSegments = Object.values(bySegment) as any[];
 
+        const calculatedEnergyRisk = latestSegments.map((seg: any) => {
+        const temperature = Number(seg["ray_temperature"] ?? 0);
+        const vibration = Number(seg["ray_vibration_x"] ?? 0);
+        const tilt = Number(seg["rail_slope"] ?? 0);
+        const speed = Number(seg["train_speed"] ?? 0);
+
+        const riskScore = Math.min(
+          100,
+          Math.round(
+            (temperature * 0.8) +
+            (vibration * 12) +
+            (Math.abs(tilt) * 15)
+          )
+        );
+
+        const energyScore = Math.round(
+          120 +
+          (speed * 0.9) +
+          (temperature * 1.5) +
+          (vibration * 8)
+        );
+
+        let riskLevel = "LOW";
+
+        if (riskScore >= 70) {
+          riskLevel = "HIGH";
+        } else if (riskScore >= 50) {
+          riskLevel = "MEDIUM";
+        }
+
+        return {
+          segmentId: seg.segmentId,
+          energyScore,
+          riskScore,
+          riskLevel,
+        };
+      });
+
+setEnergyRiskResults(calculatedEnergyRisk);
+
         const chartData = latestSegments
           .slice(0, 20)
           .reverse()
@@ -246,8 +286,7 @@ export default function App() {
         });
       }
 
-      const currentEnergyRisks = await energyRiskService.getCurrentEnergyRisks();
-      setEnergyRiskResults(currentEnergyRisks);
+    
     } catch (error) {
       setTelemetryError(
         "Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin."
