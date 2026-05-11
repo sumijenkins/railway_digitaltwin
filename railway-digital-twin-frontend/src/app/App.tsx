@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { TopNavbar } from "./components/TopNavbar";
 import { Sidebar } from "./components/Sidebar";
 import { KPICard } from "./components/KPICard";
@@ -36,12 +36,24 @@ export default function App() {
   const [endStation, setEndStation] = useState<string>("ban");
   const [mapMode, setMapMode] = useState<"status" | "maintenance">("status");
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+
   const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
   const [userRole, setUserRole] = useState<string>("engineer");
   const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
   const [initialTelemetryLoaded, setInitialTelemetryLoaded] = useState<boolean>(false);
   const [anomalies, setAnomalies] = useState<any[]>([]);
+
+  // Stable callback reference — prevents GISMap from re-rendering on every parent state change
+  const handleSelectTrack = useCallback((id: string) => setSelectedTrackId(id), []);
+  const handleSetMapMode = useCallback((mode: 'status' | 'maintenance') => setMapMode(mode), []);
+  const handleSetUserRole = useCallback((role: string) => setUserRole(role), []);
+  const handleSetActiveSection = useCallback((section: string) => setActiveSection(section), []);
+  const handleSetStartStation = useCallback((s: string) => setStartStation(s), []);
+  const handleSetEndStation = useCallback((s: string) => setEndStation(s), []);
+  const handleSetTrainLoad = useCallback((n: number) => setTrainLoad(n), []);
+
+  const memoizedRouteResult = useMemo(() => routeResult, [JSON.stringify(routeResult)]);
 
   useEffect(() => {
     setNetwork(getRealNetwork());
@@ -63,199 +75,202 @@ export default function App() {
   }, [network, startStation, endStation, trainLoad]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (sensorData.length === 0) {
-        setTelemetryLoading(true);
-      }
-      setTelemetryError(null);
+  let isFirstLoad = true;
 
-      try {
-        const readings = await telemetryService.getLatestTelemetry(120);
+  const fetchData = async () => {
+    if (isFirstLoad) {
+      setTelemetryLoading(true);
+    }
 
-        if (readings && readings.length > 0) {
-          const bySegment: Record<string, Record<string, number | string>> = {};
+    setTelemetryError(null);
 
-          for (const r of readings) {
-            if (!bySegment[r.segmentId]) {
-              bySegment[r.segmentId] = {
-                segmentId: r.segmentId,
-                timestamp: r.recordedAt,
-              };
-            }
+    try {
+      const readings = await telemetryService.getLatestTelemetry(120);
 
-            bySegment[r.segmentId][r.channelName] = r.value;
-          }
+      if (readings && readings.length > 0) {
+        const bySegment: Record<string, Record<string, number | string>> = {};
 
-          const latestSegments = Object.values(bySegment);
-
-          const chartData = latestSegments
-            .slice(0, 20)
-            .reverse()
-            .map((seg: any) => ({
-              time: new Date(seg.timestamp).toLocaleTimeString("tr-TR", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              }),
-              temperature: seg["ray_temperature"] ?? 0,
-              vibration: seg["ray_vibration_x"] ?? 0,
-              tilt: seg["rail_slope"] ?? 0,
-              trainTemp: seg["train_temperature"] ?? 0,
-              speed: seg["train_speed"] ?? 0,
-              trainVib: seg["train_vibration_x"] ?? 0,
-            }));
-
-          setSensorData(chartData);
-
-          const uniqueSensorIds = new Set(readings.map((r) => r.sensorId));
-          setSensorCount(uniqueSensorIds.size);
-
-          const backendAnomalies = await anomalyService.getLatestAnomalies(20);
-
-          const formattedAnomalies = backendAnomalies.map((a) => ({
-            time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            type: a.anomalyType,
-            severity: a.severity === "HIGH" ? "yüksek" : "orta",
-            location: `${a.segmentId} - ${a.segmentName}`,
-            value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
-            status: "aktif",
-            description: a.description,
-          }));
-
-          const newDetectedAnomalies: any[] = [];
-
-          for (const latest of latestSegments as any[]) {
-            const time = new Date(latest.timestamp).toLocaleTimeString("tr-TR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-
-            if (Number(latest["ray_temperature"]) > 40) {
-              newDetectedAnomalies.push({
-                time,
-                type: "Kritik Sıcaklık",
-                severity: "yüksek",
-                location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest["ray_temperature"]).toFixed(1)}°C`,
-                status: "aktif",
-              });
-            }
-
-            if (Number(latest["train_speed"]) > 85) {
-              newDetectedAnomalies.push({
-                time,
-                type: "Aşırı Hız Limit Aşımı",
-                severity: "orta",
-                location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest["train_speed"]).toFixed(1)} km/h`,
-                status: "aktif",
-              });
-            }
-
-            if (Number(latest["ray_vibration_x"]) > 2.5) {
-              newDetectedAnomalies.push({
-                time,
-                type: "Yüksek Ray Titreşimi",
-                severity: "yüksek",
-                location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest["ray_vibration_x"]).toFixed(2)} Hz`,
-                status: "aktif",
-              });
-            }
-
-            if (Math.abs(Number(latest["rail_slope"] ?? 0)) > 3) {
-              newDetectedAnomalies.push({
-                time,
-                type: "Hatalı Ray Eğimi",
-                severity: "orta",
-                location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest["rail_slope"]).toFixed(1)}°`,
-                status: "izleniyor",
-              });
-            }
-          }
-
-          setAnomalies((prev) => {
-            const combined = [...newDetectedAnomalies, ...formattedAnomalies, ...prev];
-
-            const unique = combined.filter(
-              (item, index, self) =>
-                index ===
-                self.findIndex(
-                  (other) =>
-                    other.time === item.time &&
-                    other.type === item.type &&
-                    other.location === item.location
-                )
-            );
-
-            return unique.slice(0, 20);
-          });
-
-          setNetwork((prevNetwork) => {
-            if (!prevNetwork) return null;
-
-            const newTracks = prevNetwork.tracks.map((track) => {
-              const segmentId = track.id.replace("-R", "");
-              const segmentData = bySegment[segmentId];
-
-              if (!segmentData) return track;
-
-              let health = 95;
-
-              if (
-                Number(segmentData["ray_temperature"]) > 40 ||
-                Number(segmentData["ray_vibration_x"]) > 2.5
-              ) {
-                health = 40;
-              } else if (
-                Number(segmentData["train_speed"]) > 85 ||
-                Math.abs(Number(segmentData["rail_slope"] ?? 0)) > 3
-              ) {
-                health = 70;
-              }
-
-              return {
-                ...track,
-                healthScore: health,
-              };
-            });
-
-            return {
-              ...prevNetwork,
-              tracks: newTracks,
+        for (const r of readings) {
+          if (!bySegment[r.segmentId]) {
+            bySegment[r.segmentId] = {
+              segmentId: r.segmentId,
+              timestamp: r.recordedAt,
             };
-          });
+          }
+
+          bySegment[r.segmentId][r.channelName] = r.value;
         }
 
-        const currentEnergyRisks = await energyRiskService.getCurrentEnergyRisks();
-        setEnergyRiskResults(currentEnergyRisks);
-      } catch (error) {
-        setTelemetryError(
-          "Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin."
-        );
-        console.error(error);
-      } finally {
-        setTelemetryLoading(false);
-        setInitialTelemetryLoaded(true);
+        const latestSegments = Object.values(bySegment) as any[];
 
+        const chartData = latestSegments
+          .slice(0, 20)
+          .reverse()
+          .map((seg: any) => ({
+            time: new Date(seg.timestamp).toLocaleTimeString("tr-TR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }),
+            temperature: seg["ray_temperature"] ?? 0,
+            vibration: seg["ray_vibration_x"] ?? 0,
+            tilt: seg["rail_slope"] ?? 0,
+            trainTemp: seg["train_temperature"] ?? 0,
+            speed: seg["train_speed"] ?? 0,
+            trainVib: seg["train_vibration_x"] ?? 0,
+          }));
+
+        setSensorData(chartData);
+
+        const uniqueSensorIds = new Set(readings.map((r) => r.sensorId));
+        setSensorCount(uniqueSensorIds.size);
+
+        const backendAnomalies = await anomalyService.getLatestAnomalies(20);
+
+        const formattedAnomalies = backendAnomalies.map((a) => ({
+          time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          type: a.anomalyType,
+          severity: a.severity === "HIGH" ? "yüksek" : "orta",
+          location: `${a.segmentId} - ${a.segmentName}`,
+          value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
+          status: "aktif",
+          description: a.description,
+        }));
+
+        const newDetectedAnomalies: any[] = [];
+
+        for (const latest of latestSegments) {
+          const time = new Date(latest.timestamp).toLocaleTimeString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          if (Number(latest["ray_temperature"]) > 40) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Kritik Sıcaklık",
+              severity: "yüksek",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest["ray_temperature"]).toFixed(1)}°C`,
+              status: "aktif",
+            });
+          }
+
+          if (Number(latest["train_speed"]) > 85) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Aşırı Hız Limit Aşımı",
+              severity: "orta",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest["train_speed"]).toFixed(1)} km/h`,
+              status: "aktif",
+            });
+          }
+
+          if (Number(latest["ray_vibration_x"]) > 2.5) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Yüksek Ray Titreşimi",
+              severity: "yüksek",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest["ray_vibration_x"]).toFixed(2)} Hz`,
+              status: "aktif",
+            });
+          }
+
+          if (Math.abs(Number(latest["rail_slope"] ?? 0)) > 3) {
+            newDetectedAnomalies.push({
+              time,
+              type: "Hatalı Ray Eğimi",
+              severity: "orta",
+              location: `Segment ${latest.segmentId}`,
+              value: `${Number(latest["rail_slope"]).toFixed(1)}°`,
+              status: "izleniyor",
+            });
+          }
+        }
+
+        setAnomalies((prev) => {
+          const combined = [...newDetectedAnomalies, ...formattedAnomalies, ...prev];
+
+          const unique = combined.filter(
+            (item, index, self) =>
+              index ===
+              self.findIndex(
+                (other) =>
+                  other.time === item.time &&
+                  other.type === item.type &&
+                  other.location === item.location
+              )
+          );
+
+          return unique.slice(0, 20);
+        });
+
+        setNetwork((prevNetwork) => {
+          if (!prevNetwork) return null;
+
+          const newTracks = prevNetwork.tracks.map((track) => {
+            const segmentId = track.id.replace("-R", "");
+            const segmentData = bySegment[segmentId];
+
+            if (!segmentData) return track;
+
+            let health = 95;
+
+            if (
+              Number(segmentData["ray_temperature"]) > 40 ||
+              Number(segmentData["ray_vibration_x"]) > 2.5
+            ) {
+              health = 40;
+            } else if (
+              Number(segmentData["train_speed"]) > 85 ||
+              Math.abs(Number(segmentData["rail_slope"] ?? 0)) > 3
+            ) {
+              health = 70;
+            }
+
+            return {
+              ...track,
+              healthScore: health,
+            };
+          });
+
+          return {
+            ...prevNetwork,
+            tracks: newTracks,
+          };
+        });
       }
-    };
+
+      const currentEnergyRisks = await energyRiskService.getCurrentEnergyRisks();
+      setEnergyRiskResults(currentEnergyRisks);
+    } catch (error) {
+      setTelemetryError(
+        "Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin."
+      );
+      console.error(error);
+    } finally {
+      if (isFirstLoad) {
+        setTelemetryLoading(false);
+        isFirstLoad = false;
+      }
+
+      setInitialTelemetryLoaded(true);
+    }
+  };
 
     fetchData();
-
-    const interval = setInterval(fetchData, 3000);
-
+    // Poll every 10s instead of 3s — reduces unnecessary re-renders
+    const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  const simulateTrackWear = () => {
-    if (!network) return;
-
-    setNetwork((prev) => {
+  const simulateTrackWear = useCallback(() => {
+    setNetwork(prev => {
       if (!prev) return null;
 
       return {
@@ -267,16 +282,16 @@ export default function App() {
         })),
       };
     });
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0f1419] flex flex-col">
-      <TopNavbar userRole={userRole} setUserRole={setUserRole} />
+      <TopNavbar userRole={userRole} setUserRole={handleSetUserRole} />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           activeSection={activeSection}
-          onSectionChange={setActiveSection}
+          onSectionChange={handleSetActiveSection}
           userRole={userRole}
         />
 
@@ -316,7 +331,7 @@ export default function App() {
                   <div className="flex items-center justify-between bg-gray-800/50 p-3 rounded-lg border border-gray-700">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setMapMode("status")}
+                        onClick={() => handleSetMapMode("status")}
                         className={`px-4 py-1.5 rounded-md text-xs font-bold border ${
                           mapMode === "status"
                             ? "bg-blue-600 border-blue-400 text-white"
@@ -327,7 +342,7 @@ export default function App() {
                       </button>
 
                       <button
-                        onClick={() => setMapMode("maintenance")}
+                        onClick={() => handleSetMapMode("maintenance")}
                         className={`px-4 py-1.5 rounded-md text-xs font-bold border ${
                           mapMode === "maintenance"
                             ? "bg-yellow-600 border-yellow-400 text-white"
@@ -349,10 +364,10 @@ export default function App() {
                   <div className="border border-gray-700 rounded-lg overflow-hidden h-[500px] shadow-2xl bg-gray-900/40">
                     <GISMap
                       network={network}
-                      activeRoute={routeResult}
+                      activeRoute={memoizedRouteResult}
                       viewMode={mapMode}
                       selectedTrackId={selectedTrackId}
-                      onSelectTrack={setSelectedTrackId}
+                      onSelectTrack={handleSelectTrack}
                     />
                   </div>
                 </div>
@@ -386,7 +401,7 @@ export default function App() {
                     <select
                       className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700"
                       value={startStation}
-                      onChange={(e) => setStartStation(e.target.value)}
+                      onChange={(e) => handleSetStartStation(e.target.value)}
                     >
                       {network?.stations.map((s) => (
                         <option key={s.id} value={s.id}>
@@ -404,7 +419,7 @@ export default function App() {
                     <select
                       className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700"
                       value={endStation}
-                      onChange={(e) => setEndStation(e.target.value)}
+                      onChange={(e) => handleSetEndStation(e.target.value)}
                     >
                       {network?.stations.map((s) => (
                         <option key={s.id} value={s.id}>
@@ -430,7 +445,7 @@ export default function App() {
                       max="1500"
                       step="50"
                       value={trainLoad}
-                      onChange={(e) => setTrainLoad(Number(e.target.value))}
+                      onChange={(e) => handleSetTrainLoad(Number(e.target.value))}
                       className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500"
                     />
                   </div>

@@ -13,55 +13,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  mosquitto:
-    image: eclipse-mosquitto:latest
-    container_name: railway_digital_twin_mosquitto
-    restart: unless-stopped
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_logs:/mosquitto/log
-
-  ai-service:
-    build:
-      context: ./ai-service
-      dockerfile: Dockerfile
-    container_name: railway_ai_service
-    restart: unless-stopped
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_APP=app.py
-      - FLASK_ENV=production
-
-  backend:
-    build: ./railway-digital-twin-backend
-    container_name: railway_backend
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_digital_twin
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=110319
-      - MQTT_BROKER_URL=tcp://mosquitto:1883
-      - AI_SERVICE_URL=http://ai-service:5000
-    depends_on:
-      postgres:
-        condition: service_healthy
-      mosquitto:
-        condition: service_started
-      ai-service:
-        condition: service_started
-
+  # pgAdmin (Optional)
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: railway_digital_twin_pgadmin
@@ -76,6 +33,73 @@ services:
       - postgres
     profiles:
       - tools
+
+  # 🚀 Backend Service
+  backend:
+    build: ./railway-digital-twin-backend
+    container_name: railway_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/railway_dt
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MQTT_BROKER_URL=tcp://mosquitto:1883
+      - AI_SERVICE_URL=http://ai-service:5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+
+  # 🧠 AI Service (Anomaly Detection)
+  ai-service:
+    build: ./ai-service
+    container_name: railway_ai_service
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+
+  # 🌐 Frontend Service
+  frontend:
+    build: ./railway-digital-twin-frontend
+    container_name: railway_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:5173"
+    depends_on:
+      - backend
+
+  # Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: railway_digital_twin_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883" # MQTT protocol
+      - "9001:9001" # WebSocket protocol
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    healthcheck:
+      test: [ "CMD", "mosquitto_pub", "-h", "localhost", "-t", "health", "-m", "ok" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5s
+
+  # 🛰️ Sensor Simulator
+  sensor-simulator:
+    build: ./sensor-simulator
+    container_name: railway_sensor_simulator
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_started
 
 volumes:
   postgres_data:

@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { RailwayNetwork, Track } from '../../types/Railway';
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { LatLngExpression } from 'leaflet';
 
 interface GISMapProps {
@@ -35,7 +35,7 @@ function MapBounds({ network }: { network: RailwayNetwork | null }) {
     return null;
 }
 
-export function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack }: GISMapProps) {
+export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack }: GISMapProps) {
     if (!network) return <div className="text-white">Harita verisi bekleniyor...</div>;
 
     const routeTrackIds = new Set(activeRoute?.result?.path.map(t => t.id) || []);
@@ -159,4 +159,4 @@ export function GISMap({ network, activeRoute, viewMode = 'status', selectedTrac
             </MapContainer>
         </div>
     );
-}
+});

@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.core.MessageProducer;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
@@ -40,10 +39,14 @@ public class MqttConfig {
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
+
         MqttConnectOptions options = new MqttConnectOptions();
-        options.setServerURIs(new String[]{brokerUrl});
+        options.setServerURIs(new String[] { brokerUrl });
+        options.setAutomaticReconnect(true); // 🔥 EKLENDİ
+        options.setCleanSession(true);
         options.setConnectionTimeout(10);
         options.setKeepAliveInterval(20);
+
         factory.setConnectionOptions(options);
         return factory;
     }
@@ -55,12 +58,19 @@ public class MqttConfig {
 
     @Bean
     public MqttPahoMessageDrivenChannelAdapter inboundAdapter() {
-        MqttPahoMessageDrivenChannelAdapter adapter =
-                new MqttPahoMessageDrivenChannelAdapter(clientId, mqttClientFactory(), topic);
+
+        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(clientId,
+                mqttClientFactory(), topic);
+
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
         adapter.setOutputChannel(mqttInputChannel());
+
+        adapter.setAutoStartup(true); // 🔥 KRİTİK
+
+        logger.info("MQTT Adapter initialized → broker={}, topic={}", brokerUrl, topic);
+
         return adapter;
     }
 
@@ -69,15 +79,24 @@ public class MqttConfig {
     public MessageHandler handler() {
         return message -> {
             try {
-                String payload = (String) message.getPayload();
-                logger.debug("Received MQTT message: {}", payload);
+                Object raw = message.getPayload();
+
+                String payload;
+                if (raw instanceof byte[]) {
+                    payload = new String((byte[]) raw);
+                } else {
+                    payload = raw.toString();
+                }
+
+                logger.info("MQTT MESSAGE RECEIVED → {}", payload);
 
                 ObjectMapper mapper = new ObjectMapper();
                 MqttSensorPayload sensorPayload = mapper.readValue(payload, MqttSensorPayload.class);
 
                 service.processSensorData(sensorPayload);
+
             } catch (Exception e) {
-                logger.error("Error processing MQTT message: {}", e.getMessage(), e);
+                logger.error("MQTT processing error", e);
             }
         };
     }
