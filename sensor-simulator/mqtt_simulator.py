@@ -6,7 +6,7 @@ import hashlib
 import paho.mqtt.client as mqtt
 from datetime import datetime
 
-BROKER = "localhost"
+BROKER = "mosquitto"
 PORT = 1883
 TOPIC = "railway/sensors/data"
 SECRET_KEY = b"railway-digital-twin-secret"

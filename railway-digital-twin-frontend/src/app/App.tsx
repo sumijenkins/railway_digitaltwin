@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { TopNavbar } from "./components/TopNavbar";
 import { Sidebar } from "./components/Sidebar";
 import { KPICard } from "./components/KPICard";
@@ -35,8 +35,17 @@ export default function App() {
   const [mapMode, setMapMode] = useState<'status' | 'maintenance'>('status');
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('engineer');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+
+  // Stable callback reference — prevents GISMap from re-rendering on every parent state change
+  const handleSelectTrack = useCallback((id: string) => setSelectedTrackId(id), []);
+  const handleSetMapMode = useCallback((mode: 'status' | 'maintenance') => setMapMode(mode), []);
+  const handleSetUserRole = useCallback((role: string) => setUserRole(role), []);
+  const handleSetActiveSection = useCallback((section: string) => setActiveSection(section), []);
+  const handleSetStartStation = useCallback((s: string) => setStartStation(s), []);
+  const handleSetEndStation = useCallback((s: string) => setEndStation(s), []);
+  const handleSetTrainLoad = useCallback((n: number) => setTrainLoad(n), []);
+
+  const memoizedRouteResult = useMemo(() => routeResult, [JSON.stringify(routeResult)]);
   const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
 
@@ -63,8 +72,13 @@ export default function App() {
 
   // Fetch real-time telemetry from PostgreSQL
   useEffect(() => {
+    let isFirstLoad = true;
+
     const fetchData = async () => {
-      setTelemetryLoading(true);
+      // Show loading banner only on the very first fetch
+      if (isFirstLoad) {
+        setTelemetryLoading(true);
+      }
       setTelemetryError(null);
 
       try {
@@ -72,13 +86,11 @@ export default function App() {
         if (readings && readings.length > 0) {
 
           // 1. Normalize kayıtları (segment + zaman) bazında grupla
-          //    Her segment için en son okunan channelName → value eşleşmesini bul
           const bySegment: Record<string, Record<string, number | string>> = {};
           for (const r of readings) {
             if (!bySegment[r.segmentId]) {
               bySegment[r.segmentId] = { segmentId: r.segmentId, timestamp: r.recordedAt };
             }
-            // channelName key olarak kullan (ray_temperature, train_speed, ...)
             bySegment[r.segmentId][r.channelName] = r.value;
           }
 
@@ -99,11 +111,10 @@ export default function App() {
             }));
           setSensorData(chartData);
 
-          // Unique sensor sayısını DB'den türet
           const uniqueSensorIds = new Set(readings.map(r => r.sensorId));
           setSensorCount(uniqueSensorIds.size);
 
-          // 3. Anomali tespiti — en son gelen segment verisini kullan
+          // 3. Anomali tespiti
           const latestSegments = Object.values(bySegment) as any[];
           const newDetectedAnomalies: any[] = [];
 
@@ -114,45 +125,30 @@ export default function App() {
 
             if (latest['ray_temperature'] > 40) {
               newDetectedAnomalies.push({
-                time,
-                type: "Kritik Sıcaklık",
-                severity: "yüksek",
+                time, type: "Kritik Sıcaklık", severity: "yüksek",
                 location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest['ray_temperature']).toFixed(1)}°C`,
-                status: "aktif"
+                value: `${Number(latest['ray_temperature']).toFixed(1)}°C`, status: "aktif"
               });
             }
-
             if (latest['train_speed'] > 85) {
               newDetectedAnomalies.push({
-                time,
-                type: "Aşırı Hız Limit Aşımı",
-                severity: "orta",
+                time, type: "Aşırı Hız Limit Aşımı", severity: "orta",
                 location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest['train_speed']).toFixed(1)} km/h`,
-                status: "aktif"
+                value: `${Number(latest['train_speed']).toFixed(1)} km/h`, status: "aktif"
               });
             }
-
             if (latest['ray_vibration_x'] > 2.5) {
               newDetectedAnomalies.push({
-                time,
-                type: "Yüksek Ray Titreşimi",
-                severity: "yüksek",
+                time, type: "Yüksek Ray Titreşimi", severity: "yüksek",
                 location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest['ray_vibration_x']).toFixed(2)} Hz`,
-                status: "aktif"
+                value: `${Number(latest['ray_vibration_x']).toFixed(2)} Hz`, status: "aktif"
               });
             }
-
             if (Math.abs(latest['rail_slope'] ?? 0) > 3) {
               newDetectedAnomalies.push({
-                time,
-                type: "Hatalı Ray Eğimi",
-                severity: "orta",
+                time, type: "Hatalı Ray Eğimi", severity: "orta",
                 location: `Segment ${latest.segmentId}`,
-                value: `${Number(latest['rail_slope']).toFixed(1)}°`,
-                status: "izleniyor"
+                value: `${Number(latest['rail_slope']).toFixed(1)}°`, status: "izleniyor"
               });
             }
           }
@@ -166,46 +162,44 @@ export default function App() {
             });
           }
 
-          // 4. Update track health scores dynamically
-          setNetwork(prevNetwork => {
-            if (!prevNetwork) return null;
-            const newTracks = prevNetwork.tracks.map(track => {
-              // Remove '-R' to match the base segment ID for reverse tracks
-              const segmentId = track.id.replace('-R', '');
-              const segmentData = bySegment[segmentId];
-              if (!segmentData) return track;
-
-              let health = 95; // Default healthy score
-
-              // Critical conditions
-              if (Number(segmentData['ray_temperature']) > 40 || Number(segmentData['ray_vibration_x']) > 2.5) {
-                health = 40;
-              }
-              // Warning conditions
-              else if (Number(segmentData['train_speed']) > 85 || Math.abs(Number(segmentData['rail_slope']) ?? 0) > 3) {
-                health = 70;
-              }
-
-              return { ...track, healthScore: health };
+          // 4. Track health — only update on first load to avoid re-rendering the entire map
+          if (isFirstLoad) {
+            setNetwork(prevNetwork => {
+              if (!prevNetwork) return null;
+              const newTracks = prevNetwork.tracks.map(track => {
+                const segmentId = track.id.replace('-R', '');
+                const segmentData = bySegment[segmentId];
+                if (!segmentData) return track;
+                let health = 95;
+                if (Number(segmentData['ray_temperature']) > 40 || Number(segmentData['ray_vibration_x']) > 2.5) {
+                  health = 40;
+                } else if (Number(segmentData['train_speed']) > 85 || Math.abs(Number(segmentData['rail_slope']) ?? 0) > 3) {
+                  health = 70;
+                }
+                return { ...track, healthScore: health };
+              });
+              return { ...prevNetwork, tracks: newTracks };
             });
-            return { ...prevNetwork, tracks: newTracks };
-          });
+          }
         }
       } catch (error) {
         setTelemetryError("Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin.");
         console.error(error);
       } finally {
-        setTelemetryLoading(false);
+        if (isFirstLoad) {
+          setTelemetryLoading(false);
+          isFirstLoad = false;
+        }
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 3000);
+    // Poll every 10s instead of 3s — reduces unnecessary re-renders
+    const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  const simulateTrackWear = () => {
-    if (!network) return;
+  const simulateTrackWear = useCallback(() => {
     setNetwork(prev => {
       if (!prev) return null;
       return {
@@ -217,26 +211,16 @@ export default function App() {
         }))
       };
     });
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0f1419] flex flex-col">
-      <TopNavbar userRole={userRole} setUserRole={setUserRole} />
+      <TopNavbar userRole={userRole} setUserRole={handleSetUserRole} />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} userRole={userRole} />
+        <Sidebar activeSection={activeSection} onSectionChange={handleSetActiveSection} userRole={userRole} />
 
         <main className="flex-1 overflow-y-auto p-6">
-          {telemetryLoading && (
-            <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 p-4 text-blue-100">
-              Gerçek zamanlı telemetri verisi yükleniyor... Lütfen bekleyin.
-            </div>
-          )}
-          {telemetryError && (
-            <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-100">
-              {telemetryError}
-            </div>
-          )}
 
           {/* 1. GENEL BAKIŞ (OVERVIEW) - Full Dashboard */}
           {activeSection === "overview" && (
@@ -251,13 +235,13 @@ export default function App() {
                 <div className="lg:col-span-3 space-y-4">
                   <div className="flex items-center justify-between bg-gray-800/50 p-3 rounded-lg border border-gray-700">
                     <div className="flex gap-2">
-                      <button onClick={() => setMapMode('status')} className={`px-4 py-1.5 rounded-md text-xs font-bold border ${mapMode === 'status' ? 'bg-blue-600 border-blue-400 text-white' : 'bg-gray-900 border-gray-700 text-gray-400'}`}>OPERASYONEL DURUM</button>
-                      <button onClick={() => setMapMode('maintenance')} className={`px-4 py-1.5 rounded-md text-xs font-bold border ${mapMode === 'maintenance' ? 'bg-yellow-600 border-yellow-400 text-white' : 'bg-gray-900 border-gray-700 text-gray-400'}`}>BAKIM HARİTASI</button>
+                      <button onClick={() => handleSetMapMode('status')} className={`px-4 py-1.5 rounded-md text-xs font-bold border ${mapMode === 'status' ? 'bg-blue-600 border-blue-400 text-white' : 'bg-gray-900 border-gray-700 text-gray-400'}`}>OPERASYONEL DURUM</button>
+                      <button onClick={() => handleSetMapMode('maintenance')} className={`px-4 py-1.5 rounded-md text-xs font-bold border ${mapMode === 'maintenance' ? 'bg-yellow-600 border-yellow-400 text-white' : 'bg-gray-900 border-gray-700 text-gray-400'}`}>BAKIM HARİTASI</button>
                     </div>
                     <button onClick={simulateTrackWear} className="px-4 py-1.5 bg-purple-600 border border-purple-400 text-white rounded-md text-xs font-bold shadow-lg shadow-purple-500/20">ZAMANI HIZLANDIR</button>
                   </div>
                   <div className="border border-gray-700 rounded-lg overflow-hidden h-[500px] shadow-2xl bg-gray-900/40">
-                    <GISMap network={network} activeRoute={routeResult} viewMode={mapMode} selectedTrackId={selectedTrackId} onSelectTrack={setSelectedTrackId} />
+                    <GISMap network={network} activeRoute={memoizedRouteResult} viewMode={mapMode} selectedTrackId={selectedTrackId} onSelectTrack={handleSelectTrack} />
                   </div>
                 </div>
                 <div className="lg:col-span-1">
@@ -280,13 +264,13 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                   <div className="space-y-2">
                     <label className="text-gray-500 text-[10px] font-bold uppercase tracking-wider block">Başlangıç İstasyonu</label>
-                    <select className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700" value={startStation} onChange={(e) => setStartStation(e.target.value)}>
+                    <select className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700" value={startStation} onChange={(e) => handleSetStartStation(e.target.value)}>
                       {network?.stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-gray-500 text-[10px] font-bold uppercase tracking-wider block">Hedef İstasyon</label>
-                    <select className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700" value={endStation} onChange={(e) => setEndStation(e.target.value)}>
+                    <select className="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700" value={endStation} onChange={(e) => handleSetEndStation(e.target.value)}>
                       {network?.stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                   </div>
@@ -295,7 +279,7 @@ export default function App() {
                       <label className="text-gray-500 text-[10px] font-bold uppercase tracking-wider block">Tren Yükü</label>
                       <span className="text-yellow-400 font-bold text-sm font-mono">{trainLoad} Ton</span>
                     </div>
-                    <input type="range" min="100" max="1500" step="50" value={trainLoad} onChange={(e) => setTrainLoad(Number(e.target.value))} className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
+                    <input type="range" min="100" max="1500" step="50" value={trainLoad} onChange={(e) => handleSetTrainLoad(Number(e.target.value))} className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-500" />
                   </div>
                 </div>
                 <div className="border-t border-gray-700/50 pt-8">

@@ -16,7 +16,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -67,23 +67,42 @@ services:
       - FLASK_APP=app.py
       - FLASK_ENV=production
 
+  # 🌐 Frontend Service
+  frontend:
+    build: ./railway-digital-twin-frontend
+    container_name: railway_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:5173"
+    depends_on:
+      - backend
+
   # Mosquitto MQTT Broker
   mosquitto:
     image: eclipse-mosquitto:latest
     container_name: railway_digital_twin_mosquitto
     restart: unless-stopped
     ports:
-      - "1883:1883"    # MQTT protocol
-      - "9001:9001"    # WebSocket protocol
+      - "1883:1883" # MQTT protocol
+      - "9001:9001" # WebSocket protocol
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - mosquitto_data:/mosquitto/data
       - mosquitto_logs:/mosquitto/log
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1883", "-t", "$SYS/broker/version", "-W", "1"]
+      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "health", "-m", "ok"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # 🛰️ Sensor Simulator
+  sensor-simulator:
+    build: ./sensor-simulator
+    container_name: railway_sensor_simulator
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_healthy
 
 volumes:
   postgres_data:
