@@ -5,25 +5,43 @@ import {
   Wrench,
   Brain,
   FileText,
-  Settings
+  Settings,
+  Zap,
+  MapPin,
 } from "lucide-react";
 
 interface SidebarProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
+  userRole?: string;
 }
 
-const menuItems = [
-  { id: "overview", label: "Genel Bakış", icon: LayoutDashboard },
-  { id: "sensors", label: "Canlı Sensör İzleme", icon: Activity },
-  { id: "anomaly", label: "Anomali Tespiti", icon: AlertTriangle },
-  { id: "maintenance", label: "Öngörülü Bakım", icon: Wrench },
-  { id: "xai", label: "Açıklanabilir Yapay Zeka", icon: Brain },
-  { id: "reports", label: "Raporlar ve Kararlar", icon: FileText },
-  { id: "settings", label: "Ayarlar", icon: Settings },
-];
+export function Sidebar({ activeSection, onSectionChange, userRole = 'engineer' }: SidebarProps) {
+  
+  const getMenuItems = () => {
+    const items = [
+      { id: "overview", label: "Genel Bakış", icon: LayoutDashboard },
+      { id: "sensors", label: "Canlı Sensör İzleme", icon: Activity },
+      { id: "route-comparison", label: "Rota Karşılaştırma", icon: MapPin },
+      { id: "anomaly", label: "Anomali Tespiti", icon: AlertTriangle },
+      { id: "maintenance", label: "Öngörülü Bakım", icon: Wrench },
+      { id: "energy-risk", label: "Enerji & Risk", icon: Zap },
+    ];
 
-export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
+    if (userRole === 'engineer' || userRole === 'manager') {
+      items.push({ id: "xai", label: "Açıklanabilir Yapay Zeka", icon: Brain });
+      items.push({ id: "reports", label: "Raporlar ve Kararlar", icon: FileText });
+    }
+
+    if (userRole === 'manager') {
+      items.push({ id: "settings", label: "Ayarlar", icon: Settings });
+    }
+
+    return items;
+  };
+
+  const menuItems = getMenuItems();
+
   return (
     <div className="bg-[#1a2332] border-r border-gray-700 w-64 flex flex-col">
       <div className="p-6">

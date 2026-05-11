@@ -9,8 +9,9 @@ import { OperationalAnalytics } from "./components/OperationalAnalytics";
 import { SensorChart } from "./components/SensorChart";
 import { AnomalyTimeline } from "./components/AnomalyTimeline";
 import { ExplainableAIPanel } from "./components/ExplainableAIPanel";
-import { anomalyService } from "../services/anomalyService";
-import { energyRiskService } from "../services/energyRiskService";
+import { EnergyRiskDashboard } from "./components/EnergyRiskDashboard";
+import { GenerativeReportPanel } from "./components/GenerativeReportPanel";
+import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
 import {
   Activity,
   AlertTriangle,
@@ -33,7 +34,11 @@ export default function App() {
   const [endStation, setEndStation] = useState<string>('ban');
   const [mapMode, setMapMode] = useState<'status' | 'maintenance'>('status');
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
-  const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState<string>('engineer');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
+  const [telemetryError, setTelemetryError] = useState<string | null>(null);
 
   // Load Network Once
   useEffect(() => {
@@ -59,62 +64,139 @@ export default function App() {
   // Fetch real-time telemetry from PostgreSQL
   useEffect(() => {
     const fetchData = async () => {
-      const readings = await telemetryService.getLatestTelemetry(120);
-      if (readings && readings.length > 0) {
+      setTelemetryLoading(true);
+      setTelemetryError(null);
 
-        // 1. Normalize kayıtları (segment + zaman) bazında grupla
-        //    Her segment için en son okunan channelName → value eşleşmesini bul
-        const bySegment: Record<string, Record<string, number | string>> = {};
-        for (const r of readings) {
-          if (!bySegment[r.segmentId]) {
-            bySegment[r.segmentId] = { segmentId: r.segmentId, timestamp: r.recordedAt };
+      try {
+        const readings = await telemetryService.getLatestTelemetry(120);
+        if (readings && readings.length > 0) {
+
+          // 1. Normalize kayıtları (segment + zaman) bazında grupla
+          //    Her segment için en son okunan channelName → value eşleşmesini bul
+          const bySegment: Record<string, Record<string, number | string>> = {};
+          for (const r of readings) {
+            if (!bySegment[r.segmentId]) {
+              bySegment[r.segmentId] = { segmentId: r.segmentId, timestamp: r.recordedAt };
+            }
+            // channelName key olarak kullan (ray_temperature, train_speed, ...)
+            bySegment[r.segmentId][r.channelName] = r.value;
           }
-          // channelName key olarak kullan (ray_temperature, train_speed, ...)
-          bySegment[r.segmentId][r.channelName] = r.value;
+
+          // 2. Her segment → grafik data noktasına dönüştür
+          const chartData = Object.values(bySegment)
+            .slice(0, 20)
+            .reverse()
+            .map((seg: any) => ({
+              time: new Date(seg.timestamp).toLocaleTimeString('tr-TR', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+              }),
+              temperature: seg['ray_temperature'] ?? 0,
+              vibration: seg['ray_vibration_x'] ?? 0,
+              tilt: seg['rail_slope'] ?? 0,
+              trainTemp: seg['train_temperature'] ?? 0,
+              speed: seg['train_speed'] ?? 0,
+              trainVib: seg['train_vibration_x'] ?? 0,
+            }));
+          setSensorData(chartData);
+
+          // Unique sensor sayısını DB'den türet
+          const uniqueSensorIds = new Set(readings.map(r => r.sensorId));
+          setSensorCount(uniqueSensorIds.size);
+
+          // 3. Anomali tespiti — en son gelen segment verisini kullan
+          const latestSegments = Object.values(bySegment) as any[];
+          const newDetectedAnomalies: any[] = [];
+
+          for (const latest of latestSegments) {
+            const time = new Date(latest.timestamp).toLocaleTimeString('tr-TR', {
+              hour: '2-digit', minute: '2-digit'
+            });
+
+            if (latest['ray_temperature'] > 40) {
+              newDetectedAnomalies.push({
+                time,
+                type: "Kritik Sıcaklık",
+                severity: "yüksek",
+                location: `Segment ${latest.segmentId}`,
+                value: `${Number(latest['ray_temperature']).toFixed(1)}°C`,
+                status: "aktif"
+              });
+            }
+
+            if (latest['train_speed'] > 85) {
+              newDetectedAnomalies.push({
+                time,
+                type: "Aşırı Hız Limit Aşımı",
+                severity: "orta",
+                location: `Segment ${latest.segmentId}`,
+                value: `${Number(latest['train_speed']).toFixed(1)} km/h`,
+                status: "aktif"
+              });
+            }
+
+            if (latest['ray_vibration_x'] > 2.5) {
+              newDetectedAnomalies.push({
+                time,
+                type: "Yüksek Ray Titreşimi",
+                severity: "yüksek",
+                location: `Segment ${latest.segmentId}`,
+                value: `${Number(latest['ray_vibration_x']).toFixed(2)} Hz`,
+                status: "aktif"
+              });
+            }
+
+            if (Math.abs(latest['rail_slope'] ?? 0) > 3) {
+              newDetectedAnomalies.push({
+                time,
+                type: "Hatalı Ray Eğimi",
+                severity: "orta",
+                location: `Segment ${latest.segmentId}`,
+                value: `${Number(latest['rail_slope']).toFixed(1)}°`,
+                status: "izleniyor"
+              });
+            }
+          }
+
+          if (newDetectedAnomalies.length > 0) {
+            setAnomalies(prev => {
+              const filtered = newDetectedAnomalies.filter(newA =>
+                !prev.some(oldA => oldA.time === newA.time && oldA.type === newA.type)
+              );
+              return [...filtered, ...prev].slice(0, 10);
+            });
+          }
+
+          // 4. Update track health scores dynamically
+          setNetwork(prevNetwork => {
+            if (!prevNetwork) return null;
+            const newTracks = prevNetwork.tracks.map(track => {
+              // Remove '-R' to match the base segment ID for reverse tracks
+              const segmentId = track.id.replace('-R', '');
+              const segmentData = bySegment[segmentId];
+              if (!segmentData) return track;
+
+              let health = 95; // Default healthy score
+
+              // Critical conditions
+              if (Number(segmentData['ray_temperature']) > 40 || Number(segmentData['ray_vibration_x']) > 2.5) {
+                health = 40;
+              }
+              // Warning conditions
+              else if (Number(segmentData['train_speed']) > 85 || Math.abs(Number(segmentData['rail_slope']) ?? 0) > 3) {
+                health = 70;
+              }
+
+              return { ...track, healthScore: health };
+            });
+            return { ...prevNetwork, tracks: newTracks };
+          });
         }
-
-        // 2. Her segment → grafik data noktasına dönüştür
-        const chartData = Object.values(bySegment)
-          .slice(0, 20)
-          .reverse()
-          .map((seg: any) => ({
-            time: new Date(seg.timestamp).toLocaleTimeString('tr-TR', {
-              hour: '2-digit', minute: '2-digit', second: '2-digit'
-            }),
-            temperature:  seg['ray_temperature']   ?? 0,
-            vibration:    seg['ray_vibration_x']   ?? 0,
-            tilt:         seg['rail_slope']         ?? 0,
-            trainTemp:    seg['train_temperature']  ?? 0,
-            speed:        seg['train_speed']        ?? 0,
-            trainVib:     seg['train_vibration_x']  ?? 0,
-          }));
-        setSensorData(chartData);
-
-        // Unique sensor sayısını DB'den türet
-        const uniqueSensorIds = new Set(readings.map(r => r.sensorId));
-        setSensorCount(uniqueSensorIds.size);
-
-        // 3. Backend'den anomaly kayıtlarını al    
-        const backendAnomalies = await anomalyService.getLatestAnomalies(20);
-        
-        const formattedAnomalies = backendAnomalies.map((a) => ({
-          time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
-            hour: "2-digit",
-            minute: "2-digit"
-          }),
-          type: a.anomalyType,
-          severity: a.severity === "HIGH" ? "yüksek" : "orta",
-          location: `${a.segmentId} - ${a.segmentName}`,
-          value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
-          status: "aktif",
-          description: a.description
-        }));
-
-        setAnomalies(formattedAnomalies);
-        
+      } catch (error) {
+        setTelemetryError("Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin.");
+        console.error(error);
+      } finally {
+        setTelemetryLoading(false);
       }
-      const currentEnergyRisks = await energyRiskService.getCurrentEnergyRisks();
-      setEnergyRiskResults(currentEnergyRisks);
     };
 
     fetchData();
@@ -139,12 +221,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0f1419] flex flex-col">
-      <TopNavbar />
+      <TopNavbar userRole={userRole} setUserRole={setUserRole} />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} userRole={userRole} />
 
         <main className="flex-1 overflow-y-auto p-6">
+          {telemetryLoading && (
+            <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 p-4 text-blue-100">
+              Gerçek zamanlı telemetri verisi yükleniyor... Lütfen bekleyin.
+            </div>
+          )}
+          {telemetryError && (
+            <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-100">
+              {telemetryError}
+            </div>
+          )}
 
           {/* 1. GENEL BAKIŞ (OVERVIEW) - Full Dashboard */}
           {activeSection === "overview" && (
@@ -209,6 +301,9 @@ export default function App() {
                 <div className="border-t border-gray-700/50 pt-8">
                   <OperationalAnalytics routeResult={routeResult} trainLoad={trainLoad} />
                 </div>
+                <div className="border-t border-gray-700/50 pt-8 mt-8">
+                  <RouteOptimizationPanel />
+                </div>
               </div>
             </div>
           )}
@@ -258,40 +353,18 @@ export default function App() {
                 <KPICard title="Kritik Uyarılar" value={anomalies.filter(a => a.severity === 'yüksek').length} icon={AlertTriangle} color="yellow" />
                 <KPICard title="İzlenen Segmentler" value={sensorCount > 0 ? 6 : 0} icon={Activity} color="green" />
               </div>
-
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl mt-6">
-                <h3 className="text-white text-lg font-bold mb-4">Energy & Risk Analysis</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {energyRiskResults.map((item) => (
-                    <div key={item.segmentId} className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                      <div className="text-white font-bold mb-2">
-                        {item.segmentId} - {item.segmentName}
-                      </div>
-
-                      <div className="text-gray-400 text-sm">
-                        Energy Score: <span className="text-blue-400">{item.energyScore}</span>
-                      </div>
-
-                      <div className="text-gray-400 text-sm">
-                        Risk Score: <span className="text-yellow-400">{item.riskScore}</span>
-                      </div>
-
-                      <div className="text-gray-400 text-sm">
-                        Risk Level: <span className="text-red-400">{item.riskLevel}</span>
-                      </div>
-
-                      <p className="text-gray-500 text-xs mt-3">
-                        {item.recommendation}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
-          {/* 4. ÖNGÖRÜLÜ BAKIM (MAINTENANCE) */}
+          {/* 4. ROTA KARŞILAŞTIRMA (ROUTE COMPARISON) */}
+          {activeSection === "route-comparison" && (
+            <div className="space-y-6">
+              <h2 className="text-white text-2xl font-bold mb-4">Rota Karşılaştırma ve Optimizasyon</h2>
+              <RouteOptimizationPanel />
+            </div>
+          )}
+
+          {/* 5. ÖNGÖRÜLÜ BAKIM (MAINTENANCE) */}
           {activeSection === "maintenance" && (
             <div className="space-y-8">
               <h2 className="text-white text-2xl font-bold mb-4">Öngörülü Bakım ve RUL Analizi</h2>
@@ -326,17 +399,31 @@ export default function App() {
             </div>
           )}
 
-          {/* 5. DİĞER (XAI, REPORT, SETTINGS) */}
-          {activeSection === "xai" && <ExplainableAIPanel />}
-          {activeSection === "reports" && (
+          {/* 5. ENERJİ & RİSK (ENERGY-RISK) */}
+          {activeSection === "energy-risk" && (
             <div className="space-y-6">
-              <h2 className="text-white text-2xl font-bold mb-4">Stratejik Karar Raporları</h2>
-              <div className="bg-gray-800 rounded-xl p-8 border border-gray-700">
-                <p className="text-gray-300 italic">Hattın genel verimlilik ve maliyet analiz raporları burada listelenir.</p>
-                {routeResult && <div className="mt-8"><OperationalAnalytics routeResult={routeResult} trainLoad={trainLoad} /></div>}
-              </div>
+              <h2 className="text-white text-2xl font-bold mb-4">Enerji & Risk Analizi</h2>
+              <EnergyRiskDashboard />
             </div>
           )}
+
+          {/* 6. AÇIKLANABILIR YAPAY ZEKA (XAI) */}
+          {activeSection === "xai" && (
+            <div className="space-y-6">
+              <h2 className="text-white text-2xl font-bold mb-4">Açıklanabilir AI Analiz</h2>
+              <ExplainableAIPanel />
+            </div>
+          )}
+
+          {/* 7. RAPORLAR VE KARARLAR (REPORTS) */}
+          {activeSection === "reports" && (
+            <div className="space-y-6">
+              <h2 className="text-white text-2xl font-bold mb-4">Generatif AI Raporları</h2>
+              <GenerativeReportPanel />
+            </div>
+          )}
+
+          {/* 8. AYARLAR (SETTINGS) */}
           {activeSection === "settings" && (
             <div className="max-w-2xl space-y-6">
               <h2 className="text-white text-2xl font-bold mb-4">Sistem Yapılandırması</h2>
