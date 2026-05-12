@@ -27,7 +27,7 @@ public class ExternalAIService {
     }
     public Map<String, Object> predictRul(SensorFeature feature) {
 
-        String url = "http://localhost:5000/rul";
+        String url = "http://ai-service:5000/rul";
 
         Map<String, Object> request = new HashMap<>();
         request.put("rms", feature.getRms());
@@ -40,7 +40,7 @@ public class ExternalAIService {
     }
     public Map<String, Object> explainPrediction(SensorFeature feature) {
 
-        String url = "http://localhost:5000/xai";
+        String url = "http://ai-service:5000/xai";
 
         Map<String, Object> request = new HashMap<>();
         request.put("rms", feature.getRms());
