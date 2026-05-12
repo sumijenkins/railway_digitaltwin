@@ -12,6 +12,10 @@ import { ExplainableAIPanel } from "./components/ExplainableAIPanel";
 import { EnergyRiskDashboard } from "./components/EnergyRiskDashboard";
 import { GenerativeReportPanel } from "./components/GenerativeReportPanel";
 import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
+import { TrackDetailPage } from "./components/TrackDetailPage";
+import { TrainDetailPage } from "./components/TrainDetailPage";
+import { anomalyService } from "../services/anomalyService";
+import { energyRiskService } from "../services/energyRiskService";
 import {
   Activity,
   AlertTriangle,
@@ -20,7 +24,7 @@ import {
 } from "lucide-react";
 import { getRealNetwork } from "../utils/realData";
 import { findShortestPath } from "../utils/algorithms/dijkstra";
-import { RailwayNetwork } from "../types/Railway";
+import { RailwayNetwork, Train } from "../types/Railway";
 import { telemetryService } from "../services/telemetryService";
 
 export default function App() {
@@ -39,6 +43,33 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
+  const [selectedTrainId, setSelectedTrainId] = useState<string | null>(null);
+  const [trains] = useState<Train[]>([
+    {
+      id: "T-01",
+      name: "Yük Treni 27",
+      maxLoad: 1500,
+      totalLoad: 1340,
+      currentStationId: "izm-c",
+      destinationStationId: "ban",
+    },
+    {
+      id: "T-02",
+      name: "Yük Treni 54",
+      maxLoad: 1400,
+      totalLoad: 970,
+      currentStationId: "man",
+      destinationStationId: "akh",
+    },
+  ]);
+  const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
+  const selectedTrack = network?.tracks.find((track) => track.id === selectedTrackId) || null;
+  const selectedTrain = trains.find((train) => train.id === selectedTrainId) || null;
+
+  const handleSelectTrain = (trainId: string) => {
+    setSelectedTrainId(trainId);
+    setActiveSection("train-detail");
+  };
 
   // Load Network Once
   useEffect(() => {
@@ -257,7 +288,16 @@ export default function App() {
                     <button onClick={simulateTrackWear} className="px-4 py-1.5 bg-purple-600 border border-purple-400 text-white rounded-md text-xs font-bold shadow-lg shadow-purple-500/20">ZAMANI HIZLANDIR</button>
                   </div>
                   <div className="border border-gray-700 rounded-lg overflow-hidden h-[500px] shadow-2xl bg-gray-900/40">
-                    <GISMap network={network} activeRoute={routeResult} viewMode={mapMode} selectedTrackId={selectedTrackId} onSelectTrack={setSelectedTrackId} />
+                    <GISMap
+                      network={network}
+                      activeRoute={routeResult}
+                      viewMode={mapMode}
+                      selectedTrackId={selectedTrackId}
+                      selectedTrainId={selectedTrainId}
+                      trains={trains}
+                      onSelectTrack={setSelectedTrackId}
+                      onSelectTrain={handleSelectTrain}
+                    />
                   </div>
                 </div>
                 <div className="lg:col-span-1">
@@ -306,6 +346,26 @@ export default function App() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeSection === "track-detail" && (
+            <TrackDetailPage
+              network={network}
+              selectedTrackId={selectedTrackId}
+              onSelectTrackId={setSelectedTrackId}
+              selectedTrack={selectedTrack}
+            />
+          )}
+
+          {activeSection === "train-detail" && (
+            <TrainDetailPage
+              trains={trains}
+              selectedTrainId={selectedTrainId}
+              onSelectTrainId={setSelectedTrainId}
+              selectedTrain={selectedTrain}
+              network={network}
+              sensorData={sensorData}
+            />
           )}
 
           {/* 2. CANLI SENSÖR İZLEME (SENSORS) */}
