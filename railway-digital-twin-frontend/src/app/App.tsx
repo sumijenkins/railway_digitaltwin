@@ -14,6 +14,9 @@ import { GenerativeReportPanel } from "./components/GenerativeReportPanel";
 import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
 import { anomalyService } from "../services/anomalyService";
 import { energyRiskService } from "../services/energyRiskService";
+import { TrackDetailPage } from "./components/TrackDetailPage";
+import { TrainDetailPage } from "./components/TrainDetailPage";
+
 import {
   Activity,
   AlertTriangle,
@@ -22,38 +25,44 @@ import {
 } from "lucide-react";
 import { getRealNetwork } from "../utils/realData";
 import { findShortestPath } from "../utils/algorithms/dijkstra";
-import { RailwayNetwork } from "../types/Railway";
-import { telemetryService } from "../services/telemetryService";
+import { RailwayNetwork, Train } from "../types/Railway";
+import { initialTrains } from "../data/mockTrains";
+import { useTelemetry } from "../hooks/useTelemetry";
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("overview");
-  const [sensorData, setSensorData] = useState<any[]>([]);
-  const [sensorCount, setSensorCount] = useState<number>(0);
   const [network, setNetwork] = useState<RailwayNetwork | null>(null);
+
+  // Custom Hook: Telemetry, Anomali ve Harita güncellemelerini yönetir
+  const { sensorData, sensorCount, anomalies, telemetryError } = useTelemetry(setNetwork);
+
   const [routeResult, setRouteResult] = useState<any>(null);
   const [trainLoad, setTrainLoad] = useState<number>(400);
   const [startStation, setStartStation] = useState<string>("izm-c");
   const [endStation, setEndStation] = useState<string>("ban");
   const [mapMode, setMapMode] = useState<"status" | "maintenance">("status");
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('engineer');
+  const [selectedTrainId, setSelectedTrainId] = useState<string | null>(null);
+  const [trains] = useState<Train[]>(initialTrains);
 
-  const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
-  const [userRole, setUserRole] = useState<string>("engineer");
-  const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
-  const [telemetryError, setTelemetryError] = useState<string | null>(null);
-  const [initialTelemetryLoaded, setInitialTelemetryLoaded] = useState<boolean>(false);
-  const [anomalies, setAnomalies] = useState<any[]>([]);
+  const energyRiskResults: any[] = [];
 
-  // Stable callback reference — prevents GISMap from re-rendering on every parent state change
+  const selectedTrack = network?.tracks.find((track) => track.id === selectedTrackId) || null;
+  const selectedTrain = trains.find((train) => train.id === selectedTrainId) || null;
+
   const handleSelectTrack = useCallback((id: string) => setSelectedTrackId(id), []);
-  const handleSetMapMode = useCallback((mode: 'status' | 'maintenance') => setMapMode(mode), []);
+  const handleSetMapMode = useCallback((mode: "status" | "maintenance") => setMapMode(mode), []);
   const handleSetUserRole = useCallback((role: string) => setUserRole(role), []);
   const handleSetActiveSection = useCallback((section: string) => setActiveSection(section), []);
   const handleSetStartStation = useCallback((s: string) => setStartStation(s), []);
   const handleSetEndStation = useCallback((s: string) => setEndStation(s), []);
   const handleSetTrainLoad = useCallback((n: number) => setTrainLoad(n), []);
 
-  const memoizedRouteResult = useMemo(() => routeResult, [JSON.stringify(routeResult)]);
+  const handleSelectTrain = useCallback((trainId: string) => {
+    setSelectedTrainId(trainId);
+    setActiveSection("train-detail");
+  }, []);
 
   useEffect(() => {
     setNetwork(getRealNetwork());
@@ -74,254 +83,25 @@ export default function App() {
     });
   }, [network, startStation, endStation, trainLoad]);
 
-  useEffect(() => {
-  let isFirstLoad = true;
-
-  const fetchData = async () => {
-    if (isFirstLoad) {
-      setTelemetryLoading(true);
-    }
-
-    setTelemetryError(null);
-
-    try {
-      const readings = await telemetryService.getLatestTelemetry(120);
-
-      if (readings && readings.length > 0) {
-        const bySegment: Record<string, Record<string, number | string>> = {};
-
-        for (const r of readings) {
-          if (!bySegment[r.segmentId]) {
-            bySegment[r.segmentId] = {
-              segmentId: r.segmentId,
-              timestamp: r.recordedAt,
-            };
-          }
-
-          bySegment[r.segmentId][r.channelName] = r.value;
-        }
-
-        const latestSegments = Object.values(bySegment) as any[];
-
-        const calculatedEnergyRisk = latestSegments.map((seg: any) => {
-        const temperature = Number(seg["ray_temperature"] ?? 0);
-        const vibration = Number(seg["ray_vibration_x"] ?? 0);
-        const tilt = Number(seg["rail_slope"] ?? 0);
-        const speed = Number(seg["train_speed"] ?? 0);
-
-        const riskScore = Math.min(
-          100,
-          Math.round(
-            (temperature * 0.8) +
-            (vibration * 12) +
-            (Math.abs(tilt) * 15)
-          )
-        );
-
-        const energyScore = Math.round(
-          120 +
-          (speed * 0.9) +
-          (temperature * 1.5) +
-          (vibration * 8)
-        );
-
-        let riskLevel = "LOW";
-
-        if (riskScore >= 70) {
-          riskLevel = "HIGH";
-        } else if (riskScore >= 50) {
-          riskLevel = "MEDIUM";
-        }
-
-        return {
-          segmentId: seg.segmentId,
-          energyScore,
-          riskScore,
-          riskLevel,
-        };
-      });
-
-setEnergyRiskResults(calculatedEnergyRisk);
-
-        const chartData = latestSegments
-          .slice(0, 20)
-          .reverse()
-          .map((seg: any) => ({
-            time: new Date(seg.timestamp).toLocaleTimeString("tr-TR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            }),
-            temperature: seg["ray_temperature"] ?? 0,
-            vibration: seg["ray_vibration_x"] ?? 0,
-            tilt: seg["rail_slope"] ?? 0,
-            trainTemp: seg["train_temperature"] ?? 0,
-            speed: seg["train_speed"] ?? 0,
-            trainVib: seg["train_vibration_x"] ?? 0,
-          }));
-
-        setSensorData(chartData);
-
-        const uniqueSensorIds = new Set(readings.map((r) => r.sensorId));
-        setSensorCount(uniqueSensorIds.size);
-
-        const backendAnomalies = await anomalyService.getLatestAnomalies(20);
-
-        const formattedAnomalies = backendAnomalies.map((a) => ({
-          time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          type: a.anomalyType,
-          severity: a.severity === "HIGH" ? "yüksek" : "orta",
-          location: `${a.segmentId} - ${a.segmentName}`,
-          value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
-          status: "aktif",
-          description: a.description,
-        }));
-
-        const newDetectedAnomalies: any[] = [];
-
-        for (const latest of latestSegments) {
-          const time = new Date(latest.timestamp).toLocaleTimeString("tr-TR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-
-          if (Number(latest["ray_temperature"]) > 40) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Kritik Sıcaklık",
-              severity: "yüksek",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest["ray_temperature"]).toFixed(1)}°C`,
-              status: "aktif",
-            });
-          }
-
-          if (Number(latest["train_speed"]) > 85) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Aşırı Hız Limit Aşımı",
-              severity: "orta",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest["train_speed"]).toFixed(1)} km/h`,
-              status: "aktif",
-            });
-          }
-
-          if (Number(latest["ray_vibration_x"]) > 2.5) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Yüksek Ray Titreşimi",
-              severity: "yüksek",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest["ray_vibration_x"]).toFixed(2)} Hz`,
-              status: "aktif",
-            });
-          }
-
-          if (Math.abs(Number(latest["rail_slope"] ?? 0)) > 3) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Hatalı Ray Eğimi",
-              severity: "orta",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest["rail_slope"]).toFixed(1)}°`,
-              status: "izleniyor",
-            });
-          }
-        }
-
-        setAnomalies((prev) => {
-          const combined = [...newDetectedAnomalies, ...formattedAnomalies, ...prev];
-
-          const unique = combined.filter(
-            (item, index, self) =>
-              index ===
-              self.findIndex(
-                (other) =>
-                  other.time === item.time &&
-                  other.type === item.type &&
-                  other.location === item.location
-              )
-          );
-
-          return unique.slice(0, 20);
-        });
-
-        setNetwork((prevNetwork) => {
-          if (!prevNetwork) return null;
-
-          const newTracks = prevNetwork.tracks.map((track) => {
-            const segmentId = track.id.replace("-R", "");
-            const segmentData = bySegment[segmentId];
-
-            if (!segmentData) return track;
-
-            let health = 95;
-
-            if (
-              Number(segmentData["ray_temperature"]) > 40 ||
-              Number(segmentData["ray_vibration_x"]) > 2.5
-            ) {
-              health = 40;
-            } else if (
-              Number(segmentData["train_speed"]) > 85 ||
-              Math.abs(Number(segmentData["rail_slope"] ?? 0)) > 3
-            ) {
-              health = 70;
-            }
-
-            return {
-              ...track,
-              healthScore: health,
-            };
-          });
-
-          return {
-            ...prevNetwork,
-            tracks: newTracks,
-          };
-        });
-      }
-
-    
-    } catch (error) {
-      setTelemetryError(
-        "Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin."
-      );
-      console.error(error);
-    } finally {
-      if (isFirstLoad) {
-        setTelemetryLoading(false);
-        isFirstLoad = false;
-      }
-
-      setInitialTelemetryLoaded(true);
-    }
-  };
-
-    fetchData();
-    // Poll every 10s instead of 3s — reduces unnecessary re-renders
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
   const simulateTrackWear = useCallback(() => {
-    setNetwork(prev => {
-      if (!prev) return null;
+  if (!network) return;
 
-      return {
-        ...prev,
-        tracks: prev.tracks.map((t) => ({
-          ...t,
-          healthScore: Math.max(10, t.healthScore - (Math.random() > 0.7 ? 2 : 0)),
-          accumulatedTonnage: t.accumulatedTonnage + Math.random() * 50000,
-        })),
-      };
-    });
-  }, []);
+  setNetwork((prev) => {
+    if (!prev) return null;
+
+    return {
+      ...prev,
+      tracks: prev.tracks.map((t) => ({
+        ...t,
+        healthScore: Math.max(
+          10,
+          t.healthScore - (Math.random() > 0.7 ? 2 : 0)
+        ),
+        accumulatedTonnage: t.accumulatedTonnage + Math.random() * 50000,
+      })),
+    };
+  });
+}, [network]);
 
   return (
     <div className="min-h-screen bg-[#0f1419] flex flex-col">
@@ -335,11 +115,6 @@ setEnergyRiskResults(calculatedEnergyRisk);
         />
 
         <main className="flex-1 overflow-y-auto p-6">
-          {telemetryLoading && (
-            <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 p-4 text-blue-100">
-              Gerçek zamanlı telemetri verisi yükleniyor... Lütfen bekleyin.
-            </div>
-          )}
 
           {telemetryError && (
             <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-100">
@@ -403,10 +178,13 @@ setEnergyRiskResults(calculatedEnergyRisk);
                   <div className="border border-gray-700 rounded-lg overflow-hidden h-[500px] shadow-2xl bg-gray-900/40">
                     <GISMap
                       network={network}
-                      activeRoute={memoizedRouteResult}
+                      activeRoute={routeResult}
                       viewMode={mapMode}
                       selectedTrackId={selectedTrackId}
-                      onSelectTrack={handleSelectTrack}
+                      selectedTrainId={selectedTrainId}
+                      trains={trains}
+                      onSelectTrack={setSelectedTrackId}
+                      onSelectTrain={handleSelectTrain}
                     />
                   </div>
                 </div>
@@ -501,6 +279,27 @@ setEnergyRiskResults(calculatedEnergyRisk);
             </div>
           )}
 
+          {activeSection === "track-detail" && (
+            <TrackDetailPage
+              network={network}
+              selectedTrackId={selectedTrackId}
+              onSelectTrackId={setSelectedTrackId}
+              selectedTrack={selectedTrack}
+            />
+          )}
+
+          {activeSection === "train-detail" && (
+            <TrainDetailPage
+              trains={trains}
+              selectedTrainId={selectedTrainId}
+              onSelectTrainId={setSelectedTrainId}
+              selectedTrain={selectedTrain}
+              network={network}
+              sensorData={sensorData}
+            />
+          )}
+
+          {/* 2. CANLI SENSÖR İZLEME (SENSORS) */}
           {activeSection === "sensors" && (
             <div className="space-y-6">
               <h2 className="text-white text-2xl font-bold mb-4">Canlı Sensör İzleme Ağı</h2>
