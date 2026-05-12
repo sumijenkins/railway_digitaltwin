@@ -8,172 +8,193 @@ import {
 } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { AlertCircle, TrendingUp, Brain, Lightbulb } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
+import { AlertCircle, Brain, Lightbulb, Activity, CheckCircle, Network } from 'lucide-react';
 
-const featureImportance = [
-  { feature: "Hat Sıcaklığı", importance: 0.32, color: "#ef4444" },
-  { feature: "Segment Risk Skoru", importance: 0.28, color: "#f59e0b" },
-  { feature: "Enerji Tüketimi", importance: 0.22, color: "#10b981" },
-  { feature: "Titreşim Seviyeleri", importance: 0.12, color: "#3b82f6" },
-  { feature: "Hat Eğimi", importance: 0.06, color: "#8b5cf6" },
+const shapDataAnomaly = [
+  { feature: "Ray Sıcaklığı (Max)", importance: 0.38, color: "#ef4444" },
+  { feature: "Titreşim Z Ekseni", importance: 0.25, color: "#f97316" },
+  { feature: "Hat Eğimi Sapması", importance: 0.18, color: "#eab308" },
+  { feature: "Araç Hızı", importance: 0.12, color: "#3b82f6" },
+  { feature: "Tonaj Yükü", importance: 0.07, color: "#8b5cf6" },
+];
+
+const limeDataAnomaly = [
+  { feature: "Ray Sıcaklığı = 48°C", value: 0.42, type: "positive" },
+  { feature: "Titreşim Z = 3.2g", value: 0.28, type: "positive" },
+  { feature: "Hız = 82 km/h", value: 0.15, type: "positive" },
+  { feature: "Son Bakım = 15 Gün", value: -0.12, type: "negative" },
+  { feature: "Eğim = %1.2", value: -0.08, type: "negative" },
+];
+
+const shapDataRoute = [
+  { feature: "Tahmini Enerji Tüketimi", importance: 0.45, color: "#10b981" },
+  { feature: "Segment Risk Skoru", importance: 0.30, color: "#ef4444" },
+  { feature: "Toplam Süre", importance: 0.15, color: "#3b82f6" },
+  { feature: "Hat Trafik Yoğunluğu", importance: 0.10, color: "#8b5cf6" },
+];
+
+const limeDataRoute = [
+  { feature: "Enerji (S2-S4) < 1.2MWh", value: 0.35, type: "positive" },
+  { feature: "S5 Kritik Risk İhlali Yok", value: 0.25, type: "positive" },
+  { feature: "Bekleme Süresi = 0", value: 0.20, type: "positive" },
+  { feature: "Güzergah Uzunluğu = +12km", value: -0.18, type: "negative" },
 ];
 
 export function ExplainableAIPanel() {
+  const [analysisType, setAnalysisType] = useState<'anomaly' | 'route'>('anomaly');
   const [selectedTab, setSelectedTab] = useState<'SHAP' | 'LIME'>('SHAP');
 
-  const mockKeyFactors = [
-    '🌡️ Ray sıcaklığı kritik eşikten 45°C üzeri',
-    '📈 Titreşim değerleri standart sapmanın 2.5 katı',
-    '📊 Segment eğimindeki sapma (+1.2°)',
-    '⚡ Tren hızının ani yavaşlaması'
-  ];
-
-  const mockActions = [
-    '🔧 Segment yüzey kontrolü yapın',
-    '⚠️ Hız limitini %15 azaltın',
-    '📞 Bakım ekibini haberdar edin',
-    '📊 Devam eden izleme gerçekleştirin'
-  ];
+  const isAnomaly = analysisType === 'anomaly';
+  const shapData = isAnomaly ? shapDataAnomaly : shapDataRoute;
+  const limeData = isAnomaly ? limeDataAnomaly : limeDataRoute;
 
   return (
-    <div className="space-y-4">
-      <Card className="bg-gray-800 rounded-lg border border-gray-700">
-        <CardHeader className="border-b border-gray-700">
+    <div className="space-y-6">
+      {/* Analiz Seçici */}
+      <div className="flex gap-4">
+        <button 
+          onClick={() => setAnalysisType('anomaly')}
+          className={`flex-1 p-4 rounded-xl border transition-all duration-300 flex items-center gap-3 ${isAnomaly ? 'bg-purple-900/40 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'bg-gray-800 border-gray-700 opacity-60 hover:opacity-100'}`}
+        >
+          <div className={`p-3 rounded-lg ${isAnomaly ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-700 text-gray-400'}`}>
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <div className="text-left">
+            <h3 className="text-white font-bold">Anomali Tespiti XAI</h3>
+            <p className="text-gray-400 text-xs">Modelin Segment S5 Kararı</p>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => setAnalysisType('route')}
+          className={`flex-1 p-4 rounded-xl border transition-all duration-300 flex items-center gap-3 ${!isAnomaly ? 'bg-blue-900/40 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'bg-gray-800 border-gray-700 opacity-60 hover:opacity-100'}`}
+        >
+          <div className={`p-3 rounded-lg ${!isAnomaly ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-700 text-gray-400'}`}>
+            <Network className="w-6 h-6" />
+          </div>
+          <div className="text-left">
+            <h3 className="text-white font-bold">Rota Optimizasyonu XAI</h3>
+            <p className="text-gray-400 text-xs">T-01 için Alternatif 2 Seçimi</p>
+          </div>
+        </button>
+      </div>
+
+      <Card className="bg-[#151b23] rounded-xl border border-gray-700/50 shadow-2xl overflow-hidden">
+        <CardHeader className="bg-gray-800/30 border-b border-gray-700/50 backdrop-blur-sm">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <Brain className="w-5 h-5 text-purple-400" />
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
               <div>
-                <CardTitle className="text-white text-xl">Açıklanabilir Yapay Zeka (XAI)</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Anomali #42 - TEMPERATURE_SPIKE (Segment S3)
+                <CardTitle className="text-white text-xl flex items-center gap-2">
+                  Model Karar Çıkarımı
+                  <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20 border">Güven:%94.2</Badge>
+                </CardTitle>
+                <CardDescription className="text-gray-400 mt-1">
+                  {isAnomaly ? 'LSTM Autoencoder & Isolation Forest Modeli' : 'Multi-Criteria Dijkstra Optimizasyon Modeli'}
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="destructive" className="text-sm">
-              CRITICAL
+            <Badge className={`${isAnomaly ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'} border-0 px-3 py-1`}>
+              {isAnomaly ? 'KRİTİK TESPİT' : 'OPTİMUM SEÇİM'}
             </Badge>
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6 space-y-6">
-          {/* Doğal Dil Açıklama */}
-          <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-yellow-400" />
-              Detaylı Açıklama
+        <CardContent className="p-6 space-y-8">
+          {/* Doğal Dil Açıklama (Generative AI) */}
+          <div className="relative overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-inner">
+            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-400 to-blue-500"></div>
+            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 uppercase tracking-wider">
+              <Lightbulb className="w-5 h-5 text-yellow-400" />
+              Generatif AI Açıklaması
             </h3>
             <p className="text-gray-300 text-sm leading-relaxed">
-              Bu anomali, segment S3 üzerinde sıcaklık ve titreşim ölçümlerindeki anormal artış nedeniyle tespit edilmiştir. 
-              Sıcaklık, tahmin edilen değerden %35 daha yüksektir ve bu durum ray bozulması riskini artırmaktadır. 
-              Sistem, acil müdahale gerektiren kritik bir durumu sinyallemektedir.
+              {isAnomaly 
+                ? "Yapay zeka modelimiz, Segment S5'te Kritik seviyede bir anomali tespit etmiştir. Bu kararın temel nedeni, Ray Sıcaklığının mevsimsel normallerin (48°C) üzerine çıkması ve buna eşlik eden Z eksenindeki anormal (3.2g) titreşimlerdir. Eğim ve hız limitleri normal sınırlarda olmasına rağmen, termal genleşme ve titreşim kombinasyonu model tarafından %94.2 güvenle yapısal risk olarak işaretlenmiştir."
+                : "Optimizasyon motoru, T-01 yük treni için 'Alternatif Rota 2'yi seçmiştir. Model, S5 segmentindeki tespit edilen yüksek riskli yapısal anomaliyi pas geçmek için rotayı 12km uzatmayı kabul etmiştir. Uzayan rotaya rağmen, düşük eğimli S2-S4 varyantının kullanılması enerji tüketimini 1.2MWh altında tutarak optimum maliyet-güvenlik dengesini sağlamıştır."
+              }
             </p>
           </div>
 
           {/* SHAP vs LIME Tabs */}
-          <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as 'SHAP' | 'LIME')}>
-            <TabsList className="grid w-full grid-cols-2 bg-gray-700">
-              <TabsTrigger value="SHAP" className="data-[state=active]:bg-purple-600">SHAP Analizi</TabsTrigger>
-              <TabsTrigger value="LIME" className="data-[state=active]:bg-blue-600">LIME Analizi</TabsTrigger>
+          <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as 'SHAP' | 'LIME')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-900/50 p-1 border border-gray-700/50 rounded-xl">
+              <TabsTrigger value="SHAP" className="rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all duration-300 py-2.5">
+                <div className="flex items-center gap-2 font-semibold">
+                  <Activity className="w-4 h-4" /> SHAP (Global Feature Importance)
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="LIME" className="rounded-lg data-[state=active]:bg-cyan-600 data-[state=active]:text-white transition-all duration-300 py-2.5">
+                <div className="flex items-center gap-2 font-semibold">
+                  <CheckCircle className="w-4 h-4" /> LIME (Local Explainability)
+                </div>
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="SHAP" className="space-y-4 mt-4">
-              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
-                <h3 className="text-sm font-semibold text-white mb-4">Özellik Önemi Analizi</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={featureImportance} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis type="number" stroke="#9ca3af" tick={{ fill: '#9ca3af' }} />
-                    <YAxis type="category" dataKey="feature" stroke="#9ca3af" tick={{ fill: '#9ca3af' }} width={150} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#1f2937',
-                        border: '1px solid #374151',
-                        color: '#fff'
-                      }}
-                      formatter={(value: any) => `${(value * 100).toFixed(1)}%`}
-                    />
-                    <Bar dataKey="importance" radius={[0, 8, 8, 0]}>
-                      {featureImportance.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="mt-6">
+              <TabsContent value="SHAP" className="m-0 animate-in fade-in duration-500">
+                <div className="bg-gray-800/40 p-6 rounded-xl border border-gray-700/50">
+                  <h3 className="text-gray-300 font-medium mb-6 text-sm text-center">Modelin genel olarak karar alırken hangi sensör verilerine ne kadar ağırlık verdiğini gösterir.</h3>
+                  <div className="h-[320px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={shapData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false} />
+                        <XAxis type="number" stroke="#6b7280" tickFormatter={(v) => `${(v*100).toFixed(0)}%`} />
+                        <YAxis type="category" dataKey="feature" stroke="#9ca3af" width={160} tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          cursor={{ fill: '#374151', opacity: 0.4 }}
+                          contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', color: '#fff' }}
+                          formatter={(value: any) => [`${(value * 100).toFixed(1)}%`, 'Katkı Payı']}
+                        />
+                        <Bar dataKey="importance" radius={[0, 4, 4, 0]} barSize={24}>
+                          {shapData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </TabsContent>
 
-              <div className="grid grid-cols-2 gap-3">
-                {featureImportance.map((item, idx) => (
-                  <div key={idx} className="bg-gray-900 p-3 rounded border border-gray-700">
-                    <p className="text-xs text-gray-400 mb-1">{item.feature}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-white">
-                        {(item.importance * 100).toFixed(0)}%
-                      </span>
-                      <div className="w-16 h-2 bg-gray-700 rounded" style={{
-                        background: `linear-gradient(90deg, ${item.color}40, ${item.color})`
-                      }}></div>
+              <TabsContent value="LIME" className="m-0 animate-in fade-in duration-500">
+                <div className="bg-gray-800/40 p-6 rounded-xl border border-gray-700/50">
+                  <h3 className="text-gray-300 font-medium mb-6 text-sm text-center">Şu anki spesifik tahminde (lokal) hangi parametrelerin sonucu ne yönde (pozitif/negatif) ittiğini gösterir.</h3>
+                  <div className="h-[320px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={limeData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={true} vertical={false} />
+                        <XAxis type="number" stroke="#6b7280" domain={[-0.3, 0.5]} tickFormatter={(v) => v > 0 ? `+${v}` : v} />
+                        <YAxis type="category" dataKey="feature" stroke="#9ca3af" width={180} tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          cursor={{ fill: '#374151', opacity: 0.4 }}
+                          contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', color: '#fff' }}
+                          formatter={(value: any) => [value, 'Etki (Weight)']}
+                        />
+                        <ReferenceLine x={0} stroke="#9ca3af" />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
+                          {limeData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.type === 'positive' ? '#10b981' : '#ef4444'} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex justify-center gap-6 mt-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div> Kararı Destekleyen
                     </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="LIME" className="space-y-4 mt-4">
-              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
-                <h3 className="text-sm font-semibold text-white mb-4">Lokal Açıklanabilirlik Analizi</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-400">Model Tahmini Doğruluğu</span>
-                    <span className="text-sm font-semibold text-green-400">94.2%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '94.2%' }}></div>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <p className="text-sm font-semibold text-white mb-3">Tahmin Etiketleri</p>
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge variant="outline" className="text-red-300 border-red-300">Anomali: Sıcaklık</Badge>
-                      <Badge variant="outline" className="text-yellow-300 border-yellow-300">Risk: Yüksek</Badge>
-                      <Badge variant="outline" className="text-orange-300 border-orange-300">Eylem: Acil</Badge>
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div> Karara Karşı Çıkan
                     </div>
                   </div>
                 </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
+            </div>
           </Tabs>
-
-          {/* Anahtar Faktörler */}
-          <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" />
-              Anahtar Faktörler
-            </h3>
-            <ul className="space-y-2">
-              {mockKeyFactors.map((factor, idx) => (
-                <li key={idx} className="text-sm text-gray-300 flex gap-2">
-                  <span className="text-cyan-400">•</span>
-                  {factor}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Önerilen Eylemler */}
-          <div className="bg-gradient-to-r from-orange-900/30 to-red-900/30 p-4 rounded-lg border border-orange-700/50">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-yellow-400" />
-              Önerilen Eylemler
-            </h3>
-            <ul className="space-y-2">
-              {mockActions.map((action, idx) => (
-                <li key={idx} className="text-sm text-gray-200">
-                  {action}
-                </li>
-              ))}
-            </ul>
-          </div>
         </CardContent>
       </Card>
     </div>

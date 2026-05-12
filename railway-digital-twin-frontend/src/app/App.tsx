@@ -14,8 +14,7 @@ import { GenerativeReportPanel } from "./components/GenerativeReportPanel";
 import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
 import { TrackDetailPage } from "./components/TrackDetailPage";
 import { TrainDetailPage } from "./components/TrainDetailPage";
-import { anomalyService } from "../services/anomalyService";
-import { energyRiskService } from "../services/energyRiskService";
+
 import {
   Activity,
   AlertTriangle,
@@ -25,13 +24,16 @@ import {
 import { getRealNetwork } from "../utils/realData";
 import { findShortestPath } from "../utils/algorithms/dijkstra";
 import { RailwayNetwork, Train } from "../types/Railway";
-import { telemetryService } from "../services/telemetryService";
+import { initialTrains } from "../data/mockTrains";
+import { useTelemetry } from "../hooks/useTelemetry";
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("overview");
-  const [sensorData, setSensorData] = useState<any[]>([]);
-  const [sensorCount, setSensorCount] = useState<number>(0);
   const [network, setNetwork] = useState<RailwayNetwork | null>(null);
+
+  // Custom Hook: Telemetry, Anomali ve Harita güncellemelerini yönetir
+  const { sensorData, sensorCount, anomalies, telemetryError } = useTelemetry(setNetwork);
+
   const [routeResult, setRouteResult] = useState<any>(null);
   const [trainLoad, setTrainLoad] = useState<number>(400);
   const [startStation, setStartStation] = useState<string>('izm-c');
@@ -39,30 +41,9 @@ export default function App() {
   const [mapMode, setMapMode] = useState<'status' | 'maintenance'>('status');
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('engineer');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
-  const [telemetryError, setTelemetryError] = useState<string | null>(null);
   const [selectedTrainId, setSelectedTrainId] = useState<string | null>(null);
-  const [trains] = useState<Train[]>([
-    {
-      id: "T-01",
-      name: "Yük Treni 27",
-      maxLoad: 1500,
-      totalLoad: 1340,
-      currentStationId: "izm-c",
-      destinationStationId: "ban",
-    },
-    {
-      id: "T-02",
-      name: "Yük Treni 54",
-      maxLoad: 1400,
-      totalLoad: 970,
-      currentStationId: "man",
-      destinationStationId: "akh",
-    },
-  ]);
-  const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
+  const [trains] = useState<Train[]>(initialTrains);
+
   const selectedTrack = network?.tracks.find((track) => track.id === selectedTrackId) || null;
   const selectedTrain = trains.find((train) => train.id === selectedTrainId) || null;
 
@@ -90,151 +71,6 @@ export default function App() {
     });
   }, [network, startStation, endStation, trainLoad]);
 
-  const [anomalies, setAnomalies] = useState<any[]>([]);
-
-  // Fetch real-time telemetry from PostgreSQL
-  useEffect(() => {
-    const fetchData = async () => {
-      setTelemetryLoading(true);
-      setTelemetryError(null);
-
-      try {
-        const readings = await telemetryService.getLatestTelemetry(120);
-        if (readings && readings.length > 0) {
-
-          // 1. Normalize kayıtları (segment + zaman) bazında grupla
-          //    Her segment için en son okunan channelName → value eşleşmesini bul
-          const bySegment: Record<string, Record<string, number | string>> = {};
-          for (const r of readings) {
-            if (!bySegment[r.segmentId]) {
-              bySegment[r.segmentId] = { segmentId: r.segmentId, timestamp: r.recordedAt };
-            }
-            // channelName key olarak kullan (ray_temperature, train_speed, ...)
-            bySegment[r.segmentId][r.channelName] = r.value;
-          }
-
-        // 2. Her segment → grafik data noktasına dönüştür
-        const chartData = Object.values(bySegment)
-          .slice(0, 20)
-          .reverse()
-          .map((seg: any) => ({
-            time: new Date(seg.timestamp).toLocaleTimeString('tr-TR', {
-              hour: '2-digit', minute: '2-digit', second: '2-digit'
-            }),
-            temperature:  seg['ray_temperature']   ?? 0,
-            vibration:    seg['ray_vibration_x']   ?? 0,
-            tilt:         seg['rail_slope']         ?? 0,
-            trainTemp:    seg['train_temperature']  ?? 0,
-            speed:        seg['train_speed']        ?? 0,
-            trainVib:     seg['train_vibration_x']  ?? 0,
-          }));
-        setSensorData(chartData);
-
-        // Unique sensor sayısını DB'den türet
-        const uniqueSensorIds = new Set(readings.map(r => r.sensorId));
-        setSensorCount(uniqueSensorIds.size);
-
-        // 3. Anomali tespiti — en son gelen segment verisini kullan
-        const latestSegments = Object.values(bySegment) as any[];
-        const newDetectedAnomalies: any[] = [];
-
-        for (const latest of latestSegments) {
-          const time = new Date(latest.timestamp).toLocaleTimeString('tr-TR', {
-            hour: '2-digit', minute: '2-digit'
-          });
-
-          if (latest['ray_temperature'] > 40) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Kritik Sıcaklık",
-              severity: "yüksek",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['ray_temperature']).toFixed(1)}°C`,
-              status: "aktif"
-            });
-          }
-
-          if (latest['train_speed'] > 85) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Aşırı Hız Limit Aşımı",
-              severity: "orta",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['train_speed']).toFixed(1)} km/h`,
-              status: "aktif"
-            });
-          }
-
-          if (latest['ray_vibration_x'] > 2.5) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Yüksek Ray Titreşimi",
-              severity: "yüksek",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['ray_vibration_x']).toFixed(2)} Hz`,
-              status: "aktif"
-            });
-          }
-
-          if (Math.abs(latest['rail_slope'] ?? 0) > 3) {
-            newDetectedAnomalies.push({
-              time,
-              type: "Hatalı Ray Eğimi",
-              severity: "orta",
-              location: `Segment ${latest.segmentId}`,
-              value: `${Number(latest['rail_slope']).toFixed(1)}°`,
-              status: "izleniyor"
-            });
-          }
-        }
-
-        if (newDetectedAnomalies.length > 0) {
-          setAnomalies(prev => {
-            const filtered = newDetectedAnomalies.filter(newA =>
-              !prev.some(oldA => oldA.time === newA.time && oldA.type === newA.type)
-            );
-            return [...filtered, ...prev].slice(0, 10);
-          });
-        }
-
-        // 4. Update track health scores dynamically
-        setNetwork(prevNetwork => {
-          if (!prevNetwork) return null;
-          const newTracks = prevNetwork.tracks.map(track => {
-            // Remove '-R' to match the base segment ID for reverse tracks
-            const segmentId = track.id.replace('-R', '');
-            const segmentData = bySegment[segmentId];
-            if (!segmentData) return track;
-            
-            let health = 95; // Default healthy score
-            
-            // Critical conditions
-            if (Number(segmentData['ray_temperature']) > 40 || Number(segmentData['ray_vibration_x']) > 2.5) {
-                health = 40;
-            } 
-            // Warning conditions
-            else if (Number(segmentData['train_speed']) > 85 || Math.abs(Number(segmentData['rail_slope']) ?? 0) > 3) {
-                health = 70;
-            }
-
-            return { ...track, healthScore: health };
-          });
-          return { ...prevNetwork, tracks: newTracks };
-        });
-      }
-    } catch (error) {
-      setTelemetryError("Gerçek zamanlı telemetri verisi yüklenirken bir hata oluştu. Lütfen sunucu bağlantınızı kontrol edin.");
-      console.error(error);
-    } finally {
-      setTelemetryLoading(false);
-    }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   const simulateTrackWear = () => {
     if (!network) return;
     setNetwork(prev => {
@@ -258,11 +94,7 @@ export default function App() {
         <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} userRole={userRole} />
 
         <main className="flex-1 overflow-y-auto p-6">
-          {telemetryLoading && (
-            <div className="mb-6 rounded-xl border border-blue-500/40 bg-blue-500/10 p-4 text-blue-100">
-              Gerçek zamanlı telemetri verisi yükleniyor... Lütfen bekleyin.
-            </div>
-          )}
+
           {telemetryError && (
             <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-100">
               {telemetryError}
