@@ -1,32 +1,31 @@
-# ai-service/train_model.py
-
 import numpy as np
 import joblib
 from sklearn.ensemble import IsolationForest
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 
-np.random.seed(42)
+normal_data = []
 
-normal_data = np.column_stack([
-    np.random.normal(10, 3, 1000),      # rms
-    np.random.normal(18, 5, 1000),      # peakToPeak
-    np.random.normal(700, 180, 1000),   # fftEnergy
-    np.random.normal(0.01, 0.01, 1000), # slopeGradient
-    np.random.normal(80, 8, 1000),      # snr
-])
+for _ in range(1000):
+    rms = np.random.uniform(5, 25)
+    peak_to_peak = np.random.uniform(5, 30)
+    fft_energy = np.random.uniform(100, 1200)
+    slope_gradient = np.random.uniform(-0.03, 0.03)
+    snr = np.random.uniform(60, 100)
 
-model = Pipeline([
-    ("scaler", StandardScaler()),
-    ("isolation_forest", IsolationForest(
-        n_estimators=100,
-        contamination=0.08,
-        random_state=42
-    ))
-])
+    normal_data.append([
+        rms,
+        peak_to_peak,
+        fft_energy,
+        slope_gradient,
+        snr
+    ])
 
-model.fit(normal_data)
+model = IsolationForest(
+    contamination=0.1,
+    random_state=42
+)
 
-joblib.dump(model, "anomaly_model.joblib")
+model.fit(np.array(normal_data))
 
-print("Model saved as anomaly_model.joblib")
+joblib.dump(model, "models/isolation_forest.pkl")
+
+print("Model trained and saved.")

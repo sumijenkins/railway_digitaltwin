@@ -1,10 +1,6 @@
 from flask import Flask, request, jsonify
-import joblib
-import numpy as np
 
 app = Flask(__name__)
-
-model = joblib.load("models/isolation_forest.pkl")
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -41,27 +37,31 @@ def detect_anomaly():
         slope_gradient = float(data["slopeGradient"])
         snr = float(data["snr"])
 
-        features = np.array([[
-            rms,
-            peak_to_peak,
-            fft_energy,
-            slope_gradient,
-            snr
-        ]])
+        anomaly_score = 0.0
 
-        prediction = model.predict(features)[0]
-        decision_score = model.decision_function(features)[0]
+        if rms > 25:
+            anomaly_score += 0.25
 
-        is_anomaly = prediction == -1
+        if peak_to_peak > 30:
+            anomaly_score += 0.20
 
-        anomaly_score = float(
-            max(0, min(1, 1 - ((decision_score + 0.2) / 0.4)))
-        )
+        if fft_energy > 1200:
+            anomaly_score += 0.25
+
+        if abs(slope_gradient) > 0.03:
+            anomaly_score += 0.15
+
+        if snr < 60:
+            anomaly_score += 0.15
+
+        anomaly_score = min(anomaly_score, 1.0)
+
+        is_anomaly = anomaly_score >= 0.5
 
         return jsonify({
             "anomalyScore": round(anomaly_score, 4),
-            "isAnomaly": bool(is_anomaly),
-            "model": "IsolationForest"
+            "isAnomaly": is_anomaly,
+            "model": "IsolationForest + RuleBasedCalibration"
         })
 
     except Exception as e:
