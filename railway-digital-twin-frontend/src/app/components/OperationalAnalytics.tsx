@@ -43,7 +43,7 @@ export function OperationalAnalytics({ routeResult, trainLoad }: AnalyticsProps)
                     </div>
                     <div className="bg-gray-900/40 p-4 rounded-lg border border-gray-800">
                         <div className="flex items-center gap-2 text-gray-500 text-[10px] mb-1 font-bold">
-                            <Clock className="w-3 h-3" /> TAHMİNİ VARIŞ
+                            <Clock className="w-3 h-3" /> TAHMİNİ VARAŞ
                         </div>
                         <div className="text-xl font-bold text-yellow-400">{delayRisk}</div>
                     </div>

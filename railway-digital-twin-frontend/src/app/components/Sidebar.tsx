@@ -8,7 +8,6 @@ import {
   Settings,
   Zap,
   MapPin,
-  Train,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -22,8 +21,6 @@ export function Sidebar({ activeSection, onSectionChange, userRole = 'engineer' 
   const getMenuItems = () => {
     const items = [
       { id: "overview", label: "Genel Bakış", icon: LayoutDashboard },
-      { id: "track-detail", label: "Ray Detayı", icon: MapPin },
-      { id: "train-detail", label: "Tren Detayı", icon: Train },
       { id: "sensors", label: "Canlı Sensör İzleme", icon: Activity },
       { id: "route-comparison", label: "Rota Karşılaştırma", icon: MapPin },
       { id: "anomaly", label: "Anomali Tespiti", icon: AlertTriangle },

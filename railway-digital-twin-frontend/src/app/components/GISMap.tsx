@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, useMap } from 'react-leaflet';
-import { RailwayNetwork, Track, Train } from '../../types/Railway';
-import { useEffect } from 'react';
+import 'leaflet/dist/leaflet.css';
+import { RailwayNetwork, Track } from '../../types/Railway';
+import { useEffect, memo } from 'react';
 import { LatLngExpression } from 'leaflet';
 
 interface GISMapProps {
@@ -15,10 +16,7 @@ interface GISMapProps {
     };
     viewMode?: 'status' | 'maintenance';
     selectedTrackId?: string | null;
-    selectedTrainId?: string | null;
-    trains?: Train[];
     onSelectTrack?: (id: string) => void;
-    onSelectTrain?: (id: string) => void;
 }
 
 // Helper to fit bounds
@@ -37,7 +35,7 @@ function MapBounds({ network }: { network: RailwayNetwork | null }) {
     return null;
 }
 
-export function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, selectedTrainId, trains = [], onSelectTrack, onSelectTrain }: GISMapProps) {
+export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack }: GISMapProps) {
     if (!network) return <div className="text-white">Harita verisi bekleniyor...</div>;
 
     const routeTrackIds = new Set(activeRoute?.result?.path.map(t => t.id) || []);
@@ -158,47 +156,7 @@ export function GISMap({ network, activeRoute, viewMode = 'status', selectedTrac
                     </CircleMarker>
                 ))}
 
-                {/* TRAIN LOCATIONS */}
-                {trains.map((train) => {
-                    const station = network.stations.find((s) => s.id === train.currentStationId);
-                    if (!station) return null;
-
-                    return (
-                        <CircleMarker
-                            key={train.id}
-                            center={[station.coordinates.lat, station.coordinates.lng]}
-                            pathOptions={{
-                                color: selectedTrainId === train.id ? '#F472B6' : '#A78BFA',
-                                fillColor: selectedTrainId === train.id ? '#F472B6' : '#A78BFA',
-                                fillOpacity: 1,
-                                weight: 2
-                            }}
-                            radius={6}
-                            eventHandlers={{
-                                click: () => onSelectTrain && onSelectTrain(train.id)
-                            }}
-                        >
-                            <Popup>
-                                <div className="text-black text-xs">
-                                    <strong>{train.name}</strong><br />
-                                    ID: {train.id}<br />
-                                    Durak: {station.name}<br />
-                                    <button
-                                        className="mt-2 px-2 py-1 rounded bg-blue-500 text-white text-[11px]"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onSelectTrain && onSelectTrain(train.id);
-                                        }}
-                                    >
-                                        Tren Detayına Git
-                                    </button>
-                                </div>
-                            </Popup>
-                        </CircleMarker>
-                    );
-                })}
-
             </MapContainer>
         </div>
     );
-}
+});
