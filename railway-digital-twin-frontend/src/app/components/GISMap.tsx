@@ -17,6 +17,7 @@ interface GISMapProps {
     viewMode?: 'status' | 'maintenance';
     selectedTrackId?: string | null;
     onSelectTrack?: (id: string) => void;
+    dssOverview?: any;
 }
 
 // Helper to fit bounds
@@ -42,7 +43,7 @@ function MapBounds({ network }: { network: RailwayNetwork | null }) {
     return null;
 }
 
-export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack }: GISMapProps) {
+export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack, dssOverview }: GISMapProps) {
     const [railwayGeoJson, setRailwayGeoJson] = useState<any>(null);
     const [basmaneMenemenGeoJson, setBasmaneMenemenGeoJson] = useState<any>(null);
 
@@ -61,6 +62,31 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
     if (!network) return <div className="text-white">Harita verisi bekleniyor...</div>;
 
     const routeTrackIds = new Set(activeRoute?.result?.path.map(t => t.id) || []);
+
+    const dssSegmentMap = new Map(
+        dssOverview?.segmentReports?.map((report: any) => [
+            report.segmentId,
+            report
+        ]) || []
+    );
+
+    const getDssColor = (segmentId: string) => {
+        const report = dssSegmentMap.get(segmentId) as any;
+
+        if (!report) {
+            return "#4B5563";
+        }
+
+        if (report.severity === "CRITICAL") {
+            return "#EF4444"; // red
+        }
+
+        if (report.severity === "WARNING") {
+            return "#FACC15"; // yellow
+        }
+
+        return "#10B981"; // green
+    };
 
     const getHealthColor = (score: number) => {
         if (score > 80) return '#10B981'; // Green
@@ -165,7 +191,19 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
                         [target.coordinates.lat + offset, target.coordinates.lng + offset]
                     ];
 
-                    const statusColor = isClosed ? '#EF4444' : (isMaintenance ? '#F59E0B' : (isRoute ? '#FACC15' : (isSelected ? '#3B82F6' : '#4B5563')));
+                    const segmentId = track.id.replace("-R", "").replace("-old", "");
+
+                    const dssColor = getDssColor(segmentId);
+
+                    const statusColor = isClosed
+                        ? "#EF4444"
+                        : isMaintenance
+                            ? "#F59E0B"
+                            : isRoute
+                                ? "#FACC15"
+                                : isSelected
+                                    ? "#3B82F6"
+                                    : dssColor;
                     const healthColor = getHealthColor(track.healthScore);
 
                     return (
@@ -188,6 +226,8 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
                                     Ray Sağlığı: <span className={`font-bold ${track.healthScore < 50 ? 'text-red-600' : ''}`}>%{track.healthScore}</span><br />
                                     Toplam Yük: {(track.accumulatedTonnage / 1000000).toFixed(1)}M Ton<br />
                                     Son Denetim: {track.lastInspectionDate}<br />
+                                    DSS Durumu: {(dssSegmentMap.get(segmentId) as any)?.severity ?? "UNKNOWN"}<br />
+                                    Risk Skoru: {(dssSegmentMap.get(segmentId) as any)?.riskScore ?? "-"}<br />
                                     <hr className="my-1" />
                                     Durum: {track.status.toUpperCase()}
                                 </div>

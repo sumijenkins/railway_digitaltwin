@@ -432,6 +432,7 @@ setEnergyRiskResults(calculatedEnergyRisk);
                       viewMode={mapMode}
                       selectedTrackId={selectedTrackId}
                       onSelectTrack={handleSelectTrack}
+                      dssOverview={dssOverview}
                     />
                   </div>
                 </div>
