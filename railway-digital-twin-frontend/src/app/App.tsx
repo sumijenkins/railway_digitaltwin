@@ -14,6 +14,8 @@ import { GenerativeReportPanel } from "./components/GenerativeReportPanel";
 import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
 import { anomalyService } from "../services/anomalyService";
 import { energyRiskService } from "../services/energyRiskService";
+import { DSSPanel } from "./components/DSSPanel";
+import { dssService } from "../services/dssService";
 import {
   Activity,
   AlertTriangle,
@@ -43,6 +45,8 @@ export default function App() {
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
   const [initialTelemetryLoaded, setInitialTelemetryLoaded] = useState<boolean>(false);
   const [anomalies, setAnomalies] = useState<any[]>([]);
+  const [dssOverview, setDssOverview] = useState<any>(null);
+  const [dssRouteReport, setDssRouteReport] = useState<any>(null);
 
   // Stable callback reference — prevents GISMap from re-rendering on every parent state change
   const handleSelectTrack = useCallback((id: string) => setSelectedTrackId(id), []);
@@ -54,6 +58,7 @@ export default function App() {
   const handleSetTrainLoad = useCallback((n: number) => setTrainLoad(n), []);
 
   const memoizedRouteResult = useMemo(() => routeResult, [JSON.stringify(routeResult)]);
+  
 
   useEffect(() => {
     setNetwork(getRealNetwork());
@@ -308,6 +313,26 @@ setEnergyRiskResults(calculatedEnergyRisk);
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const fetchDssData = async () => {
+      try {
+        const overview = await dssService.getOverview();
+        const routeReport = await dssService.getRouteReport();
+
+        setDssOverview(overview);
+        setDssRouteReport(routeReport);
+      } catch (error) {
+        console.error("DSS data could not be loaded:", error);
+      }
+    };
+
+    fetchDssData();
+
+    const interval = setInterval(fetchDssData, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const simulateTrackWear = useCallback(() => {
     setNetwork(prev => {
       if (!prev) return null;
@@ -424,6 +449,10 @@ setEnergyRiskResults(calculatedEnergyRisk);
 
               <div className="grid grid-cols-1 gap-6">
                 <AnomalyTimeline anomalies={anomalies} />
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <DSSPanel overview={dssOverview} routeReport={dssRouteReport} />
               </div>
 
               <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-xl">
