@@ -3,11 +3,12 @@ import {
   Activity,
   AlertTriangle,
   Wrench,
-  Brain,
+  Network,
   FileText,
   Settings,
   Zap,
   MapPin,
+  BrainCircuit,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -26,10 +27,11 @@ export function Sidebar({ activeSection, onSectionChange, userRole = 'engineer' 
       { id: "anomaly", label: "Anomali Tespiti", icon: AlertTriangle },
       { id: "maintenance", label: "Öngörülü Bakım", icon: Wrench },
       { id: "energy-risk", label: "Enerji & Risk", icon: Zap },
+      {id: "dss", label: "Karar Destek Sistemi", icon: Network,},
     ];
 
     if (userRole === 'engineer' || userRole === 'manager') {
-      items.push({ id: "xai", label: "Açıklanabilir Yapay Zeka", icon: Brain });
+      items.push({ id: "xai", label: "Açıklanabilir Yapay Zeka", icon: BrainCircuit });
       items.push({ id: "reports", label: "Raporlar ve Kararlar", icon: FileText });
     }
 

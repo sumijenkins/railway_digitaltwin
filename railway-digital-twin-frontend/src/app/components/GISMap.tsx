@@ -1,7 +1,7 @@
-import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, useMap, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { RailwayNetwork, Track } from '../../types/Railway';
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useRef, useState } from 'react';
 import { LatLngExpression } from 'leaflet';
 
 interface GISMapProps {
@@ -22,20 +22,42 @@ interface GISMapProps {
 // Helper to fit bounds
 function MapBounds({ network }: { network: RailwayNetwork | null }) {
     const map = useMap();
+    const hasInitialized = useRef(false);
+
     useEffect(() => {
-        if (network && network.stations.length > 0) {
-            const lats = network.stations.map(s => s.coordinates.lat);
-            const lngs = network.stations.map(s => s.coordinates.lng);
-            map.fitBounds([
-                [Math.min(...lats), Math.min(...lngs)],
-                [Math.max(...lats), Math.max(...lngs)]
-            ], { padding: [50, 50] });
-        }
+        if (!network || network.stations.length === 0) return;
+        if (hasInitialized.current) return;
+
+        const lats = network.stations.map(s => s.coordinates.lat);
+        const lngs = network.stations.map(s => s.coordinates.lng);
+
+        map.fitBounds([
+            [Math.min(...lats), Math.min(...lngs)],
+            [Math.max(...lats), Math.max(...lngs)]
+        ], { padding: [50, 50] });
+
+        hasInitialized.current = true;
     }, [network, map]);
+
     return null;
 }
 
 export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack }: GISMapProps) {
+    const [railwayGeoJson, setRailwayGeoJson] = useState<any>(null);
+    const [basmaneMenemenGeoJson, setBasmaneMenemenGeoJson] = useState<any>(null);
+
+        useEffect(() => {
+            fetch("/data/menemen-bandirma-railway.geojson")
+                .then((res) => res.json())
+                .then((data) => setRailwayGeoJson(data))
+                .catch((err) => console.error("GeoJSON could not be loaded:", err));
+                
+            fetch("/data/basmane-menemen-railway.geojson")
+                .then((res) => res.json())
+                .then((data) => setBasmaneMenemenGeoJson(data))
+                .catch((err) => console.error("Basmane-Menemen GeoJSON could not be loaded:", err));
+        }, []);
+        
     if (!network) return <div className="text-white">Harita verisi bekleniyor...</div>;
 
     const routeTrackIds = new Set(activeRoute?.result?.path.map(t => t.id) || []);
@@ -74,11 +96,53 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
                 scrollWheelZoom={true}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                />
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
 
                 <MapBounds network={network} />
+
+                {railwayGeoJson?.features && (
+                    <GeoJSON
+                        data={
+                        {
+                            type: "FeatureCollection",
+                            features: railwayGeoJson.features.filter(
+                            (f: any) =>
+                                f.geometry &&
+                                (f.geometry.type === "LineString" ||
+                                f.geometry.type === "MultiLineString")
+                            ),
+                        } as any
+                        }
+                        style={() => ({
+                        color: "#2563eb",
+                        weight: 4,
+                        opacity: 0.8,
+                        })}
+                    />
+                    )}
+
+                    {basmaneMenemenGeoJson?.features && (
+                    <GeoJSON
+                        data={
+                        {
+                            type: "FeatureCollection",
+                            features: basmaneMenemenGeoJson.features.filter(
+                            (f: any) =>
+                                f.geometry &&
+                                (f.geometry.type === "LineString" ||
+                                f.geometry.type === "MultiLineString")
+                            ),
+                        } as any
+                        }
+                        style={() => ({
+                        color: "#2563eb",
+                        weight: 4,
+                        opacity: 0.8,
+                        })}
+                    />
+                    )}
 
                 {/* TRACKS */}
                 {network.tracks.filter(track => !track.id.endsWith('-R')).map((track) => {

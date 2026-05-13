@@ -451,10 +451,6 @@ setEnergyRiskResults(calculatedEnergyRisk);
                 <AnomalyTimeline anomalies={anomalies} />
               </div>
 
-              <div className="grid grid-cols-1 gap-6">
-                <DSSPanel overview={dssOverview} routeReport={dssRouteReport} />
-              </div>
-
               <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-xl">
                 <h3 className="text-white text-lg font-bold mb-6 flex items-center gap-2">
                   <Zap className="text-yellow-400 w-5 h-5" /> Lojistik Simülatörü
@@ -525,6 +521,63 @@ setEnergyRiskResults(calculatedEnergyRisk);
 
                 <div className="border-t border-gray-700/50 pt-8 mt-8">
                   <RouteOptimizationPanel />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "dss" && (
+            <div className="space-y-6">
+              <h2 className="text-white text-2xl font-bold mb-4">
+                Karar Destek Sistemi
+              </h2>
+
+              <DSSPanel overview={dssOverview} routeReport={dssRouteReport} />
+
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl">
+                <h3 className="text-white text-lg font-bold mb-4">
+                  Segment Bazlı DSS Analizi
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {dssOverview?.segmentReports?.map((segment: any) => (
+                    <div
+                      key={segment.segmentId}
+                      className="bg-gray-900 rounded-lg p-4 border border-gray-700"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-white font-bold">{segment.segmentId}</h4>
+
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-bold ${
+                            segment.severity === "CRITICAL"
+                              ? "bg-red-500/20 text-red-400"
+                              : segment.severity === "WARNING"
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-green-500/20 text-green-400"
+                          }`}
+                        >
+                          {segment.severity}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-400 text-sm">
+                        Risk Score:
+                        <span className="text-white ml-2">{segment.riskScore}</span>
+                      </p>
+
+                      <p className="text-gray-400 text-sm">
+                        Energy Impact:
+                        <span className="text-white ml-2">
+                          {segment.estimatedEnergyImpact}
+                        </span>
+                      </p>
+
+                      <p className="text-gray-500 text-xs leading-relaxed mt-3">
+                        {segment.executiveSummary}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

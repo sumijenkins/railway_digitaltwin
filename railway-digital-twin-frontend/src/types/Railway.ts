@@ -78,6 +78,7 @@ export interface Track {
     healthScore: number; // 0-100
     accumulatedTonnage: number; // in tons
     lastInspectionDate: string;
+    waypoints?: { lat: number; lng: number }[];
 }
 
 export interface Train {
