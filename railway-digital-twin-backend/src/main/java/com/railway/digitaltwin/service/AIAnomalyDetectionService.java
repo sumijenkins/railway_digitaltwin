@@ -23,7 +23,12 @@ public class AIAnomalyDetectionService {
 
         double score = (Double) response.get("anomalyScore");
         boolean isAnomaly = (Boolean) response.get("isAnomaly");
-        String explanation = aiXaiExplanationService.generateExplanation(feature);
+
+        Map<String, Object> xaiResponse = aiXaiExplanationService.generateExplanation(feature);
+
+        String explanation = xaiResponse.get("explanation") != null
+                ? xaiResponse.get("explanation").toString()
+                : "No XAI explanation generated.";
 
         AnomalyResult result = AnomalyResult.builder()
                 .segmentId(feature.getSegmentId())

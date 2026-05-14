@@ -156,58 +156,111 @@ def explain_prediction():
         slope_gradient = float(data["slopeGradient"])
         snr = float(data["snr"])
 
+        raw_scores = {
+            "RMS": min(abs(rms) / 40, 1),
+            "Peak-to-Peak": min(abs(peak_to_peak) / 50, 1),
+            "FFT Energy": min(abs(fft_energy) / 2500, 1),
+            "Slope Gradient": min(abs(slope_gradient) / 0.10, 1),
+            "SNR": 1 - min(snr / 100, 1)
+        }
+
+        total_score = sum(raw_scores.values()) or 1
+
+        feature_importance = [
+            {
+                "feature": feature,
+                "importance": round(score / total_score, 4)
+            }
+            for feature, score in raw_scores.items()
+        ]
+
+        feature_importance.sort(
+            key=lambda item: item["importance"],
+            reverse=True
+        )
+
         top_factors = []
 
         if rms > 25:
             top_factors.append({
                 "feature": "RMS",
-                "reason": "High RMS value indicates abnormal vibration intensity.",
+                "reason": "Yüksek RMS değeri anormal titreşim yoğunluğunu göstermektedir.",
                 "severity": "HIGH"
             })
 
         if peak_to_peak > 30:
             top_factors.append({
                 "feature": "Peak-to-Peak",
-                "reason": "High peak-to-peak value indicates sudden signal variation.",
+                "reason": "Yüksek Peak-to-Peak değeri ani sinyal değişimlerini göstermektedir.",
                 "severity": "MEDIUM"
             })
 
         if fft_energy > 1200:
             top_factors.append({
                 "feature": "FFT Energy",
-                "reason": "High FFT energy indicates strong frequency-domain vibration.",
+                    "reason": "Yüksek FFT enerjisi, güçlü frekans alanında titreşimi göstermektedir.",
                 "severity": "HIGH"
             })
 
         if abs(slope_gradient) > 0.03:
             top_factors.append({
                 "feature": "Slope Gradient",
-                "reason": "High slope gradient may indicate abnormal rail tilt.",
+                "reason": "Yüksek eğim gradyanı, anormal ray yamağını gösterebilir.",
                 "severity": "MEDIUM"
             })
 
         if snr < 60:
             top_factors.append({
                 "feature": "SNR",
-                "reason": "Low SNR indicates poor signal quality.",
+                "reason": "Düşük SNR, zayıf sinyal kalitesini göstermektedir.",
                 "severity": "MEDIUM"
             })
 
         if not top_factors:
             top_factors.append({
                 "feature": "All features",
-                "reason": "All sensor features are within the normal operating range.",
+                "reason": "Tüm sensör özellikleri normal çalışma aralığındadır.",
                 "severity": "LOW"
             })
 
-        explanation = "The decision was mainly influenced by: " + ", ".join(
-            factor["feature"] for factor in top_factors
+        key_factors = [
+            factor["reason"] for factor in top_factors
+        ]
+
+        recommended_actions = []
+
+        if any(factor["severity"] == "HIGH" for factor in top_factors):
+            recommended_actions.extend([
+                "İlgili demiryolu segmentini inceleyin.",
+                "Segment doğrulanana kadar operasyon hızını azaltın.",
+                "Önleyici bakım programlayın."
+            ])
+        elif any(factor["severity"] == "MEDIUM" for factor in top_factors):
+            recommended_actions.extend([
+                "Gerçek zamanlı izlemeye devam edin.",
+                "Segmenti bir sonraki bakım döngüsünde kontrol edin."
+            ])
+        else:
+            recommended_actions.append(
+                "Şu anda acil bakım gerekmemektedir."
+            )
+
+        top_feature = feature_importance[0]["feature"]
+
+        explanation = (
+            f"Karar en çok {top_feature} özelliğinden etkilenmiştir."
+            f" En önemli faktörler: "
+            + ", ".join(factor["feature"] for factor in top_factors)
+            + "."
         )
 
         return jsonify({
-            "topFactors": top_factors,
+            "method": "RuleBasedXAI",
             "explanation": explanation,
-            "method": "RuleBasedXAI"
+            "featureImportance": feature_importance,
+            "topFactors": top_factors,
+            "keyFactors": key_factors,
+            "recommendedActions": recommended_actions
         })
 
     except Exception as e:

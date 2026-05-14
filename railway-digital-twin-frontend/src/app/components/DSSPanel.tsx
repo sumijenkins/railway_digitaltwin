@@ -11,7 +11,7 @@ export function DSSPanel({ overview, routeReport }: DSSPanelProps) {
       <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl">
         <h3 className="text-white text-lg font-bold mb-2 flex items-center gap-2">
           <Brain className="text-purple-400 w-5 h-5" />
-          Decision Support System
+          Karar Destek Sistemi
         </h3>
         <p className="text-gray-400 text-sm">DSS verisi yükleniyor...</p>
       </div>
@@ -37,7 +37,7 @@ export function DSSPanel({ overview, routeReport }: DSSPanelProps) {
       <div className="flex items-center justify-between">
         <h3 className="text-white text-lg font-bold flex items-center gap-2">
           <Brain className="text-purple-400 w-5 h-5" />
-          Decision Support System
+          Karar Destek Sistemi
         </h3>
 
         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusBorder} ${statusColor}`}>
@@ -69,7 +69,7 @@ export function DSSPanel({ overview, routeReport }: DSSPanelProps) {
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
         <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
           <Route className="w-4 h-4 text-blue-400" />
-          Route Recommendation
+          Rota Önerisi
         </h4>
 
         <p className="text-blue-300 font-mono text-sm mb-2">
@@ -84,7 +84,7 @@ export function DSSPanel({ overview, routeReport }: DSSPanelProps) {
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
         <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
           <Wrench className="w-4 h-4 text-yellow-400" />
-          Maintenance Priority
+          Bakım Öncelikleri
         </h4>
 
         {overview.maintenancePriorityList?.length > 0 ? (
@@ -102,7 +102,7 @@ export function DSSPanel({ overview, routeReport }: DSSPanelProps) {
         ) : (
           <div className="flex gap-2 items-center text-green-400 text-sm">
             <CheckCircle className="w-4 h-4" />
-            No urgent maintenance action required.
+            Şu anda acil bakım gerekmemektedir.
           </div>
         )}
       </div>
