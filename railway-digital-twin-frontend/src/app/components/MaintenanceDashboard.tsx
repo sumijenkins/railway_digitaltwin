@@ -1,16 +1,69 @@
 import { Wrench, AlertTriangle, Calendar, Info } from "lucide-react";
 import { RailwayNetwork, Track } from "../../types/Railway";
+import { useEffect, useState } from "react";
+import { rulService, RulPrediction } from "../../services/rulService";
 
 interface Props {
     network: RailwayNetwork | null;
 }
 
-export function MaintenanceDashboard({ network }: Props) {
+export function MaintenanceDashboard({ network }: Props) { 
+
+    const [rulPredictions, setRulPredictions] =
+    useState<Record<string, RulPrediction>>({});
+
+    const [loadingRul, setLoadingRul] = useState(true);
+
+    useEffect(() => {
+    if (!network) return;
+
+    const fetchRulForAllSegments = async () => {
+        try {
+            setLoadingRul(true);
+
+            const results = await Promise.all(
+                network.tracks.map(async (track) => {
+                    const payload = {
+                        segmentId: track.id.toUpperCase(),
+                        sensorId: 1,
+
+                        // Temporary feature mapping based on track condition
+                        rms: Math.max(5, 50 - track.healthScore),
+                        peakToPeak: Math.max(10, 70 - track.healthScore),
+                        fftEnergy: Math.max(300, (100 - track.healthScore) * 35),
+                        slopeGradient: Math.max(0.01, (100 - track.healthScore) / 1000),
+                        snr: Math.max(20, track.healthScore),
+                    };
+
+                    const prediction = await rulService.predictRul(payload);
+
+                    return {
+                        segmentId: track.id,
+                        prediction,
+                    };
+                })
+            );
+
+            const predictionMap: Record<string, RulPrediction> = {};
+
+            results.forEach((item) => {
+                predictionMap[item.segmentId] = item.prediction;
+            });
+
+            setRulPredictions(predictionMap);
+        } catch (err) {
+            console.error("RUL ERROR:", err);
+        } finally {
+            setLoadingRul(false);
+        }
+    };
+
+    fetchRulForAllSegments();
+}, [network]);
+
     if (!network) return null;
 
-    // Filter tracks that need attention (health < 80)
     const priorityTracks = [...network.tracks]
-        .filter(t => t.healthScore < 80)
         .sort((a, b) => a.healthScore - b.healthScore);
 
     const getUrgencyColor = (score: number) => {
@@ -30,6 +83,7 @@ export function MaintenanceDashboard({ network }: Props) {
             </div>
 
             <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto">
+                
                 {priorityTracks.length === 0 ? (
                     <div className="text-center py-10 text-gray-500 text-sm italic">
                         Tüm hatlar nominal değerde. Bakım gereği saptanmadı.
@@ -38,7 +92,7 @@ export function MaintenanceDashboard({ network }: Props) {
                     priorityTracks.map(track => {
                         // Simulated Remaining Useful Life (RUL) logic
                         const rulDays = Math.max(2, Math.floor((track.healthScore - 40) * 1.5));
-
+                        const segmentRul = rulPredictions[track.id];
                         return (
                             <div key={track.id} className={`p-4 rounded-lg border flex flex-col gap-3 ${getUrgencyColor(track.healthScore)}`}>
                                 <div className="flex justify-between items-start">
@@ -57,7 +111,13 @@ export function MaintenanceDashboard({ network }: Props) {
                                         <Calendar className="w-3 h-3" />
                                         <div className="text-[10px]">
                                             <span className="block opacity-60 uppercase">Tahmini Bakım</span>
-                                            <span className="font-bold font-mono">{track.healthScore < 50 ? 'ACİL' : `${rulDays} GÜN`}</span>
+                                            <span className="font-bold font-mono">
+                                                {segmentRul
+                                                    ? `${segmentRul.remainingLifeDays} GÜN`
+                                                    : track.healthScore < 50
+                                                    ? "ACİL"
+                                                    : `${rulDays} GÜN`}
+                                                </span>
                                         </div>
                                     </div>
                                     <div className="bg-black/20 p-2 rounded flex items-center gap-2">
@@ -67,6 +127,48 @@ export function MaintenanceDashboard({ network }: Props) {
                                             <span className="font-bold font-mono">{(track.accumulatedTonnage / 1000000).toFixed(1)}M Ton</span>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="bg-black/20 p-3 rounded border border-white/10 text-[10px] space-y-2">
+                                    <div className="flex justify-between">
+                                        <span className="opacity-60">RUL</span>
+                                        <span className="font-bold text-cyan-300">
+                                            {loadingRul
+                                                ? "Yükleniyor..."
+                                                : segmentRul
+                                                    ? `${segmentRul.remainingLifeDays} gün`
+                                                    : "Veri yok"}
+                                        </span>
+                                    </div>
+
+                                    {segmentRul && (
+                                        <>
+                                            <div className="flex justify-between">
+                                                <span className="opacity-60">Güven Aralığı</span>
+                                                <span className="font-bold text-blue-300">
+                                                    {segmentRul.confidenceLowerBound} - {segmentRul.confidenceUpperBound} gün
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <span className="opacity-60">Trend</span>
+                                                <span className="font-bold text-orange-300">
+                                                    {segmentRul.degradationTrend}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between">
+                                                <span className="opacity-60">Öncelik</span>
+                                                <span className="font-bold text-red-300">
+                                                    {segmentRul.maintenancePriority}
+                                                </span>
+                                            </div>
+
+                                            <p className="text-gray-300 border-t border-white/10 pt-2">
+                                                {segmentRul.recommendedAction}
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
 
                                 {track.healthScore < 50 && (

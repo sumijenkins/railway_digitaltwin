@@ -117,10 +117,40 @@ def predict_rul():
         else:
             condition = "NORMAL"
 
+        if condition == "CRITICAL":
+            recommended_action = "Acil bakım planlayın ve segmenti yük taşımacılığı için kullanmadan önce kontrol edin."
+        elif condition == "WARNING":
+            recommended_action = "Planlı bakım incelemesi oluşturun ve segmenti yakından izleyin."
+        else:
+            recommended_action = "Düzenli izlemeye devam edin."
+        
+        confidence = max(0.70, min(0.98, 1 - (degradation_score * 0.25)))
+
+        confidence_margin = remaining_life_days * (1 - confidence)
+
+        confidence_lower_bound = max(0, remaining_life_days - confidence_margin)
+        confidence_upper_bound = remaining_life_days + confidence_margin
+
+        if degradation_score >= 0.70:
+            degradation_trend = "HIZLI BOZULMA"
+            maintenance_priority = "YÜKSEK"
+        elif degradation_score >= 0.40:
+            degradation_trend = "ARTAN BOZULMA"
+            maintenance_priority = "ORTA"
+        else:
+            degradation_trend = "KARARLI"
+            maintenance_priority = "DÜŞÜK"
+
         return jsonify({
             "remainingLifeDays": round(remaining_life_days, 2),
             "degradationScore": round(degradation_score, 4),
             "condition": condition,
+            "confidence": round(confidence, 4),
+            "confidenceLowerBound": round(confidence_lower_bound, 2),
+            "confidenceUpperBound": round(confidence_upper_bound, 2),
+            "degradationTrend": degradation_trend,
+            "maintenancePriority": maintenance_priority,
+            "recommendedAction": recommended_action,
             "model": "RuleBasedRUL"
         })
 

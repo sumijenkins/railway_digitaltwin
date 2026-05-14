@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.railway.digitaltwin.entity.SensorFeature;
+import com.railway.digitaltwin.dto.RulPredictionResponseDto;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -98,7 +99,9 @@ public class MqttSensorIngestionService {
             aiAnomalyDetectionService.detectAnomaly(feature);
 
     // RUL prediction
-    double remainingLife = aiRulPredictionService.estimateRemainingLife(feature);
+    RulPredictionResponseDto rulPrediction = aiRulPredictionService.predictRul(feature);
+    double remainingLife = rulPrediction.getRemainingLifeDays();
+
     logger.info("Remaining useful life for segment {}: {} days",
             segmentId,
             remainingLife);
