@@ -52,9 +52,9 @@ public class EnergyRiskService {
             String segmentId = entry.getKey();
             Map<String, TelemetryView> channels = entry.getValue();
 
-            Double temperature = getValue(channels, "ray_temperature");
-            Double vibration = getValue(channels, "ray_vibration_x");
-            Double tilt = getValue(channels, "rail_slope");
+            Double temperature = getValueByKeyword(channels, "temperature", "temp");
+            Double vibration = getValueByKeyword(channels, "vibration", "vib");
+            Double tilt = getValueByKeyword(channels, "slope", "tilt");
 
             String segmentName = getSegmentName(channels);
 
@@ -97,6 +97,30 @@ public class EnergyRiskService {
         return view != null ? view.getValue() : 0.0;
     }
 
+    private Double getValueByKeyword(
+        Map<String, TelemetryView> channels,
+        String... keywords
+) {
+    return channels.entrySet()
+            .stream()
+            .filter(entry -> entry.getKey() != null)
+            .filter(entry -> {
+                String channelName = entry.getKey().toLowerCase();
+
+                for (String keyword : keywords) {
+                    if (channelName.contains(keyword.toLowerCase())) {
+                        return true;
+                    }
+                }
+
+                return false;
+            })
+            .map(entry -> entry.getValue().getValue())
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(0.0);
+}
+
     private String getSegmentName(Map<String, TelemetryView> channels) {
         return channels.values()
                 .stream()
@@ -134,14 +158,14 @@ public class EnergyRiskService {
 
     private String generateRecommendation(String riskLevel) {
         if ("HIGH".equals(riskLevel)) {
-            return "Immediate inspection is recommended for this segment.";
+            return "Bu segment için acil inceleme önerilir.";
         }
 
         if ("MEDIUM".equals(riskLevel)) {
-            return "Segment should be monitored closely and scheduled for preventive maintenance.";
+            return "Bu segment yakından izlenmeli ve önleyici bakım için planlanmalıdır.";
         }
 
-        return "Segment is operating under normal conditions.";
+        return "Segment normal koşullar altında çalışmaktadır.";
     }
 
     private double round(double value) {

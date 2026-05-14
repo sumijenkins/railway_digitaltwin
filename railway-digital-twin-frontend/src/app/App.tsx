@@ -108,45 +108,8 @@ export default function App() {
 
         const latestSegments = Object.values(bySegment) as any[];
 
-        const calculatedEnergyRisk = latestSegments.map((seg: any) => {
-        const temperature = Number(seg["ray_temperature"] ?? 0);
-        const vibration = Number(seg["ray_vibration_x"] ?? 0);
-        const tilt = Number(seg["rail_slope"] ?? 0);
-        const speed = Number(seg["train_speed"] ?? 0);
-
-        const riskScore = Math.min(
-          100,
-          Math.round(
-            (temperature * 0.8) +
-            (vibration * 12) +
-            (Math.abs(tilt) * 15)
-          )
-        );
-
-        const energyScore = Math.round(
-          120 +
-          (speed * 0.9) +
-          (temperature * 1.5) +
-          (vibration * 8)
-        );
-
-        let riskLevel = "LOW";
-
-        if (riskScore >= 70) {
-          riskLevel = "HIGH";
-        } else if (riskScore >= 50) {
-          riskLevel = "MEDIUM";
-        }
-
-        return {
-          segmentId: seg.segmentId,
-          energyScore,
-          riskScore,
-          riskLevel,
-        };
-      });
-
-setEnergyRiskResults(calculatedEnergyRisk);
+        const backendEnergyRiskResults = await energyRiskService.getCurrentEnergyRisks();
+        setEnergyRiskResults(backendEnergyRiskResults);
 
         const chartData = latestSegments
           .slice(0, 20)
@@ -171,6 +134,7 @@ setEnergyRiskResults(calculatedEnergyRisk);
         setSensorCount(uniqueSensorIds.size);
 
         const backendAnomalies = await anomalyService.getLatestAnomalies(20);
+        const backendAnomalyResults = await anomalyService.getLatestAnomalyResults();
 
         const formattedAnomalies = backendAnomalies.map((a) => ({
           time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
@@ -181,8 +145,29 @@ setEnergyRiskResults(calculatedEnergyRisk);
           severity: a.severity === "HIGH" ? "yüksek" : "orta",
           location: `${a.segmentId} - ${a.segmentName}`,
           value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
-          status: "aktif",
+          status: "aktif" as const,
           description: a.description,
+        }));
+
+        const formattedAiAnomalies = backendAnomalyResults
+        .filter((a) => a.isAnomaly)
+        .slice(0, 20)
+        .map((a) => ({
+          time: new Date(a.detectedAt).toLocaleTimeString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          type: `AI Anomaly (${a.modelType})`,
+          severity:
+            a.severity === "HIGH"
+              ? "yüksek"
+              : a.severity === "MEDIUM"
+                ? "orta"
+                : "düşük",
+          location: `Segment ${a.segmentId}`,
+          value: `Score: ${Number(a.anomalyScore).toFixed(2)}`,
+          status: "aktif",
+          description: a.xaiExplanation,
         }));
 
         const newDetectedAnomalies: any[] = [];
@@ -239,7 +224,12 @@ setEnergyRiskResults(calculatedEnergyRisk);
         }
 
         setAnomalies((prev) => {
-          const combined = [...newDetectedAnomalies, ...formattedAnomalies, ...prev];
+          const combined = [
+          ...newDetectedAnomalies,
+          ...formattedAnomalies,
+          ...formattedAiAnomalies,
+          ...prev,
+        ];
 
           const unique = combined.filter(
             (item, index, self) =>
@@ -651,7 +641,7 @@ setEnergyRiskResults(calculatedEnergyRisk);
               </div>
 
               <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-xl mt-6">
-                <h3 className="text-white text-lg font-bold mb-4">Energy & Risk Analysis</h3>
+                <h3 className="text-white text-lg font-bold mb-4">Enerji & Risk Analizi</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {energyRiskResults.map((item) => (
@@ -661,15 +651,15 @@ setEnergyRiskResults(calculatedEnergyRisk);
                       </div>
 
                       <div className="text-gray-400 text-sm">
-                        Energy Score: <span className="text-blue-400">{item.energyScore}</span>
+                        Enerji Skoru: <span className="text-blue-400">{item.energyScore}</span>
                       </div>
 
                       <div className="text-gray-400 text-sm">
-                        Risk Score: <span className="text-yellow-400">{item.riskScore}</span>
+                        Risk Skoru: <span className="text-yellow-400">{item.riskScore}</span>
                       </div>
 
                       <div className="text-gray-400 text-sm">
-                        Risk Level: <span className="text-red-400">{item.riskLevel}</span>
+                        Risk Seviyesi: <span className="text-red-400">{item.riskLevel}</span>
                       </div>
 
                       <p className="text-gray-500 text-xs mt-3">{item.recommendation}</p>

@@ -11,6 +11,7 @@ import com.railway.digitaltwin.repository.SensorReadingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.railway.digitaltwin.entity.SensorFeature;
 
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,9 @@ public class TelemetryService {
 
     private final SensorReadingRepository readingRepository;
     private final SensorChannelRepository channelRepository;
+    private final AnomalyService anomalyService;
+    private final FeatureExtractionService featureExtractionService;
+    private final AIAnomalyDetectionService aiAnomalyDetectionService;
 
     /**
      * Telemetri kayıtlarını sayfalama ile getirir.
@@ -59,6 +63,22 @@ public class TelemetryService {
                 .build();
 
         SensorReading saved = readingRepository.save(reading);
+
+        String segmentId = channel.getSensor().getSegment().getSegmentId();
+        Integer sensorId = channel.getSensor().getSensorId();
+
+        SensorFeature feature = featureExtractionService.extractLatestFeatures(segmentId, sensorId);
+
+        if (feature != null) {
+            aiAnomalyDetectionService.detectAnomaly(feature);
+        }
+
+        anomalyService.detectAndSave(
+                channel.getSensor().getSegment().getSegmentId(),
+                channel.getChannelName(),
+                saved.getValue(),
+                saved.getRecordedAt()
+        );
 
         // Kaydedilen veriyi döndür (native query ile yeniden çekmemek için manuel dönüştür)
         return TelemetryResponseDto.builder()

@@ -23,6 +23,7 @@ public class AnomalyService {
     private final AnomalyRepository anomalyRepository;
     private final RailwaySegmentRepository segmentRepository;
 
+
     @Transactional(readOnly = true)
     public Page<AnomalyResponseDto> getAllAnomalies(Pageable pageable) {
         return anomalyRepository.findAll(pageable).map(this::toDto);

@@ -38,6 +38,20 @@ public interface SensorReadingRepository extends JpaRepository<SensorReading, Lo
             """, countQuery = "SELECT count(*) FROM sensor_reading", nativeQuery = true)
     Page<TelemetryView> findLatestTelemetry(Pageable pageable);
 
+    @Query(value = """
+            SELECT sr.*
+            FROM sensor_reading sr
+            JOIN sensor_channel sc ON sr.channel_id = sc.channel_id
+            JOIN sensor s ON sc.sensor_id = s.sensor_id
+            WHERE s.segment_id = :segmentId
+            ORDER BY sr.recorded_at DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<SensorReading> findLatestReadingsBySegment(
+            @Param("segmentId") String segmentId,
+            @Param("limit") int limit
+    );
+
     /**
      * Belirli bir segment için son N kaydı getirir.
      */
