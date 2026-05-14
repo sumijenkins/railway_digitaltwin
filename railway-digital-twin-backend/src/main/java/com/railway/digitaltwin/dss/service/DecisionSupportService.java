@@ -1,16 +1,17 @@
 package com.railway.digitaltwin.dss.service;
 
 import com.railway.digitaltwin.dto.TelemetryResponseDto;
-import com.railway.digitaltwin.dss.dto.ActionItemDto;
-import com.railway.digitaltwin.dss.dto.DecisionSupportResponseDto;
+import com.railway.digitaltwin.dss.dto.*;
 import com.railway.digitaltwin.dss.model.DecisionSeverity;
+import com.railway.digitaltwin.entity.Anomaly;
+import com.railway.digitaltwin.repository.AnomalyRepository;
 import com.railway.digitaltwin.service.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import com.railway.digitaltwin.dss.dto.DecisionSupportOverviewDto;
-import com.railway.digitaltwin.dss.dto.RouteDecisionReportDto;
-import com.railway.digitaltwin.dss.dto.FeatureContributionDto;
+import com.railway.digitaltwin.entity.RulPredictionResult;
+import com.railway.digitaltwin.repository.RulPredictionResultRepository;
+import java.util.Optional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,11 +22,12 @@ import java.util.List;
 public class DecisionSupportService {
 
     private final TelemetryService telemetryService;
+    private final AnomalyRepository anomalyRepository;
+    private final RulPredictionResultRepository rulPredictionResultRepository;
 
     public DecisionSupportResponseDto generateSegmentReport(String segmentId) {
-
         List<TelemetryResponseDto> telemetryList =
-                telemetryService.getLatestBySegment(segmentId, PageRequest.of(0, 50)).getContent();
+                telemetryService.getLatestBySegment(segmentId, PageRequest.of(0, 80)).getContent();
 
         if (telemetryList == null || telemetryList.isEmpty()) {
             return noDataReport(segmentId);
@@ -34,45 +36,44 @@ public class DecisionSupportService {
         String segmentName = telemetryList.get(0).getSegmentName();
         String existingRiskLevel = telemetryList.get(0).getRiskLevel();
 
-        double avgTemperature = averageByChannel(telemetryList, "temperature");
-        double avgVibration = averageByChannel(telemetryList, "vibration");
-        double avgSpeed = averageByChannel(telemetryList, "speed");
+        double temperature = averageByChannel(telemetryList, "temperature");
+        double vibration = averageByChannel(telemetryList, "vibration");
+        double tilt = averageByChannel(telemetryList, "slope");
+        double speed = averageByChannel(telemetryList, "speed");
 
-        double riskScore = calculateRiskScore(avgTemperature, avgVibration, avgSpeed, existingRiskLevel);
-        DecisionSeverity severity = determineSeverity(riskScore, existingRiskLevel);
+        List<Anomaly> anomalies =
+                anomalyRepository.findBySegment_SegmentIdOrderByDetectedTimeDesc(segmentId);
+        
+        Optional<RulPredictionResult> latestRul =
+        rulPredictionResultRepository.findBySegmentIdOrderByPredictedAtDesc(segmentId)
+                .stream()
+                .findFirst();
 
-        double estimatedEnergyImpact = calculateEnergyImpact(avgTemperature, avgVibration, avgSpeed);
+        double riskScore = calculateRiskScore(
+                temperature,
+                vibration,
+                tilt,
+                speed,
+                anomalies.size(),
+                existingRiskLevel,
+                latestRul
+        );
+        double energyImpact = calculateEnergyImpact(temperature, vibration, tilt, speed);
+        DecisionSeverity severity = determineSeverity(riskScore, existingRiskLevel, anomalies);
 
         return DecisionSupportResponseDto.builder()
                 .segmentId(segmentId)
                 .severity(severity)
                 .riskScore(round(riskScore))
+                .estimatedEnergyImpact(round(energyImpact))
                 .summary(generateSummary(segmentId, segmentName, severity))
-                .estimatedEnergyImpact(round(estimatedEnergyImpact))
-                .executiveSummary(generateExecutiveSummary(segmentId, segmentName, severity, riskScore, estimatedEnergyImpact))
-                .technicalExplanation(generateTechnicalExplanation(avgTemperature, avgVibration, avgSpeed, riskScore, estimatedEnergyImpact))
+                .executiveSummary(generateExecutiveSummary(segmentId, segmentName, severity, riskScore, energyImpact, anomalies.size(), latestRul))
+                .technicalExplanation(generateTechnicalExplanation(temperature, vibration, tilt, speed, riskScore, energyImpact, anomalies.size()))
                 .maintenanceRecommendation(generateMaintenanceRecommendation(severity))
                 .routeRecommendation(generateRouteRecommendation(severity))
-                .keyFindings(generateKeyFindings(
-                        segmentId,
-                        segmentName,
-                        avgTemperature,
-                        avgVibration,
-                        avgSpeed,
-                        existingRiskLevel,
-                        riskScore,
-                        severity
-                ))
-                .recommendedActions(generateActions(severity, avgTemperature, avgVibration, avgSpeed))
-                .featureContributions(
-                        generateFeatureContributions(
-                                avgTemperature,
-                                avgVibration,
-                                avgSpeed,
-                                existingRiskLevel
-                        )
-                )
-                .technicalDetails(generateTechnicalDetails(avgTemperature, avgVibration, avgSpeed, existingRiskLevel))
+                .keyFindings(generateKeyFindings(segmentId, segmentName, temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel, riskScore, severity))
+                .recommendedActions(generateActions(severity, temperature, vibration, tilt, speed, anomalies.size()))
+                .technicalDetails(generateTechnicalDetails(temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel))                .featureContributions(generateFeatureContributions(temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel))
                 .generatedAt(LocalDateTime.now())
                 .build();
     }
@@ -82,7 +83,7 @@ public class DecisionSupportService {
 
         List<DecisionSupportResponseDto> reports = segmentIds.stream()
                 .map(this::generateSegmentReport)
-                .sorted((r1, r2) -> Double.compare(r2.getRiskScore(), r1.getRiskScore()))
+                .sorted((a, b) -> Double.compare(b.getRiskScore(), a.getRiskScore()))
                 .toList();
 
         int criticalCount = (int) reports.stream()
@@ -97,23 +98,14 @@ public class DecisionSupportService {
                 .filter(r -> r.getSeverity() == DecisionSeverity.NORMAL)
                 .count();
 
-        String overallStatus;
-
-        if (criticalCount > 0) {
-            overallStatus = "CRITICAL";
-        } else if (warningCount > 0) {
-            overallStatus = "WARNING";
-        } else {
-            overallStatus = "NORMAL";
-        }
+        String overallStatus = criticalCount > 0 ? "CRITICAL" : warningCount > 0 ? "WARNING" : "NORMAL";
 
         List<ActionItemDto> maintenancePriorityList = reports.stream()
-                .filter(r -> r.getSeverity() == DecisionSeverity.CRITICAL
-                        || r.getSeverity() == DecisionSeverity.WARNING)
+                .filter(r -> r.getSeverity() != DecisionSeverity.NORMAL)
                 .map(r -> ActionItemDto.builder()
                         .priority(r.getSeverity())
-                        .action("Segment " + r.getSegmentId() + " kontrol edilmelidir.")
-                        .reason(r.getSummary())
+                        .action("Segment " + r.getSegmentId() + " için bakım/inceleme planlanmalıdır.")
+                        .reason(r.getExecutiveSummary())
                         .build())
                 .toList();
 
@@ -131,26 +123,16 @@ public class DecisionSupportService {
     }
 
     public RouteDecisionReportDto generateRouteReport() {
-
         DecisionSupportOverviewDto overview = generateOverviewReport();
-
-        List<String> routeOrder = List.of("S1", "S2", "S3", "S4", "S5", "S6");
 
         List<DecisionSupportResponseDto> safeSegments = overview.getSegmentReports().stream()
                 .filter(r -> r.getSeverity() == DecisionSeverity.NORMAL)
-                .sorted((r1, r2) -> Integer.compare(
-                        routeOrder.indexOf(r1.getSegmentId()),
-                        routeOrder.indexOf(r2.getSegmentId())
-                ))
+                .sorted((a, b) -> Double.compare(a.getEstimatedEnergyImpact() + a.getRiskScore(),
+                        b.getEstimatedEnergyImpact() + b.getRiskScore()))
                 .toList();
 
         List<DecisionSupportResponseDto> riskySegments = overview.getSegmentReports().stream()
-                .filter(r -> r.getSeverity() == DecisionSeverity.WARNING
-                        || r.getSeverity() == DecisionSeverity.CRITICAL)
-                .sorted((r1, r2) -> Integer.compare(
-                        routeOrder.indexOf(r1.getSegmentId()),
-                        routeOrder.indexOf(r2.getSegmentId())
-                ))
+                .filter(r -> r.getSeverity() != DecisionSeverity.NORMAL)
                 .toList();
 
         List<String> selectedSegments = safeSegments.stream()
@@ -166,226 +148,29 @@ public class DecisionSupportService {
                 .sum();
 
         String selectedRoute = selectedSegments.isEmpty()
-                ? "Uygun güvenli segment bulunamadı"
+                ? "Uygun güvenli rota bulunamadı"
                 : String.join(" → ", selectedSegments);
 
-        String avoidedText = avoidedSegments.isEmpty()
-                ? "Yüksek risk nedeniyle kaçınılan segment bulunmamaktadır."
-                : "Yüksek risk nedeniyle kaçınılan segmentler: " + String.join(", ", avoidedSegments) + ".";
-
-        String summary = "Seçilen rota, uyarı ve kritik riskli segmentlerden kaçınılarak oluşturulmuştur.";
-
-        String reason = "Karar Destek Sistemi " + selectedRoute
-                + " rotasını seçmiştir. Bu seçim, mevcut operasyonel risk seviyesi normal olan segmentler önceliklendirilerek yapılmıştır. "
-                + avoidedText;
-
-        String recommendedAction = riskySegments.isEmpty()
-                ? "Tüm segmentler şu anda kullanılabilir durumdadır. Düzenli izlemeye devam edin."
-                : "Seçilen rotayı tercih edin ve kaçınılan segmentleri yük taşımacılığı öncesinde kontrol edin.";
+        String reason = "Rota seçimi; segmentlerin risk skoru, enerji etkisi, anomali geçmişi ve mevcut telemetri değerleri birlikte değerlendirilerek yapılmıştır. "
+                + "Riskli segmentler rota dışında bırakılmıştır: "
+                + (avoidedSegments.isEmpty() ? "Yok" : String.join(", ", avoidedSegments)) + ".";
 
         return RouteDecisionReportDto.builder()
                 .selectedRoute(selectedRoute)
                 .selectedSegments(selectedSegments)
                 .avoidedSegments(avoidedSegments)
                 .totalRiskScore(round(totalRiskScore))
-                .summary(summary)
+                .summary("DSS, düşük riskli ve düşük enerji etkili segmentleri önceliklendirerek rota önerisi üretmiştir.")
                 .reason(reason)
-                .recommendedAction(recommendedAction)
+                .recommendedAction(riskySegments.isEmpty()
+                        ? "Tüm segmentler kullanılabilir durumdadır. Düzenli izleme devam etmelidir."
+                        : "Önerilen rota kullanılmalı, kaçınılan segmentler bakım öncesi yük taşımacılığına dahil edilmemelidir.")
                 .generatedAt(LocalDateTime.now())
                 .build();
     }
 
-    private List<FeatureContributionDto> generateFeatureContributions(
-            double temperature,
-            double vibration,
-            double speed,
-            String riskLevel
-    ) {
-
-        List<FeatureContributionDto> contributions = new ArrayList<>();
-
-        if (riskLevel != null) {
-
-            String impact = "LOW";
-
-            if (riskLevel.equalsIgnoreCase("MEDIUM")) {
-                impact = "MEDIUM";
-            }
-
-            if (riskLevel.equalsIgnoreCase("HIGH")
-                    || riskLevel.equalsIgnoreCase("CRITICAL")) {
-                impact = "HIGH";
-            }
-
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Veritabanı Risk Seviyesi")
-                            .impact(impact)
-                            .explanation(
-                                    "Demiryolu segmenti operasyonel veritabanında "
-                                            + riskLevel
-                                            + " risk seviyesinde işaretlenmiştir."
-                            )
-                            .build()
-            );
-        }
-
-        if (temperature > 45) {
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Tren Sıcaklığı")
-                            .impact("HIGH")
-                            .explanation("Yüksek sıcaklık termal gerilimi ve operasyonel kararsızlığı artırabilir.")
-                            .build()
-            );
-        } else {
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Tren Sıcaklığı")
-                            .impact("LOW")
-                            .explanation("Sıcaklık değerleri şu anda kabul edilebilir operasyonel sınırlar içindedir.")
-                            .build()
-            );
-        }
-
-        if (vibration > 2.5) {
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Tren Titreşimi")
-                            .impact("HIGH")
-                            .explanation("Yüksek titreşim ray aşınmasına veya yapısal kararsızlığa işaret edebilir.")
-                            .build()
-            );
-        } else {
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Tren Titreşimi")
-                            .impact("LOW")
-                            .explanation("Titreşim seviyeleri şu anda kararlı görünmektedir.")
-                            .build()
-            );
-        }
-
-        if (speed > 80) {
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Tren Hızı")
-                            .impact("MEDIUM")
-                            .explanation("Yüksek tren hızı operasyonel riski ve enerji tüketimini artırabilir.")
-                            .build()
-            );
-        } else {
-            contributions.add(
-                    FeatureContributionDto.builder()
-                            .feature("Tren Hızı")
-                            .impact("LOW")
-                            .explanation("Mevcut tren hızı kabul edilebilir operasyonel aralıktadır.")
-                            .build()
-            );
-        }
-
-        return contributions;
-    }
-
-    private double calculateEnergyImpact(double temperature, double vibration, double speed) {
-        double temperatureFactor = Math.min(temperature / 80.0, 1.0);
-        double vibrationFactor = Math.min(vibration / 5.0, 1.0);
-        double speedFactor = Math.min(speed / 120.0, 1.0);
-
-        return (0.45 * speedFactor)
-                + (0.35 * vibrationFactor)
-                + (0.20 * temperatureFactor);
-    }
-
-    private String generateExecutiveSummary(
-            String segmentId,
-            String segmentName,
-            DecisionSeverity severity,
-            double riskScore,
-            double energyImpact
-    ) {
-        String location = segmentName != null ? segmentName : segmentId;
-
-        return "Segment " + location
-                + " Karar Destek Sistemi tarafından değerlendirilmiştir. "
-                + "Mevcut operasyonel durum " + severity
-                + " olarak belirlenmiştir. Hesaplanan risk skoru "
-                + round(riskScore)
-                + ", tahmini enerji etkisi ise "
-                + round(energyImpact) + " değerindedir.";
-    }
-
-    private String generateTechnicalExplanation(
-            double temperature,
-            double vibration,
-            double speed,
-            double riskScore,
-            double energyImpact
-    ) {
-        return "Bu karar; normalize edilmiş sıcaklık, titreşim, hız ve veritabanı risk göstergeleri birleştirilerek üretilmiştir. "
-                + "Risk skoru operasyonel güvenliği temsil ederken, tahmini enerji etkisi hız, titreşim ve sıcaklık koşullarının oluşturabileceği enerji maliyetini yansıtmaktadır. "
-                + "Mevcut değerler: sıcaklık=" + round(temperature)
-                + " °C, titreşim=" + round(vibration)
-                + " Hz, hız=" + round(speed)
-                + " km/s, riskSkoru=" + round(riskScore)
-                + ", enerjiEtkisi=" + round(energyImpact) + ".";
-    }
-
-    private String generateMaintenanceRecommendation(DecisionSeverity severity) {
-        if (severity == DecisionSeverity.CRITICAL) {
-            return "Bu segmente yük trafiği yönlendirilmeden önce acil bakım müdahalesi önerilmektedir.";
-        }
-
-        if (severity == DecisionSeverity.WARNING) {
-            return "Planlı bir inceleme yapılması ve segmentin operasyon sırasında yakından izlenmesi önerilmektedir.";
-        }
-
-        return "Şu anda acil bakım gerekmemektedir. Düzenli izleme yeterlidir.";
-    }
-
-    private String generateRouteRecommendation(DecisionSeverity severity) {
-        if (severity == DecisionSeverity.CRITICAL) {
-            return "Bakım tamamlanana kadar bu segment rota planlamasında kullanılmamalıdır.";
-        }
-
-        if (severity == DecisionSeverity.WARNING) {
-            return "Bu segment yalnızca daha güvenli alternatifler yoksa kullanılmalıdır; aksi halde alternatif segmentler tercih edilmelidir.";
-        }
-
-        return "Bu segment mevcut operasyonel koşullar altında rota planlaması için uygundur.";
-    }
-
-    private DecisionSupportResponseDto noDataReport(String segmentId) {
-        List<String> findings = new ArrayList<>();
-        findings.add("Segment " + segmentId + " için telemetri verisi bulunamadı.");
-
-        List<ActionItemDto> actions = new ArrayList<>();
-        actions.add(ActionItemDto.builder()
-                .priority(DecisionSeverity.WARNING)
-                .action("Sensör bağlantısını kontrol edin.")
-                .reason("Güncel telemetri verisi olmadan DSS güvenilir bir karar üretemez.")
-                .build());
-
-        return DecisionSupportResponseDto.builder()
-                .segmentId(segmentId)
-                .severity(DecisionSeverity.WARNING)
-                .riskScore(0.0)
-                .estimatedEnergyImpact(0.0)
-                .featureContributions(new ArrayList<>())
-                .executiveSummary("Telemetri verisi eksik olduğu için yönetici özeti üretilemedi.")
-                .technicalExplanation("Güncel telemetri kayıtları olmadan teknik açıklama üretilemez.")
-                .maintenanceRecommendation("Bakım kararı vermeden önce sensör bağlantısını kontrol edin.")
-                .routeRecommendation("Telemetri verisi elde edilene kadar bu segment rota planlamasında kullanılmamalıdır.")
-                .summary("Telemetri verisi bulunamadığı için karar destek raporu üretilemedi.")
-                .keyFindings(findings)
-                .recommendedActions(actions)
-                .technicalDetails("Telemetri listesi boştur.")
-                .generatedAt(LocalDateTime.now())
-                .build();
-    }
-
-    private double averageByChannel(List<TelemetryResponseDto> telemetryList, String keyword) {
-        return telemetryList.stream()
+    private double averageByChannel(List<TelemetryResponseDto> list, String keyword) {
+        return list.stream()
                 .filter(t -> t.getChannelName() != null)
                 .filter(t -> t.getChannelName().toLowerCase().contains(keyword.toLowerCase()))
                 .filter(t -> t.getValue() != null)
@@ -395,48 +180,52 @@ public class DecisionSupportService {
     }
 
     private double calculateRiskScore(
-            double temperature,
-            double vibration,
-            double speed,
-            String existingRiskLevel
-    ) {
-        double normalizedTemperature = Math.min(temperature / 80.0, 1.0);
-        double normalizedVibration = Math.min(vibration / 5.0, 1.0);
-        double normalizedSpeed = Math.min(speed / 120.0, 1.0);
-        double baseRisk = mapRiskLevel(existingRiskLevel);
+        double temperature,
+        double vibration,
+        double tilt,
+        double speed,
+        int anomalyCount,
+        String riskLevel,
+        Optional<RulPredictionResult> latestRul
+) {
+    double tempRisk = Math.min(temperature / 80.0, 1.0);
+    double vibrationRisk = Math.min(vibration / 5.0, 1.0);
+    double tiltRisk = Math.min(Math.abs(tilt) / 5.0, 1.0);
+    double speedRisk = Math.min(speed / 120.0, 1.0);
+    double anomalyRisk = Math.min(anomalyCount / 10.0, 1.0);
+    double baseRisk = mapRiskLevel(riskLevel);
 
-        return (0.35 * normalizedTemperature)
-                + (0.30 * normalizedVibration)
-                + (0.15 * normalizedSpeed)
-                + (0.20 * baseRisk);
+    double rulRisk = latestRul
+            .map(r -> {
+                Double days = r.getRemainingLifeDays();
+                if (days == null) return 0.0;
+                return Math.max(0.0, Math.min(1.0, 1.0 - (days / 180.0)));
+            })
+            .orElse(0.0);
+
+    return (0.20 * tempRisk)
+            + (0.20 * vibrationRisk)
+            + (0.10 * tiltRisk)
+            + (0.10 * speedRisk)
+            + (0.15 * anomalyRisk)
+            + (0.10 * baseRisk)
+            + (0.15 * rulRisk);
+}
+
+    private double calculateEnergyImpact(double temperature, double vibration, double tilt, double speed) {
+        double tempFactor = Math.min(temperature / 80.0, 1.0);
+        double vibrationFactor = Math.min(vibration / 5.0, 1.0);
+        double tiltFactor = Math.min(Math.abs(tilt) / 5.0, 1.0);
+        double speedFactor = Math.min(speed / 120.0, 1.0);
+
+        return (0.35 * speedFactor)
+                + (0.25 * tiltFactor)
+                + (0.25 * vibrationFactor)
+                + (0.15 * tempFactor);
     }
 
-    private double mapRiskLevel(String riskLevel) {
-        if (riskLevel == null) {
-            return 0.0;
-        }
-
-        String value = riskLevel.toUpperCase();
-
-        if (value.contains("CRITICAL") || value.contains("HIGH")) {
-            return 1.0;
-        }
-
-        if (value.contains("MEDIUM") || value.contains("WARNING")) {
-            return 0.6;
-        }
-
-        if (value.contains("LOW")) {
-            return 0.3;
-        }
-
-        return 0.0;
-    }
-
-    private DecisionSeverity determineSeverity(double riskScore, String existingRiskLevel) {
-
+    private DecisionSeverity determineSeverity(double riskScore, String existingRiskLevel, List<Anomaly> anomalies) {
         if (existingRiskLevel != null) {
-
             String value = existingRiskLevel.toUpperCase();
 
             if (value.contains("CRITICAL") || value.contains("HIGH")) {
@@ -448,155 +237,240 @@ public class DecisionSupportService {
             }
         }
 
-        if (riskScore >= 0.70) {
+        boolean hasHighAnomaly = anomalies.stream()
+                .anyMatch(a -> a.getSeverity() != null && a.getSeverity().equalsIgnoreCase("HIGH"));
+
+        if (riskScore >= 0.70 || hasHighAnomaly) {
             return DecisionSeverity.CRITICAL;
         }
 
-        if (riskScore >= 0.40) {
+        if (riskScore >= 0.40 || !anomalies.isEmpty()) {
             return DecisionSeverity.WARNING;
         }
 
         return DecisionSeverity.NORMAL;
     }
 
-    private String generateSummary(String segmentId, String segmentName, DecisionSeverity severity) {
-        String location = segmentName != null ? segmentName : segmentId;
+    private List<FeatureContributionDto> generateFeatureContributions(double temperature, double vibration, double tilt, double speed, int anomalyCount, String riskLevel) {
+        List<FeatureContributionDto> list = new ArrayList<>();
 
-        if (severity == DecisionSeverity.CRITICAL) {
-            return "Segment " + location + " kritik olarak sınıflandırılmıştır. Acil operasyonel müdahale önerilmektedir.";
-        }
+        list.add(feature("Sıcaklık", temperature > 45 ? "HIGH" : "LOW",
+                temperature > 45 ? "Yüksek sıcaklık ray üzerinde termal stres oluşturabilir." : "Sıcaklık normal aralıktadır."));
 
-        if (severity == DecisionSeverity.WARNING) {
-            return "Segment " + location + " uyarı seviyesinde operasyonel risk göstermektedir. Segment yakından izlenmelidir.";
-        }
+        list.add(feature("Titreşim", vibration > 2.5 ? "HIGH" : "LOW",
+                vibration > 2.5 ? "Yüksek titreşim yapısal bozulma veya ray aşınması göstergesi olabilir." : "Titreşim seviyesi kararlıdır."));
 
-        return "Segment " + location + " şu anda normal çalışma koşullarında çalışmaktadır.";
+        list.add(feature("Eğim", Math.abs(tilt) > 3 ? "MEDIUM" : "LOW",
+                Math.abs(tilt) > 3 ? "Eğim değişimi enerji tüketimini ve güvenlik riskini artırabilir." : "Eğim değeri kabul edilebilir düzeydedir."));
+
+        list.add(feature("Hız", speed > 85 ? "MEDIUM" : "LOW",
+                speed > 85 ? "Yüksek hız risk ve enerji etkisini artırabilir." : "Hız değeri uygun aralıktadır."));
+
+        list.add(feature("Anomali Geçmişi", anomalyCount > 0 ? "MEDIUM" : "LOW",
+                anomalyCount > 0 ? "Bu segmentte geçmiş/aktif anomali kayıtları bulunmaktadır." : "Bu segment için belirgin anomali geçmişi yoktur."));
+
+        return list;
     }
 
-    private List<String> generateKeyFindings(
-            String segmentId,
-            String segmentName,
-            double temperature,
-            double vibration,
-            double speed,
-            String existingRiskLevel,
-            double riskScore,
-            DecisionSeverity severity
-    ) {
+    private FeatureContributionDto feature(String name, String impact, String explanation) {
+        return FeatureContributionDto.builder()
+                .feature(name)
+                .impact(impact)
+                .explanation(explanation)
+                .build();
+    }
+
+    private List<String> generateKeyFindings(String segmentId, String segmentName, double temperature, double vibration, double tilt, double speed, int anomalyCount, String riskLevel, double riskScore, DecisionSeverity severity) {
         List<String> findings = new ArrayList<>();
 
-        String location = segmentName != null ? segmentName : segmentId;
-
-        findings.add("Segment: " + location + ".");
-        findings.add("Ortalama sıcaklık: " + round(temperature) + " °C.");
-        findings.add("Ortalama titreşim: " + round(vibration) + " Hz.");
-        findings.add("Ortalama tren hızı: " + round(speed) + " km/s.");
-        findings.add("Veritabanı risk seviyesi: " + existingRiskLevel + ".");
-        findings.add("Hesaplanan DSS risk skoru: " + round(riskScore) + ".");
-        findings.add("Karar önem seviyesi: " + severity + ".");
-
-        if (temperature > 50) {
-            findings.add("Sıcaklık beklenen çalışma aralığının üzerindedir.");
-        }
-
-        if (vibration > 2.5) {
-            findings.add("Titreşim seviyesi ray kararsızlığına veya mekanik strese işaret edebilir.");
-        }
-
-        if (speed > 90) {
-            findings.add("Tren hızı, risk odaklı segment değerlendirmesi için görece yüksektir.");
-        }
+        findings.add("Segment: " + (segmentName != null ? segmentName : segmentId));
+        findings.add("Ortalama sıcaklık: " + round(temperature));
+        findings.add("Ortalama titreşim: " + round(vibration));
+        findings.add("Ortalama eğim: " + round(tilt));
+        findings.add("Ortalama hız: " + round(speed));
+        findings.add("Anomali sayısı: " + anomalyCount);
+        findings.add("Veritabanı risk seviyesi: " + riskLevel);
+        findings.add("DSS risk skoru: " + round(riskScore));
+        findings.add("Karar seviyesi: " + severity);
 
         return findings;
     }
 
-    private List<ActionItemDto> generateActions(
-            DecisionSeverity severity,
-            double temperature,
-            double vibration,
-            double speed
-    ) {
+    private List<ActionItemDto> generateActions(DecisionSeverity severity, double temperature, double vibration, double tilt, double speed, int anomalyCount) {
         List<ActionItemDto> actions = new ArrayList<>();
 
         if (severity == DecisionSeverity.CRITICAL) {
-            actions.add(ActionItemDto.builder()
-                    .priority(DecisionSeverity.CRITICAL)
-                    .action("Acil bakım incelemesi gerçekleştirin.")
-                    .reason("Birleşik DSS risk skoru kritik eşiği aşmaktadır.")
-                    .build());
+            actions.add(action(DecisionSeverity.CRITICAL, "Acil bakım incelemesi başlatın.", "DSS risk seviyesi kritik olarak hesaplandı."));
         } else if (severity == DecisionSeverity.WARNING) {
-            actions.add(ActionItemDto.builder()
-                    .priority(DecisionSeverity.WARNING)
-                    .action("İnceleme planlayın ve yakın izlemeye devam edin.")
-                    .reason("Segment uyarı seviyesinde risk göstergelerine sahiptir.")
-                    .build());
+            actions.add(action(DecisionSeverity.WARNING, "Planlı kontrol oluşturun.", "Segment uyarı seviyesinde risk göstermektedir."));
         } else {
-            actions.add(ActionItemDto.builder()
-                    .priority(DecisionSeverity.NORMAL)
-                    .action("Düzenli izlemeye devam edin.")
-                    .reason("Sensör değerleri şu anda kabul edilebilir sınırlar içindedir.")
-                    .build());
+            actions.add(action(DecisionSeverity.NORMAL, "Düzenli izlemeye devam edin.", "Segment normal çalışma koşullarındadır."));
         }
 
-        if (temperature > 50) {
-            actions.add(ActionItemDto.builder()
-                    .priority(DecisionSeverity.WARNING)
-                    .action("Segment üzerindeki sıcaklık kaynaklı gerilimi inceleyin.")
-                    .reason("Sıcaklık artışı ray durumunu ve enerji verimliliğini etkileyebilir.")
-                    .build());
+        if (temperature > 45) {
+            actions.add(action(DecisionSeverity.WARNING, "Sıcaklık kaynaklı stres kontrolü yapın.", "Sıcaklık normal sınırların üzerindedir."));
         }
 
         if (vibration > 2.5) {
-            actions.add(ActionItemDto.builder()
-                    .priority(DecisionSeverity.WARNING)
-                    .action("Olası titreşim kaynağını inceleyin.")
-                    .reason("Anormal titreşim ray aşınmasına veya yapısal kararsızlığa işaret edebilir.")
-                    .build());
+            actions.add(action(DecisionSeverity.WARNING, "Titreşim kaynağını inceleyin.", "Yüksek titreşim yapısal risk göstergesi olabilir."));
         }
 
-        if (speed > 90) {
-            actions.add(ActionItemDto.builder()
-                    .priority(DecisionSeverity.WARNING)
-                    .action("Bu segmentte hız azaltımını değerlendirin.")
-                    .reason("Yüksek hız, hassas segmentlerde operasyonel riski artırabilir.")
-                    .build());
+        if (Math.abs(tilt) > 3) {
+            actions.add(action(DecisionSeverity.WARNING, "Ray eğimi kontrol edilmelidir.", "Eğim değişimi operasyonel risk oluşturabilir."));
+        }
+
+        if (speed > 85) {
+            actions.add(action(DecisionSeverity.WARNING, "Hız azaltımı değerlendirilmelidir.", "Yüksek hız enerji ve güvenlik riskini artırabilir."));
+        }
+
+        if (anomalyCount > 0) {
+            actions.add(action(DecisionSeverity.WARNING, "Anomali kayıtları incelenmelidir.", "Segmentte önceki veya aktif anomali kayıtları vardır."));
         }
 
         return actions;
     }
 
-    private String generateTechnicalDetails(
-            double temperature,
-            double vibration,
-            double speed,
-            String existingRiskLevel
-    ) {
-        return "DSS risk skoru normalize edilmiş sıcaklık, titreşim, hız ve veritabanı risk seviyesi kullanılarak hesaplanmıştır. "
-                + "Formül: 0.35 × sıcaklık + 0.30 × titreşim + 0.15 × hız + 0.20 × temelRisk. "
+    private ActionItemDto action(DecisionSeverity priority, String action, String reason) {
+        return ActionItemDto.builder()
+                .priority(priority)
+                .action(action)
+                .reason(reason)
+                .build();
+    }
+
+    private String generateSummary(String segmentId, String segmentName, DecisionSeverity severity) {
+        String location = segmentName != null ? segmentName : segmentId;
+        return "Segment " + location + " DSS tarafından " + severity + " seviyesinde değerlendirilmiştir.";
+    }
+
+    private String generateExecutiveSummary(
+        String segmentId,
+        String segmentName,
+        DecisionSeverity severity,
+        double riskScore,
+        double energyImpact,
+        int anomalyCount,
+        Optional<RulPredictionResult> latestRul
+) {
+    String location = segmentName != null ? segmentName : segmentId;
+
+    String rulText = latestRul
+            .map(r -> " RUL tahmini: " + round(nullToZero(r.getRemainingLifeDays()))
+                    + " gün, güven aralığı: "
+                    + round(nullToZero(r.getConfidenceLowerBound()))
+                    + " - "
+                    + round(nullToZero(r.getConfidenceUpperBound()))
+                    + " gün, bozulma trendi: "
+                    + r.getDegradationTrend()
+                    + ".")
+            .orElse(" RUL tahmini henüz bulunmamaktadır.");
+
+    return "Segment " + location + " için karar destek analizi tamamlanmıştır. "
+            + "Risk seviyesi " + severity
+            + ", risk skoru " + round(riskScore)
+            + ", enerji etkisi " + round(energyImpact)
+            + " ve anomali sayısı " + anomalyCount + " olarak hesaplanmıştır."
+            + rulText;
+}
+
+    private String generateTechnicalExplanation(double temperature, double vibration, double tilt, double speed, double riskScore, double energyImpact, int anomalyCount) {
+        return "DSS kararı; sıcaklık, titreşim, eğim, hız, anomali geçmişi ve mevcut risk seviyesi birlikte değerlendirilerek üretilmiştir. "
                 + "Değerler: sıcaklık=" + round(temperature)
                 + ", titreşim=" + round(vibration)
+                + ", eğim=" + round(tilt)
                 + ", hız=" + round(speed)
-                + ", temelRisk=" + existingRiskLevel + ".";
+                + ", anomaliSayısı=" + anomalyCount
+                + ", riskSkoru=" + round(riskScore)
+                + ", enerjiEtkisi=" + round(energyImpact) + ".";
+    }
+
+    private String generateMaintenanceRecommendation(DecisionSeverity severity) {
+        if (severity == DecisionSeverity.CRITICAL) {
+            return "Bu segment için acil bakım önerilmektedir.";
+        }
+
+        if (severity == DecisionSeverity.WARNING) {
+            return "Bu segment için planlı kontrol ve yakın izleme önerilmektedir.";
+        }
+
+        return "Acil bakım gerekmemektedir. Düzenli izleme yeterlidir.";
+    }
+
+    private String generateRouteRecommendation(DecisionSeverity severity) {
+        if (severity == DecisionSeverity.CRITICAL) {
+            return "Bu segment bakım tamamlanana kadar rota planlamasında kullanılmamalıdır.";
+        }
+
+        if (severity == DecisionSeverity.WARNING) {
+            return "Bu segment yalnızca güvenli alternatif yoksa kullanılmalıdır.";
+        }
+
+        return "Bu segment rota planlaması için uygundur.";
+    }
+
+    private String generateTechnicalDetails(double temperature, double vibration, double tilt, double speed, int anomalyCount, String riskLevel) {
+        return "Formül: 0.25*sıcaklık + 0.25*titreşim + 0.15*eğim + 0.10*hız + 0.15*anomali + 0.10*temelRisk. "
+                + "Ham değerler: temperature=" + round(temperature)
+                + ", vibration=" + round(vibration)
+                + ", tilt=" + round(tilt)
+                + ", speed=" + round(speed)
+                + ", anomalyCount=" + anomalyCount
+                + ", databaseRisk=" + riskLevel + ".";
+    }
+
+    private DecisionSupportResponseDto noDataReport(String segmentId) {
+        List<String> findings = new ArrayList<>();
+        findings.add("Segment " + segmentId + " için telemetri verisi bulunamadı.");
+
+        List<ActionItemDto> actions = new ArrayList<>();
+        actions.add(action(DecisionSeverity.WARNING, "Sensör bağlantısını kontrol edin.", "Telemetri verisi olmadan DSS güvenilir karar üretemez."));
+
+        return DecisionSupportResponseDto.builder()
+                .segmentId(segmentId)
+                .severity(DecisionSeverity.WARNING)
+                .riskScore(0.0)
+                .estimatedEnergyImpact(0.0)
+                .summary("Telemetri verisi bulunamadı.")
+                .executiveSummary("Telemetri verisi eksik olduğu için DSS raporu sınırlıdır.")
+                .technicalExplanation("Segment için güncel telemetri kaydı alınamadı.")
+                .maintenanceRecommendation("Sensör bağlantısı ve MQTT veri akışı kontrol edilmelidir.")
+                .routeRecommendation("Veri gelene kadar segment rota planlamasında dikkatli kullanılmalıdır.")
+                .keyFindings(findings)
+                .recommendedActions(actions)
+                .featureContributions(new ArrayList<>())
+                .technicalDetails("No telemetry data.")
+                .generatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    private double mapRiskLevel(String riskLevel) {
+        if (riskLevel == null) return 0.0;
+
+        String value = riskLevel.toUpperCase();
+
+        if (value.contains("CRITICAL") || value.contains("HIGH")) return 1.0;
+        if (value.contains("MEDIUM") || value.contains("WARNING")) return 0.6;
+        if (value.contains("LOW")) return 0.3;
+
+        return 0.0;
+    }
+
+    private String generateOverviewSummary(String status, int critical, int warning, int normal) {
+        if ("CRITICAL".equals(status)) {
+            return "Demiryolu ağında kritik riskli segmentler bulunmaktadır. Acil bakım ve rota yeniden planlama önerilir.";
+        }
+
+        if ("WARNING".equals(status)) {
+            return "Demiryolu ağı çalışmaktadır ancak bazı segmentler yakından izlenmelidir.";
+        }
+
+        return "Tüm segmentler normal çalışma koşullarındadır.";
     }
 
     private double round(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
-
-    private String generateOverviewSummary(
-            String overallStatus,
-            int criticalCount,
-            int warningCount,
-            int normalCount
-    ) {
-        if ("CRITICAL".equals(overallStatus)) {
-            return "Demiryolu ağında kritik riskli segmentler bulunmaktadır. Acil bakım planlaması önerilmektedir.";
-        }
-
-        if ("WARNING".equals(overallStatus)) {
-            return "Demiryolu ağı genel olarak çalışmaktadır, ancak bazı segmentler yakından izlenmelidir.";
-        }
-
-        return "Tüm demiryolu segmentleri şu anda normal çalışma koşullarındadır.";
-    }
+    private double nullToZero(Double value) {
+    return value == null ? 0.0 : value;
+}
 }

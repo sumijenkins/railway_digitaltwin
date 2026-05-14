@@ -563,12 +563,12 @@ setEnergyRiskResults(calculatedEnergyRisk);
                       </div>
 
                       <p className="text-gray-400 text-sm">
-                        Risk Score:
+                        Risk Skoru:
                         <span className="text-white ml-2">{segment.riskScore}</span>
                       </p>
 
                       <p className="text-gray-400 text-sm">
-                        Energy Impact:
+                        Enerji Etkisi:
                         <span className="text-white ml-2">
                           {segment.estimatedEnergyImpact}
                         </span>
