@@ -60,6 +60,7 @@ export default function App() {
   const handleSetTrainLoad = useCallback((n: number) => setTrainLoad(n), []);
 
   const memoizedRouteResult = useMemo(() => routeResult, [JSON.stringify(routeResult)]);
+  const [sensorHealthData, setSensorHealthData] = useState<any[]>([]);
   
 
   useEffect(() => {
@@ -80,6 +81,30 @@ export default function App() {
       result,
     });
   }, [network, startStation, endStation, trainLoad]);
+
+  useEffect(() => {
+    const fetchSensorHealth = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/sensor-health");
+
+        if (!response.ok) {
+          throw new Error("Sensor health could not be loaded");
+        }
+
+        const data = await response.json();
+        setSensorHealthData(data);
+      } catch (error) {
+        console.error("Sensor health error:", error);
+        setSensorHealthData([]);
+      }
+    };
+
+    fetchSensorHealth();
+
+    const interval = setInterval(fetchSensorHealth, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
   let isFirstLoad = true;
@@ -695,12 +720,7 @@ export default function App() {
                   </h3>
 
                   <div className="space-y-5">
-                    {[
-                      { label: "Sıcaklık Sensörleri", status: "87/90 Aktif", color: "green" },
-                      { label: "Titreşim Sensörleri", status: "82/85 Aktif", color: "green" },
-                      { label: "Eğim Sensörleri", status: "70/72 Aktif", color: "yellow" },
-                      { label: "Basınç Sensörleri", status: "8/10 Aktif", color: "red" },
-                    ].map((s, i) => (
+                    {sensorHealthData.map((s, i) => (
                       <div
                         key={i}
                         className="flex items-center justify-between p-4 bg-gray-900 rounded-xl border border-gray-700/50"
