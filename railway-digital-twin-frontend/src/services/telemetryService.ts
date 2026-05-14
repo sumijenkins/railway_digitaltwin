@@ -90,7 +90,7 @@ export const telemetryService = {
       return data.content ?? data;
     } catch (error) {
       console.error("Error fetching telemetry:", error);
-      return generateMockTelemetry(limit);
+      return [];
     }
   },
 
@@ -117,7 +117,7 @@ export const telemetryService = {
       return data.content ?? data;
     } catch (error) {
       console.error(`Error fetching telemetry for segment ${segmentId}:`, error);
-      return generateMockTelemetry(limit).filter((r) => r.segmentId === segmentId);
+      return [];
     }
   },
 
@@ -146,4 +146,6 @@ export const telemetryService = {
       console.error("Error sending telemetry:", error);
     }
   },
+
+  
 };

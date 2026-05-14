@@ -98,7 +98,7 @@ def generate_sensor_data(segment_id):
         "tilt": tilt,
         "trainSpeed": train_speed,
         "trainTemperature": train_temperature,
-        "trainVibrationX": train_vibration_x
+        "trainVibrationX": train_vibration_x,
     }
 
     crc_hash = calculate_crc_hash(payload)

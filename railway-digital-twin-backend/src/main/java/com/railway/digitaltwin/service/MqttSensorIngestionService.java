@@ -76,10 +76,10 @@ public class MqttSensorIngestionService {
                     payload.getTimestamp(),
                     DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-            saveReading(sensor.getSensorId(), "ray_temperature", payload.getTemperature(), recordedAt);
-            saveReading(sensor.getSensorId(), "ray_vibration_x", payload.getVibrationX(), recordedAt);
-            saveReading(sensor.getSensorId(), "ray_vibration_y", payload.getVibrationY(), recordedAt);
-            saveReading(sensor.getSensorId(), "ray_vibration_z", payload.getVibrationZ(), recordedAt);
+            saveReading(sensor.getSensorId(), "temperature", payload.getTemperature(), recordedAt);
+            saveReading(sensor.getSensorId(), "vibrationX", payload.getVibrationX(), recordedAt);
+            saveReading(sensor.getSensorId(), "vibrationY", payload.getVibrationY(), recordedAt);
+            saveReading(sensor.getSensorId(), "vibrationZ", payload.getVibrationZ(), recordedAt);
             saveReading(sensor.getSensorId(), "rail_slope", payload.getTilt(), recordedAt);
             saveReading(sensor.getSensorId(), "train_temperature", payload.getTrainTemperature(), recordedAt);
             saveReading(sensor.getSensorId(), "train_speed", payload.getTrainSpeed(), recordedAt);

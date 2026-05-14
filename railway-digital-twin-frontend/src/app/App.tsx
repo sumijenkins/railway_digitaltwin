@@ -30,6 +30,8 @@ import { telemetryService } from "../services/telemetryService";
 export default function App() {
   const [activeSection, setActiveSection] = useState("overview");
   const [sensorData, setSensorData] = useState<any[]>([]);
+  const [selectedSensorSegment, setSelectedSensorSegment] = useState("S1");
+  const [segmentSensorData, setSegmentSensorData] = useState<any[]>([]);
   const [sensorCount, setSensorCount] = useState<number>(0);
   const [network, setNetwork] = useState<RailwayNetwork | null>(null);
   const [routeResult, setRouteResult] = useState<any>(null);
@@ -116,6 +118,7 @@ export default function App() {
           .reverse()
           .map((seg: any) => ({
             time: new Date(seg.timestamp).toLocaleTimeString("tr-TR", {
+              timeZone: "Europe/Istanbul",
               hour: "2-digit",
               minute: "2-digit",
               second: "2-digit",
@@ -302,6 +305,87 @@ export default function App() {
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const fetchSegmentTelemetry = async () => {
+      try {
+        const readings = await telemetryService.getTelemetryBySegment(
+          selectedSensorSegment,
+          120
+        );
+
+        const grouped: Record<string, any> = {};
+
+        for (const r of readings) {
+          const timeKey = r.recordedAt;
+
+          const channel = (r.channelName || "")
+            .toLowerCase()
+            .replace(/_/g, "");
+
+          if (!grouped[timeKey]) {
+            grouped[timeKey] = {
+              rawTime: r.recordedAt,
+              time: new Date(r.recordedAt).toLocaleTimeString("tr-TR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              }),
+              temperature: null,
+              vibration: null,
+              tilt: null,
+              trainTemp: null,
+              speed: null,
+              trainVib: null,
+            };
+          }
+
+          if (channel === "temperature" || channel === "traintemperature") {
+            grouped[timeKey].temperature = r.value;
+          }
+
+          if (channel === "vibrationx" || channel === "trainvibrationx") {
+            grouped[timeKey].vibration = r.value;
+          }
+
+          if (channel === "tilt" || channel === "railslope") {
+            grouped[timeKey].tilt = r.value;
+          }
+
+          if (channel === "traintemperature") {
+            grouped[timeKey].trainTemp = r.value;
+          }
+
+          if (channel === "trainspeed") {
+            grouped[timeKey].speed = r.value;
+          }
+
+          if (channel === "trainvibrationx") {
+            grouped[timeKey].trainVib = r.value;
+          }
+        }
+
+        const chartData = Object.values(grouped)
+          .sort((a: any, b: any) => a.rawTime.localeCompare(b.rawTime))
+          .slice(-6)
+          .map((item: any) => {
+            const { rawTime, ...rest } = item;
+            return rest;
+          });
+
+        setSegmentSensorData(chartData);
+      } catch (error) {
+        console.error("Segment telemetry could not be loaded:", error);
+        setSegmentSensorData([]);
+      }
+    };
+
+    fetchSegmentTelemetry();
+
+    const interval = setInterval(fetchSegmentTelemetry, 3000);
+
+    return () => clearInterval(interval);
+  }, [selectedSensorSegment]);
 
   useEffect(() => {
     const fetchDssData = async () => {
@@ -578,13 +662,30 @@ export default function App() {
             <div className="space-y-6">
               <h2 className="text-white text-2xl font-bold mb-4">Canlı Sensör İzleme Ağı</h2>
 
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6 flex items-center gap-4">
+                <label className="text-gray-300 font-medium">Segment Seç:</label>
+
+                <select
+                  value={selectedSensorSegment}
+                  onChange={(e) => setSelectedSensorSegment(e.target.value)}
+                  className="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2"
+                >
+                  <option value="S1">S1 - Izmir - Manisa</option>
+                  <option value="S2">S2 - Manisa - Akhisar</option>
+                  <option value="S3">S3 - Akhisar - Soma</option>
+                  <option value="S4">S4 - Soma - Balikesir</option>
+                  <option value="S5">S5 - Balikesir - Susurluk</option>
+                  <option value="S6">S6 - Susurluk - Bandirma</option>
+                </select>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <SensorChart title="Ray Sıcaklığı" dataKey="temperature" color="#ef4444" data={sensorData} unit="°C" />
-                <SensorChart title="Ray Titreşimi" dataKey="vibration" color="#3b82f6" data={sensorData} unit=" Hz" />
-                <SensorChart title="Hat Eğimi" dataKey="tilt" color="#10b981" data={sensorData} unit="°" />
-                <SensorChart title="Vagon Sıcaklığı" dataKey="trainTemp" color="#f59e0b" data={sensorData} unit="°C" />
-                <SensorChart title="Tren Hızı" dataKey="speed" color="#8b5cf6" data={sensorData} unit=" km/h" />
-                <SensorChart title="Vagon Titreşimi" dataKey="trainVib" color="#ec4899" data={sensorData} unit=" Hz" />
+                <SensorChart title="Ray Sıcaklığı" dataKey="temperature" color="#ef4444" data={segmentSensorData} unit="°C" />
+                <SensorChart title="Ray Titreşimi" dataKey="vibration" color="#3b82f6" data={segmentSensorData} unit=" Hz" />
+                <SensorChart title="Hat Eğimi" dataKey="tilt" color="#10b981" data={segmentSensorData} unit="°" />
+                <SensorChart title="Vagon Sıcaklığı" dataKey="trainTemp" color="#f59e0b" data={segmentSensorData} unit="°C" />
+                <SensorChart title="Tren Hızı" dataKey="speed" color="#8b5cf6" data={segmentSensorData} unit=" km/h" />
+                <SensorChart title="Vagon Titreşimi" dataKey="trainVib" color="#ec4899" data={segmentSensorData} unit=" Hz" />
               </div>
 
               <div className="grid grid-cols-1 gap-6">
