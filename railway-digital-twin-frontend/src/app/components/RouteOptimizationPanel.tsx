@@ -1,92 +1,71 @@
-import { useMemo, useState } from "react";
-import { MapPin, Zap, AlertTriangle, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Zap, AlertTriangle, Clock, Route, MapPin } from "lucide-react";
 
 interface RouteOption {
-  id: string;
-  origin: string;
-  destination: string;
-  name: string;
-  distance: string;
-  estimatedTime: string;
-  energyScore: number;
-  riskScore: number;
-  energyEfficiency: number;
-  safetyScore: number;
-  advantages: string[];
-  disadvantages: string[];
+  rank: number;
+  segmentIds: string[];
+  stationPath: string[];
+  totalDistanceKm: number;
+  totalEnergyRisk: number;
+  activeAnomaliesCount: number;
+  totalCostScore: number;
+  estimatedTimeHours: number;
+  totalEnergyScore: number;
+  riskLevel: string;
+  decisionReason: string;
 }
 
-const routeCandidates: RouteOption[] = [
-  {
-    id: "R1",
-    origin: "Merkez İstasyonu",
-    destination: "Doğu Terminali",
-    name: "Enerji Verimli Rota",
-    distance: "285 km",
-    estimatedTime: "4s 35d",
-    energyScore: 92,
-    riskScore: 15,
-    energyEfficiency: 94,
-    safetyScore: 88,
-    advantages: ["Düşük enerji tüketimi", "Kritik segmentlerden kaçınılır"],
-    disadvantages: ["Hafifçe daha uzun mesafe"],
-  },
-  {
-    id: "R2",
-    origin: "Merkez İstasyonu",
-    destination: "Doğu Terminali",
-    name: "Hızlı Alternatif Rota",
-    distance: "298 km",
-    estimatedTime: "4s 12d",
-    energyScore: 83,
-    riskScore: 22,
-    energyEfficiency: 81,
-    safetyScore: 76,
-    advantages: ["Daha kısa süre", "Yüklemede esneklik"],
-    disadvantages: ["Enerji tüketimi biraz daha yüksek"],
-  },
-  {
-    id: "R3",
-    origin: "Merkez İstasyonu",
-    destination: "Doğu Terminali",
-    name: "Risk Azaltma Rota",
-    distance: "312 km",
-    estimatedTime: "5s 05d",
-    energyScore: 75,
-    riskScore: 8,
-    energyEfficiency: 72,
-    safetyScore: 94,
-    advantages: ["En düşük risk skoru", "En yüksek güvenlik seviyesi"],
-    disadvantages: ["En uzun süre", "Daha fazla operasyonel kontrol gerektirir"],
-  },
+const stationOptions = [
+  "Izmir",
+  "Manisa",
+  "Akhisar",
+  "Soma",
+  "Balikesir",
+  "Susurluk",
+  "Bandirma",
 ];
 
-const originOptions = ["Merkez İstasyonu", "Kuzey Kavşağı", "Güney Deposu"];
-const destinationOptions = ["Doğu Terminali", "Batı Merkezi", "Yük Sahası"];
-
 export function RouteOptimizationPanel() {
-  const [selectedOrigin, setSelectedOrigin] = useState(originOptions[0]);
-  const [selectedDestination, setSelectedDestination] = useState(destinationOptions[0]);
+  const [selectedOrigin, setSelectedOrigin] = useState("Izmir");
+  const [selectedDestination, setSelectedDestination] = useState("Bandirma");
   const [weights, setWeights] = useState({ energy: 45, risk: 35, time: 20 });
+  const [routeOptions, setRouteOptions] = useState<RouteOption[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const routeOptions = useMemo(() => {
-    const filtered = routeCandidates.filter(
-      (route) => route.origin === selectedOrigin && route.destination === selectedDestination
-    );
+  const fetchRoutes = async () => {
+    setLoading(true);
 
-    return filtered.map((route) => {
-      const timeScore = Math.max(0, 100 - Math.round(parseInt(route.estimatedTime) || 0));
-      const weighted = Math.round(
-        route.energyEfficiency * weights.energy * 0.01 +
-        (100 - route.riskScore) * weights.risk * 0.01 +
-        timeScore * weights.time * 0.01
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/routes/optimize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            startStation: selectedOrigin,
+            endStation: selectedDestination,
+            weightDistance: weights.time / 100,
+            weightEnergy: weights.energy / 100,
+            weightRisk: weights.risk / 100,
+          }),
+        }
       );
 
-      return {
-        ...route,
-        overallScore: weighted,
-      };
-    }).sort((a, b) => b.overallScore - a.overallScore);
+      const data = await response.json();
+
+      setRouteOptions(data.topRoutes || []);
+    } catch (error) {
+      console.error("Route optimization error:", error);
+      setRouteOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoutes();
   }, [selectedOrigin, selectedDestination, weights]);
 
   const selectedRoute = routeOptions[0];
@@ -96,31 +75,45 @@ export function RouteOptimizationPanel() {
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
         <div>
-          <h3 className="text-white text-xl font-semibold">Rota Karşılaştırma Paneli</h3>
-          <p className="text-gray-400 text-sm mt-1">Enerji, risk ve süre değerlerine göre en uygun rotayı seçin.</p>
+          <h3 className="text-white text-xl font-semibold">
+            Rota Karşılaştırma Paneli
+          </h3>
+          <p className="text-gray-400 text-sm mt-1">
+            Enerji, risk ve süre ağırlıklarına göre backend tarafından hesaplanan rotalar.
+          </p>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 w-full md:w-auto">
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 w-full md:w-auto">
           <div className="space-y-2">
-            <label className="text-gray-400 text-xs uppercase tracking-wide">Başlangıç</label>
+            <label className="text-gray-400 text-xs uppercase tracking-wide">
+              Başlangıç
+            </label>
             <select
               className="w-full bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
               value={selectedOrigin}
               onChange={(e) => setSelectedOrigin(e.target.value)}
             >
-              {originOptions.map((origin) => (
-                <option key={origin} value={origin}>{origin}</option>
+              {stationOptions.map((station) => (
+                <option key={station} value={station}>
+                  {station}
+                </option>
               ))}
             </select>
           </div>
+
           <div className="space-y-2">
-            <label className="text-gray-400 text-xs uppercase tracking-wide">Hedef</label>
+            <label className="text-gray-400 text-xs uppercase tracking-wide">
+              Hedef
+            </label>
             <select
               className="w-full bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
               value={selectedDestination}
               onChange={(e) => setSelectedDestination(e.target.value)}
             >
-              {destinationOptions.map((destination) => (
-                <option key={destination} value={destination}>{destination}</option>
+              {stationOptions.map((station) => (
+                <option key={station} value={station}>
+                  {station}
+                </option>
               ))}
             </select>
           </div>
@@ -138,7 +131,9 @@ export function RouteOptimizationPanel() {
             min="0"
             max="100"
             value={weights.energy}
-            onChange={(e) => setWeights({ ...weights, energy: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setWeights({ ...weights, energy: parseInt(e.target.value) })
+            }
             className="w-full h-2 accent-green-500"
           />
           <div className="text-xs text-gray-300 mt-2">{weights.energy}%</div>
@@ -154,7 +149,9 @@ export function RouteOptimizationPanel() {
             min="0"
             max="100"
             value={weights.risk}
-            onChange={(e) => setWeights({ ...weights, risk: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setWeights({ ...weights, risk: parseInt(e.target.value) })
+            }
             className="w-full h-2 accent-yellow-500"
           />
           <div className="text-xs text-gray-300 mt-2">{weights.risk}%</div>
@@ -170,96 +167,170 @@ export function RouteOptimizationPanel() {
             min="0"
             max="100"
             value={weights.time}
-            onChange={(e) => setWeights({ ...weights, time: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setWeights({ ...weights, time: parseInt(e.target.value) })
+            }
             className="w-full h-2 accent-blue-500"
           />
           <div className="text-xs text-gray-300 mt-2">{weights.time}%</div>
         </div>
       </div>
 
-      {selectedRoute ? (
+      {loading ? (
+        <div className="rounded-xl border border-gray-700 bg-gray-900 p-6 text-center text-gray-300">
+          Rota optimizasyonu hesaplanıyor...
+        </div>
+      ) : selectedRoute ? (
         <div className="space-y-6">
           <div className="rounded-xl border border-green-600/30 bg-green-900/10 p-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4">
               <div>
-                <p className="text-gray-400 text-sm uppercase tracking-wide">Önerilen Rota</p>
-                <h4 className="text-white text-2xl font-semibold mt-2">{selectedRoute.name}</h4>
-                <p className="text-gray-400 mt-1">{selectedRoute.origin} → {selectedRoute.destination}</p>
+                <p className="text-gray-400 text-sm uppercase tracking-wide">
+                  Önerilen Rota
+                </p>
+                <h4 className="text-white text-2xl font-semibold mt-2 flex items-center gap-2">
+                  <Route className="w-6 h-6 text-green-400" />
+                  {selectedRoute.stationPath.join(" → ")}
+                </h4>
+                <p className="text-gray-400 mt-2">
+                  Segmentler: {selectedRoute.segmentIds.join(", ")}
+                </p>
               </div>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+                <div className="rounded-xl bg-gray-900 p-3 text-center">
+                  <p className="text-gray-400 text-xs uppercase">Mesafe</p>
+                  <p className="text-white font-semibold text-lg">
+                    {selectedRoute.totalDistanceKm} km
+                  </p>
+                </div>
+
                 <div className="rounded-xl bg-gray-900 p-3 text-center">
                   <p className="text-gray-400 text-xs uppercase">Enerji</p>
-                  <p className="text-white font-semibold text-lg">{selectedRoute.energyScore}%</p>
+                  <p className="text-white font-semibold text-lg">
+                    {selectedRoute.totalEnergyScore}
+                  </p>
                 </div>
+
                 <div className="rounded-xl bg-gray-900 p-3 text-center">
                   <p className="text-gray-400 text-xs uppercase">Risk</p>
-                  <p className="text-white font-semibold text-lg">{selectedRoute.riskScore}%</p>
+                  <p
+                    className={`font-semibold text-lg ${
+                      selectedRoute.riskLevel === "HIGH"
+                        ? "text-red-400"
+                        : selectedRoute.riskLevel === "MEDIUM"
+                          ? "text-yellow-400"
+                          : "text-green-400"
+                    }`}
+                  >
+                    {selectedRoute.riskLevel}
+                  </p>
                 </div>
+
                 <div className="rounded-xl bg-gray-900 p-3 text-center">
                   <p className="text-gray-400 text-xs uppercase">Süre</p>
-                  <p className="text-white font-semibold text-lg">{selectedRoute.estimatedTime}</p>
+                  <p className="text-white font-semibold text-lg">
+                    {selectedRoute.estimatedTimeHours} saat
+                  </p>
                 </div>
+
                 <div className="rounded-xl bg-gray-900 p-3 text-center">
-                  <p className="text-gray-400 text-xs uppercase">Skor</p>
-                  <p className="text-white font-semibold text-lg">{selectedRoute.overallScore}</p>
+                  <p className="text-gray-400 text-xs uppercase">Maliyet Skoru</p>
+                  <p className="text-white font-semibold text-lg">
+                    {selectedRoute.totalCostScore}
+                  </p>
                 </div>
+              </div>
+
+              <div className="rounded-xl bg-gray-900 p-4 border border-gray-700">
+                <p className="text-gray-400 text-xs uppercase mb-2">
+                  DSS Rota Açıklaması
+                </p>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {selectedRoute.decisionReason}
+                </p>
               </div>
             </div>
           </div>
 
           <div>
-            <h5 className="text-white text-lg font-semibold mb-4">Alternatif Rotalar</h5>
-            <div className="grid gap-4 lg:grid-cols-3">
-              {alternatives.map((route) => (
-                <div key={route.id} className="rounded-xl border border-gray-700 bg-gray-900 p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm text-gray-400">{route.name}</span>
-                    <span className="text-xs uppercase tracking-wider text-yellow-400">Alternatif</span>
+            <h5 className="text-white text-lg font-semibold mb-4">
+              Alternatif Rotalar
+            </h5>
+
+            {alternatives.length > 0 ? (
+              <div className="grid gap-4 lg:grid-cols-3">
+                {alternatives.map((route) => (
+                  <div
+                    key={route.rank}
+                    className="rounded-xl border border-gray-700 bg-gray-900 p-5"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm text-gray-400">
+                        Alternatif #{route.rank}
+                      </span>
+                      <span className="text-xs uppercase tracking-wider text-yellow-400">
+                        {route.riskLevel}
+                      </span>
+                    </div>
+
+                    <p className="text-white text-sm mb-3">
+                      {route.stationPath.join(" → ")}
+                    </p>
+
+                    <div className="space-y-3 text-gray-300">
+                      <div className="flex items-center justify-between">
+                        <span>Mesafe</span>
+                        <span>{route.totalDistanceKm} km</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Enerji</span>
+                        <span>{route.totalEnergyScore}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Risk</span>
+                        <span>{route.riskLevel}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Süre</span>
+                        <span>{route.estimatedTimeHours} saat</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Aktif Anomali</span>
+                        <span>{route.activeAnomaliesCount}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-3 text-gray-300">
-                    <div className="flex items-center justify-between">
-                      <span>Mesafe</span>
-                      <span>{route.distance}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Enerji</span>
-                      <span>{route.energyScore}%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Risk</span>
-                      <span>{route.riskScore}%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Güvenlik</span>
-                      <span>{route.safetyScore}%</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-gray-700 bg-gray-900 p-5 text-gray-300">
+                Mevcut segment ağı tek hatlı olduğu için alternatif rota bulunamadı.
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="rounded-xl border border-gray-700 bg-gray-900 p-5">
-              <h5 className="text-white text-lg font-semibold mb-3">Avantajlar</h5>
+              <h5 className="text-white text-lg font-semibold mb-3">
+                Karar Kriterleri
+              </h5>
               <ul className="space-y-2 text-gray-300">
-                {selectedRoute.advantages.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-green-400">•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
+                <li>• Mesafe ağırlığı: %{weights.time}</li>
+                <li>• Enerji ağırlığı: %{weights.energy}</li>
+                <li>• Risk ağırlığı: %{weights.risk}</li>
+                <li>• Aktif anomali sayısı: {selectedRoute.activeAnomaliesCount}</li>
               </ul>
             </div>
+
             <div className="rounded-xl border border-gray-700 bg-gray-900 p-5">
-              <h5 className="text-white text-lg font-semibold mb-3">Dikkat Edilmesi Gerekenler</h5>
+              <h5 className="text-white text-lg font-semibold mb-3">
+                Dikkat Edilmesi Gerekenler
+              </h5>
               <ul className="space-y-2 text-gray-300">
-                {selectedRoute.disadvantages.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
+                <li>• Rota gerçek backend graph optimizasyonundan gelmektedir.</li>
+                <li>• Enerji-risk ve anomali bilgileri karar maliyetine dahil edilir.</li>
+                <li>• Alternatif rota oluşması için segment ağında farklı bağlantılar bulunmalıdır.</li>
               </ul>
             </div>
           </div>

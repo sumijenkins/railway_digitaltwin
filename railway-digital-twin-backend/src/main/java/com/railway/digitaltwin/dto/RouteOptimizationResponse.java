@@ -29,5 +29,10 @@ public class RouteOptimizationResponse {
         private double totalEnergyRisk;
         private int activeAnomaliesCount;
         private double totalCostScore;
+
+        private double estimatedTimeHours;
+        private double totalEnergyScore;
+        private String riskLevel;
+        private String decisionReason;
     }
 }

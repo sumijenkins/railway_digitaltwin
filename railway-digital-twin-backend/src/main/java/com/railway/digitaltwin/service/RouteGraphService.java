@@ -54,18 +54,36 @@ public class RouteGraphService {
         // Since segments might be bidirectional in reality, we add both directions.
         Map<String, List<RailwaySegment>> graph = new HashMap<>();
         for (RailwaySegment segment : allSegments) {
-            graph.computeIfAbsent(segment.getStartStation(), k -> new ArrayList<>()).add(segment);
+            String[] stations = segment.getName().split(" - ");
 
-            // Assuming bidirectional if not explicitly directed
+            if (stations.length != 2) {
+                continue;
+            }
+
+            String startStation = stations[0].trim();
+            String endStation = stations[1].trim();
+
+            RailwaySegment forwardSegment = RailwaySegment.builder()
+                    .segmentId(segment.getSegmentId())
+                    .name(segment.getName())
+                    .lengthKm(segment.getLengthKm())
+                    .riskLevel(segment.getRiskLevel())
+                    .startStation(startStation)
+                    .endStation(endStation)
+                    .build();
+
+            graph.computeIfAbsent(startStation, k -> new ArrayList<>()).add(forwardSegment);
+
             RailwaySegment reverseSegment = RailwaySegment.builder()
                     .segmentId(segment.getSegmentId())
                     .name(segment.getName())
                     .lengthKm(segment.getLengthKm())
                     .riskLevel(segment.getRiskLevel())
-                    .startStation(segment.getEndStation())
-                    .endStation(segment.getStartStation())
+                    .startStation(endStation)
+                    .endStation(startStation)
                     .build();
-            graph.computeIfAbsent(segment.getEndStation(), k -> new ArrayList<>()).add(reverseSegment);
+
+            graph.computeIfAbsent(endStation, k -> new ArrayList<>()).add(reverseSegment);
         }
 
         List<RouteOptimizationResponse.RoutePathDto> allPaths = new ArrayList<>();
@@ -174,13 +192,42 @@ public class RouteGraphService {
                 (request.getWeightEnergy() * normalizedEnergyRisk) +
                 (request.getWeightRisk() * normalizedAnomalies);
 
+        double averageSpeedKmh = 70.0;
+        double estimatedTimeHours = totalDistance / averageSpeedKmh;
+
+        double totalEnergyScore = totalDistance * 0.85 + totalEnergyRisk * 25.0;
+
+        String riskLevel;
+        if (totalAnomalies > 0 || normalizedEnergyRisk >= 0.70) {
+            riskLevel = "HIGH";
+        } else if (normalizedEnergyRisk >= 0.40) {
+            riskLevel = "MEDIUM";
+        } else {
+            riskLevel = "LOW";
+        }
+
+        String decisionReason =
+                "Bu rota; mesafe, enerji-risk skoru ve aktif anomali sayısı birlikte değerlendirilerek hesaplanmıştır. "
+                        + "Toplam mesafe " + round(totalDistance)
+                        + " km, tahmini süre " + round(estimatedTimeHours)
+                        + " saat, enerji skoru " + round(totalEnergyScore)
+                        + " ve risk seviyesi " + riskLevel + " olarak hesaplanmıştır.";
+
         return RouteOptimizationResponse.RoutePathDto.builder()
                 .segmentIds(new ArrayList<>(segmentIds))
                 .stationPath(new ArrayList<>(stationPath))
-                .totalDistanceKm(totalDistance)
-                .totalEnergyRisk(totalEnergyRisk)
+                .totalDistanceKm(round(totalDistance))
+                .totalEnergyRisk(round(totalEnergyRisk))
                 .activeAnomaliesCount(totalAnomalies)
-                .totalCostScore(totalCostScore)
+                .totalCostScore(round(totalCostScore))
+                .estimatedTimeHours(round(estimatedTimeHours))
+                .totalEnergyScore(round(totalEnergyScore))
+                .riskLevel(riskLevel)
+                .decisionReason(decisionReason)
                 .build();
-    }
+            }
+
+            private double round(double value) {
+                return Math.round(value * 100.0) / 100.0;
+            }
 }
