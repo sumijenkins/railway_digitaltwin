@@ -705,13 +705,67 @@ export default function App() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <SensorChart title="Ray Sıcaklığı" dataKey="temperature" color="#ef4444" data={segmentSensorData} unit="°C" />
-                <SensorChart title="Ray Titreşimi" dataKey="vibration" color="#3b82f6" data={segmentSensorData} unit=" Hz" />
-                <SensorChart title="Hat Eğimi" dataKey="tilt" color="#10b981" data={segmentSensorData} unit="°" />
-                <SensorChart title="Vagon Sıcaklığı" dataKey="trainTemp" color="#f59e0b" data={segmentSensorData} unit="°C" />
-                <SensorChart title="Tren Hızı" dataKey="speed" color="#8b5cf6" data={segmentSensorData} unit=" km/h" />
-                <SensorChart title="Vagon Titreşimi" dataKey="trainVib" color="#ec4899" data={segmentSensorData} unit=" Hz" />
+              <div className="space-y-6">
+
+                <div>
+                  <h3 className="text-white text-lg font-bold mb-4">
+                    Segment Bazlı Ray Verileri
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <SensorChart
+                      title="Ray Sıcaklığı"
+                      dataKey="temperature"
+                      color="#ef4444"
+                      data={segmentSensorData}
+                      unit="°C"
+                    />
+                    <SensorChart
+                      title="Ray Titreşimi"
+                      dataKey="vibration"
+                      color="#3b82f6"
+                      data={segmentSensorData}
+                      unit=" Hz"
+                    />
+                    <SensorChart
+                      title="Hat Eğimi"
+                      dataKey="tilt"
+                      color="#10b981"
+                      data={segmentSensorData}
+                      unit="°"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-white text-lg font-bold mb-4">
+                    Tren / Vagon Genel Verileri
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <SensorChart
+                      title="Vagon Sıcaklığı"
+                      dataKey="trainTemp"
+                      color="#f59e0b"
+                      data={sensorData}
+                      unit="°C"
+                    />
+                    <SensorChart
+                      title="Tren Hızı"
+                      dataKey="speed"
+                      color="#8b5cf6"
+                      data={sensorData}
+                      unit=" km/h"
+                    />
+                    <SensorChart
+                      title="Vagon Titreşimi"
+                      dataKey="trainVib"
+                      color="#ec4899"
+                      data={sensorData}
+                      unit=" Hz"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-6">
