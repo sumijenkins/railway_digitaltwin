@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 public class ScenarioRequestDto {
     private String segmentId;
     private Double raySicakligi;
-    private Double rayTitresi
-
+    private Double rayTitresimi;
+    private Double hatEgimi;
     private Double vagonSicakligi;
     private Double trenHizi;
     private Double vagonTitresimi;

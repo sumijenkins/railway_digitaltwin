@@ -77,10 +77,10 @@ public class TelemetryService {
                 channel.getSensor().getSegment().getSegmentId(),
                 channel.getChannelName(),
                 saved.getValue(),
-                saved.getRecordedAt()
-        );
+                saved.getRecordedAt());
 
-        // Kaydedilen veriyi döndür (native query ile yeniden çekmemek için manuel dönüştür)
+        // Kaydedilen veriyi döndür (native query ile yeniden çekmemek için manuel
+        // dönüştür)
         return TelemetryResponseDto.builder()
                 .readingId(saved.getReadingId())
                 .recordedAt(saved.getRecordedAt())

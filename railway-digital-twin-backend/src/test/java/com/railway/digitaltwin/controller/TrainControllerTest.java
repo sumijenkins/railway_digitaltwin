@@ -24,8 +24,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration Test — Controller Katmanı
  *
- * @WebMvcTest: Yalnızca Web katmanını başlatır; TrainService MockBean ile taklit edilir.
- * HTTP istek/cevap döngüsünü ve JSON serileştirmesini doğrular.
+ * @WebMvcTest: Yalnızca Web katmanını başlatır; TrainService MockBean ile
+ *              taklit edilir.
+ *              HTTP istek/cevap döngüsünü ve JSON serileştirmesini doğrular.
  */
 @WebMvcTest(TrainController.class)
 @SuppressWarnings("null")
@@ -56,7 +57,7 @@ class TrainControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/trains?page=0&size=10")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].trainId").value(1))
                 .andExpect(jsonPath("$.content[0].wagonCount").value(8))
@@ -78,7 +79,7 @@ class TrainControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/trains/7")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.trainId").value(7))
                 .andExpect(jsonPath("$.currentSpeed").value(120.0));
@@ -100,7 +101,7 @@ class TrainControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/trains/locations")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].trainId").value(1))
                 .andExpect(jsonPath("$.content[0].latitude").value(39.9334))
@@ -123,7 +124,7 @@ class TrainControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/trains/locations/segment/SEG-1")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].segmentId").value("SEG-1"))
                 .andExpect(jsonPath("$.totalElements").value(1));
