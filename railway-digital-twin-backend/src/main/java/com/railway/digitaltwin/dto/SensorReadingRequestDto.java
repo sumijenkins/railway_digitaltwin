@@ -20,4 +20,6 @@ public class SensorReadingRequestDto {
 
     // Sağlanmazsa sunucu tarafında NOW() kullanılır
     private LocalDateTime recordedAt;
+    private Double lat;
+    private Double lon;
 }

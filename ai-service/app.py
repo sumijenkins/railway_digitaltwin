@@ -117,40 +117,10 @@ def predict_rul():
         else:
             condition = "NORMAL"
 
-        if condition == "CRITICAL":
-            recommended_action = "Acil bakım planlayın ve segmenti yük taşımacılığı için kullanmadan önce kontrol edin."
-        elif condition == "WARNING":
-            recommended_action = "Planlı bakım incelemesi oluşturun ve segmenti yakından izleyin."
-        else:
-            recommended_action = "Düzenli izlemeye devam edin."
-        
-        confidence = max(0.70, min(0.98, 1 - (degradation_score * 0.25)))
-
-        confidence_margin = remaining_life_days * (1 - confidence)
-
-        confidence_lower_bound = max(0, remaining_life_days - confidence_margin)
-        confidence_upper_bound = remaining_life_days + confidence_margin
-
-        if degradation_score >= 0.70:
-            degradation_trend = "HIZLI BOZULMA"
-            maintenance_priority = "YÜKSEK"
-        elif degradation_score >= 0.40:
-            degradation_trend = "ARTAN BOZULMA"
-            maintenance_priority = "ORTA"
-        else:
-            degradation_trend = "KARARLI"
-            maintenance_priority = "DÜŞÜK"
-
         return jsonify({
             "remainingLifeDays": round(remaining_life_days, 2),
             "degradationScore": round(degradation_score, 4),
             "condition": condition,
-            "confidence": round(confidence, 4),
-            "confidenceLowerBound": round(confidence_lower_bound, 2),
-            "confidenceUpperBound": round(confidence_upper_bound, 2),
-            "degradationTrend": degradation_trend,
-            "maintenancePriority": maintenance_priority,
-            "recommendedAction": recommended_action,
             "model": "RuleBasedRUL"
         })
 
@@ -291,6 +261,67 @@ def explain_prediction():
             "topFactors": top_factors,
             "keyFactors": key_factors,
             "recommendedActions": recommended_actions
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/scenario-analyze", methods=["POST"])
+def scenario_analyze():
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"error": "Geçersiz JSON verisi"}), 400
+
+    try:
+        # 1. TERCÜME (Mapping) MANTIĞI
+        # Fiziksel parametreleri AI modelinin beklediği 5 teknik özelliğe çeviriyoruz
+        
+        # Hız ve ray titreşimi toplam RMS (sinyal şiddeti) değerini oluşturur
+        simulated_rms = (float(data['trenHizi']) * 0.12) + float(data['rayTitresimi'])
+        
+        # Vagon titreşimi sinyaldeki ani tepeleri (Peak-to-Peak) temsil eder
+        simulated_p2p = float(data['vagonTitresimi']) * 1.8
+        
+        # Enerji (FFT), hızın karesiyle doğru orantılı artar
+        simulated_fft = (float(data['trenHizi']) ** 2) * 0.04 + (float(data['rayTitresimi']) * 5)
+        
+        # Eğim direkt olarak gradyan değeridir
+        simulated_slope = float(data['hatEgimi'])
+        
+        # Sıcaklık arttıkça elektronik gürültü artar, sinyal kalitesi (SNR) düşer
+        simulated_snr = 100 - (float(data['raySicakligi']) * 0.4) - (float(data['vagonSicakligi']) * 0.2)
+        simulated_snr = max(10, simulated_snr) # SNR 10'un altına düşmesin
+
+        # 2. Tahmin İçin Özellik Setini Hazırla
+        features = np.array([[
+            simulated_rms, 
+            simulated_p2p, 
+            simulated_fft, 
+            simulated_slope, 
+            simulated_snr
+        ]])
+
+        # 3. Mevcut Modelleri Kullanarak Tahmin Yap
+        # Anomali Tespiti
+        prediction = model.predict(features)[0]
+        is_anomaly = bool(prediction == -1)
+
+        # RUL Tahmini (Senin degradation formülünü senaryo için de kullanalım)
+        deg_score = (
+            0.30 * min(simulated_rms / 40, 1) +
+            0.20 * min(simulated_p2p / 50, 1) +
+            0.25 * min(simulated_fft / 2500, 1) +
+            0.15 * min(abs(simulated_slope) / 0.10, 1) +
+            0.10 * (1 - min(simulated_snr / 100, 1))
+        )
+        sim_rul = round(180 * (1 - max(0, min(deg_score, 1))), 2)
+
+        return jsonify({
+            "simulatedRul": sim_rul,
+            "simulatedAnomaly": is_anomaly,
+            "riskLevel": "CRITICAL" if sim_rul < 30 or is_anomaly else "NORMAL",
+            "explanation": f"Simülasyon Tamamlandı. Tahmin edilen teknik değerler -> RMS: {round(simulated_rms, 2)}, FFT: {round(simulated_fft, 2)}"
         })
 
     except Exception as e:

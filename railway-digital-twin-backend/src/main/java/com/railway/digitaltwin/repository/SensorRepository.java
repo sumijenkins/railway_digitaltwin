@@ -10,6 +10,11 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface SensorRepository extends JpaRepository<Sensor, Integer> {
     Page<Sensor> findBySegment_SegmentId(String segmentId, Pageable pageable);
+
     Page<Sensor> findByStatus(String status, Pageable pageable);
+
     Optional<Sensor> findBySegment_SegmentIdAndSensorType(String segmentId, String sensorType);
+
+    Optional<Sensor> findByTrain_TrainIdAndSensorType(Integer trainId, String sensorType);
+
 }

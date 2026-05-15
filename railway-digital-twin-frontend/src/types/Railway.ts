@@ -90,6 +90,16 @@ export interface Train {
     totalLoad: number; // Current total weight in tons
 }
 
+export interface TrainLocation {
+    trainId: number;
+    latitude: number;
+    longitude: number;
+    lastUpdate: string;
+    segmentId: string;
+    segmentName?: string;
+    segmentRiskLevel?: string;
+}
+
 export interface RailwayNetwork {
     stations: Station[];
     tracks: Track[];

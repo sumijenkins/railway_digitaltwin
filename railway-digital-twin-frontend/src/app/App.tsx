@@ -12,6 +12,7 @@ import { ExplainableAIPanel } from "./components/ExplainableAIPanel";
 import { EnergyRiskDashboard } from "./components/EnergyRiskDashboard";
 import { GenerativeReportPanel } from "./components/GenerativeReportPanel";
 import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
+import { ScenarioAnalysisPanel } from "./components/ScenarioAnalysisPanel";
 import { anomalyService } from "../services/anomalyService";
 import { energyRiskService } from "../services/energyRiskService";
 import { DSSPanel } from "./components/DSSPanel";
@@ -887,6 +888,13 @@ export default function App() {
             <div className="space-y-6">
               <h2 className="text-white text-2xl font-bold mb-4">Generatif AI Raporları</h2>
               <GenerativeReportPanel />
+            </div>
+          )}
+
+          {activeSection === "scenario" && (
+            <div className="space-y-6">
+              <h2 className="text-white text-2xl font-bold mb-4">Senaryo Analizi</h2>
+              <ScenarioAnalysisPanel />
             </div>
           )}
 

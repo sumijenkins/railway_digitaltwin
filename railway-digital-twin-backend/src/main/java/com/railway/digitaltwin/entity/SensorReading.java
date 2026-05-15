@@ -29,4 +29,5 @@ public class SensorReading {
 
     @Column(name = "value")
     private Double value;
+
 }

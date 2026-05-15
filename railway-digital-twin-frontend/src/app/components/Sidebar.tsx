@@ -9,6 +9,7 @@ import {
   Zap,
   MapPin,
   BrainCircuit,
+  Play
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,7 +28,8 @@ export function Sidebar({ activeSection, onSectionChange, userRole = 'engineer' 
       { id: "anomaly", label: "Anomali Tespiti", icon: AlertTriangle },
       { id: "maintenance", label: "Öngörülü Bakım", icon: Wrench },
       { id: "energy-risk", label: "Enerji & Risk", icon: Zap },
-      {id: "dss", label: "Karar Destek Sistemi", icon: Network,},
+      { id: "dss", label: "Karar Destek Sistemi", icon: Network },
+      { id: "scenario", label: "Senaryo Analizi", icon: Play },
     ];
 
     if (userRole === 'engineer' || userRole === 'manager') {

@@ -8,12 +8,10 @@ import com.railway.digitaltwin.exception.ResourceNotFoundException;
 import com.railway.digitaltwin.repository.TrainLocationRepository;
 import com.railway.digitaltwin.repository.TrainRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

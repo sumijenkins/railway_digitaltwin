@@ -27,4 +27,8 @@ public class Sensor {
 
     @Column(name = "status", length = 10)
     private String status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "train_id")
+    private Train train;
 }

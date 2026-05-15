@@ -18,6 +18,9 @@ public class AIRulPredictionService {
     private final RulPredictionResultRepository rulRepository;
 
     public RulPredictionResponseDto predictRul(SensorFeature feature) {
+        if (feature == null) {
+            throw new IllegalArgumentException("Feature is null");
+        }
 
         Map<String, Object> response = externalAIService.predictRul(feature);
 
@@ -28,8 +31,8 @@ public class AIRulPredictionService {
                 : 0.85;
 
         Double confidenceLowerBound = response.get("confidenceLowerBound") != null
-        ? toDouble(response.get("confidenceLowerBound"))
-        : remainingLifeDays * 0.9;
+                ? toDouble(response.get("confidenceLowerBound"))
+                : remainingLifeDays * 0.9;
 
         Double confidenceUpperBound = response.get("confidenceUpperBound") != null
                 ? toDouble(response.get("confidenceUpperBound"))
@@ -81,16 +84,16 @@ public class AIRulPredictionService {
     }
 
     private String generatePriority(String condition) {
-    if ("CRITICAL".equalsIgnoreCase(condition)) {
-        return "YÜKSEK";
-    }
+        if ("CRITICAL".equalsIgnoreCase(condition)) {
+            return "YÜKSEK";
+        }
 
-    if ("WARNING".equalsIgnoreCase(condition)) {
-        return "ORTA";
-    }
+        if ("WARNING".equalsIgnoreCase(condition)) {
+            return "ORTA";
+        }
 
-    return "DÜŞÜK";
-}
+        return "DÜŞÜK";
+    }
 
     private String generateRecommendedAction(String condition) {
         if ("CRITICAL".equalsIgnoreCase(condition)) {
@@ -126,7 +129,8 @@ public class AIRulPredictionService {
     }
 
     private Double toDouble(Object value) {
-        if (value == null) return 0.0;
+        if (value == null)
+            return 0.0;
         return Double.parseDouble(value.toString());
     }
 }
