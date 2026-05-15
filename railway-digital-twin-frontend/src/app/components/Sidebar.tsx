@@ -19,10 +19,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeSection, onSectionChange, userRole = 'engineer' }: SidebarProps) {
-  
+
   const getMenuItems = () => {
     const items = [
       { id: "overview", label: "Genel Bakış", icon: LayoutDashboard },
+      { id: "live-tracking", label: "Canlı Tren Takibi", icon: MapPin },
       { id: "sensors", label: "Canlı Sensör İzleme", icon: Activity },
       { id: "route-comparison", label: "Rota Karşılaştırma", icon: MapPin },
       { id: "anomaly", label: "Anomali Tespiti", icon: AlertTriangle },

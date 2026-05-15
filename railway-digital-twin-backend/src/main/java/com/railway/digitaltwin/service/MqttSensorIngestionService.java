@@ -53,10 +53,11 @@ public class MqttSensorIngestionService {
                 return;
             }
 
-            //if (!verifyDigitalSignature(payload)) {
-            //    logger.warn("MQTT payload signature verification failed for segment: {}", payload.getSegmentId());
-            //    return;
-            //}
+            // if (!verifyDigitalSignature(payload)) {
+            // logger.warn("MQTT payload signature verification failed for segment: {}",
+            // payload.getSegmentId());
+            // return;
+            // }
 
             String segmentId = payload.getSegmentId();
             String sensorType = payload.getSensorType();
@@ -98,14 +99,14 @@ public class MqttSensorIngestionService {
             // AI anomaly detection
             aiAnomalyDetectionService.detectAnomaly(feature);
 
-    // RUL prediction
-    RulPredictionResponseDto rulPrediction = aiRulPredictionService.predictRul(feature);
-    double remainingLife = rulPrediction.getRemainingLifeDays();
+            // RUL prediction
+            RulPredictionResponseDto rulPrediction = aiRulPredictionService.predictRul(feature);
+            double remainingLife = rulPrediction.getRemainingLifeDays();
 
-    logger.info("Remaining useful life for segment {}: {} days",
-            segmentId,
-            remainingLife);
-    
+            logger.info("Remaining useful life for segment {}: {} days",
+                    segmentId,
+                    remainingLife);
+
             logger.info("MQTT sensor data processed successfully for sensorId: {}", sensor.getSensorId());
 
         } catch (Exception e) {

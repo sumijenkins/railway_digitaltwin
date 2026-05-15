@@ -8,6 +8,11 @@ import com.railway.digitaltwin.exception.ResourceNotFoundException;
 import com.railway.digitaltwin.repository.TrainLocationRepository;
 import com.railway.digitaltwin.repository.TrainRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,6 +58,13 @@ public class TrainService {
             throw new ResourceNotFoundException("Train", "trainId", trainId);
         }
         trainRepository.deleteById(trainId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TrainLocationResponseDto> getAllLiveLocations() {
+        return locationRepository.findAll().stream()
+                .map(this::toLocationDto)
+                .collect(Collectors.toList());
     }
 
     // ─── Dönüşüm yardımcıları ───────────────────────────────────────────────

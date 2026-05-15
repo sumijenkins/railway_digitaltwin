@@ -3,9 +3,13 @@ import 'leaflet/dist/leaflet.css';
 import { RailwayNetwork, Track } from '../../types/Railway';
 import { useEffect, memo, useRef, useState } from 'react';
 import { LatLngExpression } from 'leaflet';
+import { useRailwayPath } from "../../hooks/useRailwayPath";
+import { useTrainAnimation } from "../../hooks/useTrainAnimation";
+
 
 interface GISMapProps {
     network: RailwayNetwork | null;
+    trains?: any[];
     activeRoute?: {
         startStation?: string;
         endStation?: string;
@@ -43,7 +47,7 @@ function MapBounds({ network }: { network: RailwayNetwork | null }) {
     return null;
 }
 
-export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack, dssOverview }: GISMapProps) {
+export function GISMap({ network, trains, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack, dssOverview }: GISMapProps) {
     const [railwayGeoJson, setRailwayGeoJson] = useState<any>(null);
     const [basmaneMenemenGeoJson, setBasmaneMenemenGeoJson] = useState<any>(null);
 
@@ -58,6 +62,9 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
             .then((data) => setBasmaneMenemenGeoJson(data))
             .catch((err) => console.error("Basmane-Menemen GeoJSON could not be loaded:", err));
     }, []);
+
+    const railwayCoords = useRailwayPath();
+    const { trainB } = useTrainAnimation(railwayCoords, 21600000); // 6 Saatlik gerçek zamanlı rota
 
     if (!network) return <div className="text-white">Harita verisi bekleniyor...</div>;
 
@@ -93,6 +100,8 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
         if (score > 50) return '#F59E0B'; // Yellow/Orange
         return '#EF4444'; // Red
     };
+
+    if (!network) return <div className="w-full h-full bg-gray-900 flex items-center justify-center text-white">Harita verisi yükleniyor...</div>;
 
     return (
         <div className="bg-gray-800 rounded-lg p-1 border border-gray-700 h-[500px] overflow-hidden relative">
@@ -148,6 +157,9 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
                         })}
                     />
                 )}
+
+
+                {/* Animated trains moved to end for better visibility */}
 
                 {basmaneMenemenGeoJson?.features && (
                     <GeoJSON
@@ -260,7 +272,22 @@ export const GISMap = memo(function GISMap({ network, activeRoute, viewMode = 's
                     </CircleMarker>
                 ))}
 
+                {railwayCoords.length > 0 && (
+                    <CircleMarker
+                        center={[trainB.lat, trainB.lng]}
+                        pathOptions={{ color: '#fff', fillColor: '#3b82f6', fillOpacity: 1, weight: 2 }}
+                        radius={8}
+                    >
+                        <Popup>
+                            <div className="text-black text-xs">
+                                <div className="font-bold">Tren B — Bandırma → Basmane</div>
+                                <div className="font-mono">{trainB.lat.toFixed(4)}, {trainB.lng.toFixed(4)}</div>
+                            </div>
+                        </Popup>
+                    </CircleMarker>
+                )}
+
             </MapContainer>
         </div>
     );
-});
+}

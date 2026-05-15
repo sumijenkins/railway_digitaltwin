@@ -3,17 +3,26 @@ import { TrainLocation } from "../types/Railway";
 const API_URL = "http://localhost:8080/api";
 
 export const trainService = {
-  async getTrainLocations(): Promise<TrainLocation[]> {
+  /**
+   * Harita üzerindeki trenlerin anlık konumlarını çeker.
+   */
+  async getLiveTrainLocations(): Promise<TrainLocation[]> {
     try {
-      const response = await fetch(`${API_URL}/trains/locations?size=100`);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
-      return data.content ?? data;
+      const response = await fetch(`${API_URL}/trains/live-tracking`);
+      if (!response.ok) throw new Error("Canlı konum verisi alınamadı");
+      return await response.json();
     } catch (error) {
-      console.error("Error fetching train locations:", error);
+      console.error("Error fetching live tracking:", error);
       return [];
     }
+  },
+
+
+  /**
+   * İhtiyaç duyulursa tek bir trenin detaylarını çeker.
+   */
+  async getTrainById(id: number) {
+    const response = await fetch(`${API_URL}/trains/${id}`);
+    return await response.json();
   }
 };
