@@ -15,14 +15,15 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnomalyService {
 
     private final AnomalyRepository anomalyRepository;
     private final RailwaySegmentRepository segmentRepository;
-
 
     @Transactional(readOnly = true)
     public Page<AnomalyResponseDto> getAllAnomalies(Pageable pageable) {
@@ -72,8 +73,7 @@ public class AnomalyService {
                     "HIGH",
                     value,
                     40.0,
-                    recordedAt
-            );
+                    recordedAt);
         }
 
         if (channelName.equals("ray_vibration_x") && value > 2.5) {
@@ -83,8 +83,7 @@ public class AnomalyService {
                     "HIGH",
                     value,
                     2.5,
-                    recordedAt
-            );
+                    recordedAt);
         }
 
         if (channelName.equals("rail_slope") && Math.abs(value) > 3.0) {
@@ -94,8 +93,7 @@ public class AnomalyService {
                     "MEDIUM",
                     value,
                     3.0,
-                    recordedAt
-            );
+                    recordedAt);
         }
 
         if (channelName.equals("train_speed") && value > 85.0) {
@@ -105,9 +103,9 @@ public class AnomalyService {
                     "MEDIUM",
                     value,
                     85.0,
-                    recordedAt
-            );
+                    recordedAt);
         }
+        log.info("Anomaly input -> {}", value);
     }
 
     private void saveDetectedAnomaly(
@@ -116,8 +114,7 @@ public class AnomalyService {
             String severity,
             Double measuredValue,
             Double thresholdValue,
-            LocalDateTime detectedTime
-    ) {
+            LocalDateTime detectedTime) {
         Anomaly anomaly = Anomaly.builder()
                 .segment(segment)
                 .anomalyType(anomalyType)
