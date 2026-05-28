@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, useMap, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, Polyline, useMap, GeoJSON, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { RailwayNetwork, Track } from '../../types/Railway';
 import { useEffect, memo, useRef, useState } from 'react';
@@ -50,6 +50,16 @@ function MapBounds({ network }: { network: RailwayNetwork | null }) {
 export function GISMap({ network, trains, activeRoute, viewMode = 'status', selectedTrackId, onSelectTrack, dssOverview }: GISMapProps) {
     const [railwayGeoJson, setRailwayGeoJson] = useState<any>(null);
     const [basmaneMenemenGeoJson, setBasmaneMenemenGeoJson] = useState<any>(null);
+    const [manisaUsakGeoJson, setManisaUsakGeoJson] = useState<any>(null);
+    const [usakAfyonGeoJson, setUsakAfyonGeoJson] = useState<any>(null);
+    const [afyonEskisehirGeoJson, setAfyonEskisehirGeoJson] = useState<any>(null);
+    const [eskisehirAnkaraGeoJson, setEskisehirAnkaraGeoJson] = useState<any>(null);
+    const [istanbulGebzeGeoJson, setIstanbulGebzeGeoJson] = useState<any>(null);
+    const [gebzeIzmitGeoJson, setGebzeIzmitGeoJson] = useState<any>(null);
+    const [izmitArifiyeGeoJson, setIzmitArifiyeGeoJson] = useState<any>(null);
+    const [arifiyeBilecikGeoJson, setArifiyeBilecikGeoJson] = useState<any>(null);
+    const [bilecikEskisehirGeoJson, setBilecikEskisehirGeoJson] = useState<any>(null);
+    const [balikesirKutahyaGeoJson, setBalikesirKutahyaGeoJson] = useState<any>(null);
 
     useEffect(() => {
         fetch("/data/menemen-bandirma-railway.geojson")
@@ -61,6 +71,52 @@ export function GISMap({ network, trains, activeRoute, viewMode = 'status', sele
             .then((res) => res.json())
             .then((data) => setBasmaneMenemenGeoJson(data))
             .catch((err) => console.error("Basmane-Menemen GeoJSON could not be loaded:", err));
+
+        fetch("/data/manisa-usak-railway.geojson")
+        .then((res) => res.json())
+        .then((data) => setManisaUsakGeoJson(data))
+        .catch((err) => console.error("Manisa-Uşak GeoJSON could not be loaded:", err));
+
+        fetch("/data/usak-afyon-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setUsakAfyonGeoJson(data))
+            .catch((err) => console.error("Uşak-Afyon GeoJSON could not be loaded:", err));
+
+        fetch("/data/afyon-eskisehir-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setAfyonEskisehirGeoJson(data))
+            .catch((err) => console.error("Afyon-Eskişehir GeoJSON could not be loaded:", err));
+
+        fetch("/data/eskisehir-ankara-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setEskisehirAnkaraGeoJson(data))
+            .catch((err) => console.error("Eskişehir-Ankara GeoJSON could not be loaded:", err));
+
+        fetch("/data/istanbul-gebze-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setIstanbulGebzeGeoJson(data));
+
+        fetch("/data/gebze-izmit-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setGebzeIzmitGeoJson(data));
+
+        fetch("/data/izmit-arifiye-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setIzmitArifiyeGeoJson(data));
+
+        fetch("/data/arifiye-bilecik-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setArifiyeBilecikGeoJson(data));
+
+        fetch("/data/bilecik-eskisehir-railway.geojson")
+            .then((res) => res.json())
+            .then((data) => setBilecikEskisehirGeoJson(data));
+        
+            fetch("/data/balikesir_kutahya.geojson")
+            .then((res) => res.json())
+            .then((data) => setBalikesirKutahyaGeoJson(data))
+            .catch((err) => console.error("Balikesir-Kütahya GeoJSON could not be loaded:", err));
+        
     }, []);
 
     const railwayCoords = useRailwayPath();
@@ -99,6 +155,31 @@ export function GISMap({ network, trains, activeRoute, viewMode = 'status', sele
         if (score > 80) return '#10B981'; // Green
         if (score > 50) return '#F59E0B'; // Yellow/Orange
         return '#EF4444'; // Red
+    };
+
+    const renderRailwayGeoJson = (geoJsonData: any) => {
+        if (!geoJsonData?.features) return null;
+
+        return (
+            <GeoJSON
+                data={{
+                    type: "FeatureCollection",
+                    features: geoJsonData.features.filter(
+                        (f: any) =>
+                            f.geometry &&
+                            (
+                                f.geometry.type === "LineString" ||
+                                f.geometry.type === "MultiLineString"
+                            )
+                    ),
+                } as any}
+                style={() => ({
+                    color: "#2563eb",
+                    weight: 4,
+                    opacity: 0.8,
+                })}
+            />
+        );
     };
 
     if (!network) return <div className="w-full h-full bg-gray-900 flex items-center justify-center text-white">Harita verisi yükleniyor...</div>;
@@ -158,6 +239,17 @@ export function GISMap({ network, trains, activeRoute, viewMode = 'status', sele
                     />
                 )}
 
+                {renderRailwayGeoJson(manisaUsakGeoJson)}
+                {renderRailwayGeoJson(usakAfyonGeoJson)}
+                {renderRailwayGeoJson(afyonEskisehirGeoJson)}
+                {renderRailwayGeoJson(eskisehirAnkaraGeoJson)}
+                {renderRailwayGeoJson(istanbulGebzeGeoJson)}
+                {renderRailwayGeoJson(gebzeIzmitGeoJson)}
+                {renderRailwayGeoJson(izmitArifiyeGeoJson)}
+                {renderRailwayGeoJson(arifiyeBilecikGeoJson)}
+                {renderRailwayGeoJson(bilecikEskisehirGeoJson)}
+                {renderRailwayGeoJson(balikesirKutahyaGeoJson)}
+
 
                 {/* Animated trains moved to end for better visibility */}
 
@@ -183,7 +275,7 @@ export function GISMap({ network, trains, activeRoute, viewMode = 'status', sele
                 )}
 
                 {/* TRACKS */}
-                {network.tracks.filter(track => !track.id.endsWith('-R')).map((track) => {
+                {/* {network.tracks.filter(track => !track.id.endsWith('-R')).map((track) => {
                     const source = network.stations.find(s => s.id === track.sourceStationId);
                     const target = network.stations.find(s => s.id === track.targetStationId);
                     if (!source || !target) return null;
@@ -244,31 +336,38 @@ export function GISMap({ network, trains, activeRoute, viewMode = 'status', sele
                                     Durum: {track.status.toUpperCase()}
                                 </div>
                             </Popup>
-                        </Polyline>
-                    );
-                })}
+                        </Polyline> */}
+                    {/* );
+                })} */}
 
                 {/* STATIONS */}
-                {network.stations.map((station) => (
+                
+                {network.stations.map(station => (
                     <CircleMarker
                         key={station.id}
                         center={[station.coordinates.lat, station.coordinates.lng]}
+                        radius={6}
                         pathOptions={{
-                            color: activeRoute?.startStation === station.name ? '#3B82F6' :
-                                activeRoute?.endStation === station.name ? '#10B981' : '#60A5FA',
-                            fillColor: activeRoute?.startStation === station.name ? '#3B82F6' :
-                                activeRoute?.endStation === station.name ? '#10B981' : '#1E3A8A',
-                            fillOpacity: 1,
-                            weight: 2
+                            color: '#3B82F6',
+                            fillColor: '#3B82F6',
+                            fillOpacity: 1
                         }}
-                        radius={activeRoute?.startStation === station.name || activeRoute?.endStation === station.name ? 8 : 5}
                     >
-                        <Popup>
-                            <div className="text-black">
-                                <strong>{station.name}</strong><br />
-                                Kapasite: {station.capacity} Tren
-                            </div>
-                        </Popup>
+                        <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                            {
+                                network.tracks
+                                    .filter(
+                                        t =>
+                                            !t.id.endsWith("-R") &&
+                                            (
+                                                t.sourceStationId === station.id ||
+                                                t.targetStationId === station.id
+                                            )
+                                    )
+                                    .map(t => t.id)
+                                    .join(" / ")
+                            }
+                        </Tooltip>
                     </CircleMarker>
                 ))}
 

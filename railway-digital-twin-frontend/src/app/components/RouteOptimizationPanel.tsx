@@ -23,6 +23,16 @@ const stationOptions = [
   "Balikesir",
   "Susurluk",
   "Bandirma",
+  "Usak",
+  "Afyonkarahisar",
+  "Eskisehir",
+  "Ankara",
+  "Istanbul",
+  "Gebze",
+  "Izmit",
+  "Arifiye",
+  "Bilecik",
+  "Kutahya",
 ];
 
 export function RouteOptimizationPanel() {
