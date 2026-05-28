@@ -380,15 +380,24 @@ export default function App() {
             };
           }
 
-          if (channel === "temperature" || channel === "traintemperature") {
+          if (
+            channel === "raytemperature" ||
+            channel === "temperature"
+          ) {
             grouped[timeKey].temperature = r.value;
           }
 
-          if (channel === "vibrationx" || channel === "trainvibrationx") {
+          if (
+            channel === "rayvibrationx" ||
+            channel === "vibrationx"
+          ) {
             grouped[timeKey].vibration = r.value;
           }
 
-          if (channel === "tilt" || channel === "railslope") {
+          if (
+            channel === "railslope" ||
+            channel === "tilt"
+          ) {
             grouped[timeKey].tilt = r.value;
           }
 
@@ -403,7 +412,7 @@ export default function App() {
           if (channel === "trainvibrationx") {
             grouped[timeKey].trainVib = r.value;
           }
-        }
+                  }
 
         const chartData = Object.values(grouped)
           .sort((a: any, b: any) => a.rawTime.localeCompare(b.rawTime))
@@ -713,6 +722,16 @@ export default function App() {
                   <option value="S4">S4 - Soma - Balikesir</option>
                   <option value="S5">S5 - Balikesir - Susurluk</option>
                   <option value="S6">S6 - Susurluk - Bandirma</option>
+                  <option value="S7">S7 - Susurluk - Bandirma</option>
+                  <option value="S8">S8 - Manisa - Usak</option>
+                  <option value="S9">S9 - Usak - Afyonkarahisar</option>
+                  <option value="S10">S10 - Afyonkarahisar - Eskisehir</option>
+                  <option value="S11">S11 - Eskisehir - Ankara</option>
+                  <option value="S12">S12 - Istanbul - Gebze</option>
+                  <option value="S13">S13 - Gebze - Izmit</option>
+                  <option value="S14">S14 - Izmit - Arifiye</option>
+                  <option value="S15">S15 - Arifiye - Bilecik</option>
+                  <option value="S16">S16 - Bilecik - Eskisehir</option>
                 </select>
               </div>
 

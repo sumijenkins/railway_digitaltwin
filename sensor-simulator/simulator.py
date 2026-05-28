@@ -11,7 +11,7 @@ PORT = 1883
 TOPIC = "railway/sensors/data"
 SECRET_KEY = b"railway-digital-twin-secret"
 
-segments = ["S1", "S2", "S3", "S4", "S5", "S6"]
+segments = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17"]
 
 SCENARIO = "normal"
 
@@ -21,7 +21,18 @@ SENSORS = {
     "S3": 111,
     "S4": 112,
     "S5": 113,
-    "S6": 114
+    "S6": 114,
+    "S7": 115,
+    "S8": 116,
+    "S9": 117,
+    "S10": 118,
+    "S11": 119,
+    "S12": 120,
+    "S13": 121,
+    "S14": 122,
+    "S15": 123,
+    "S16": 124,
+    "S17": 125,
 }
 
 client = mqtt.Client()

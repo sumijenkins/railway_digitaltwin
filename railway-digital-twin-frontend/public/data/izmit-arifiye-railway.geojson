@@ -1,0 +1,7772 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-05-25T19:04:30Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/89785322",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3649019,
+            40.6927639
+          ],
+          [
+            30.3638504,
+            40.6859702
+          ],
+          [
+            30.3637761,
+            40.685592
+          ],
+          [
+            30.3636674,
+            40.6852121
+          ],
+          [
+            30.3635473,
+            40.6848679
+          ],
+          [
+            30.3631141,
+            40.6839636
+          ],
+          [
+            30.3627448,
+            40.6834088
+          ],
+          [
+            30.3623369,
+            40.6828849
+          ],
+          [
+            30.3602088,
+            40.6803944
+          ],
+          [
+            30.3592673,
+            40.6793346
+          ],
+          [
+            30.3590251,
+            40.6790097
+          ],
+          [
+            30.358734,
+            40.6785588
+          ],
+          [
+            30.3585516,
+            40.6781703
+          ],
+          [
+            30.3583689,
+            40.6776764
+          ],
+          [
+            30.3582865,
+            40.6772473
+          ],
+          [
+            30.3582545,
+            40.6768382
+          ],
+          [
+            30.3582737,
+            40.6765775
+          ],
+          [
+            30.3583038,
+            40.6762972
+          ],
+          [
+            30.3583472,
+            40.6760494
+          ],
+          [
+            30.3584482,
+            40.6756977
+          ],
+          [
+            30.3585702,
+            40.6753516
+          ],
+          [
+            30.3587297,
+            40.6750149
+          ],
+          [
+            30.358911,
+            40.6746964
+          ],
+          [
+            30.3618491,
+            40.6698836
+          ],
+          [
+            30.3622091,
+            40.6692585
+          ],
+          [
+            30.362454,
+            40.6687758
+          ],
+          [
+            30.3626316,
+            40.6683688
+          ],
+          [
+            30.3628408,
+            40.6678782
+          ],
+          [
+            30.3629226,
+            40.6676269
+          ],
+          [
+            30.3630441,
+            40.6673061
+          ],
+          [
+            30.3632636,
+            40.6664708
+          ],
+          [
+            30.3634402,
+            40.6656295
+          ],
+          [
+            30.3634975,
+            40.66519
+          ]
+        ]
+      },
+      "id": "way/89785322"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/132237660",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2623284,
+            40.6956571
+          ],
+          [
+            30.2618115,
+            40.6957845
+          ]
+        ]
+      },
+      "id": "way/132237660"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/160515899",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "-1",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "Bing",
+        "tunnel": "yes",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3136332,
+            40.7048404
+          ],
+          [
+            30.3135169,
+            40.7048026
+          ],
+          [
+            30.3128677,
+            40.7045916
+          ],
+          [
+            30.312354,
+            40.7043622
+          ],
+          [
+            30.3116702,
+            40.7040092
+          ],
+          [
+            30.311101,
+            40.7037136
+          ],
+          [
+            30.3107,
+            40.7034306
+          ]
+        ]
+      },
+      "id": "way/160515899"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/160515903",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "Bing",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3103426,
+            40.7031401
+          ],
+          [
+            30.3102455,
+            40.703053
+          ]
+        ]
+      },
+      "id": "way/160515903"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/160515904",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3107,
+            40.7034306
+          ],
+          [
+            30.3104982,
+            40.7032757
+          ],
+          [
+            30.3103426,
+            40.7031401
+          ]
+        ]
+      },
+      "id": "way/160515904"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/160596791",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9595659,
+            40.7604111
+          ],
+          [
+            29.9589954,
+            40.7607293
+          ]
+        ]
+      },
+      "id": "way/160596791"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/202086282",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9574417,
+            40.7614471
+          ],
+          [
+            29.9576271,
+            40.7613726
+          ]
+        ]
+      },
+      "id": "way/202086282"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/202086284",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9576271,
+            40.7613726
+          ],
+          [
+            29.9582533,
+            40.7611075
+          ],
+          [
+            29.9586317,
+            40.7609195
+          ],
+          [
+            29.9589954,
+            40.7607293
+          ]
+        ]
+      },
+      "id": "way/202086284"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/202182468",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9574996,
+            40.7615357
+          ],
+          [
+            29.9567549,
+            40.7618018
+          ],
+          [
+            29.9562762,
+            40.7619434
+          ],
+          [
+            29.9554923,
+            40.7621418
+          ],
+          [
+            29.9547654,
+            40.7622812
+          ],
+          [
+            29.9541692,
+            40.7623683
+          ],
+          [
+            29.9535856,
+            40.762434
+          ],
+          [
+            29.9531051,
+            40.762467
+          ],
+          [
+            29.9526577,
+            40.7624948
+          ],
+          [
+            29.9519959,
+            40.7625095
+          ],
+          [
+            29.9513991,
+            40.7624936
+          ],
+          [
+            29.9506708,
+            40.7624528
+          ],
+          [
+            29.9492525,
+            40.7623716
+          ],
+          [
+            29.9467238,
+            40.7622525
+          ],
+          [
+            29.9436555,
+            40.7620624
+          ],
+          [
+            29.9328067,
+            40.7613695
+          ],
+          [
+            29.9314579,
+            40.7613109
+          ],
+          [
+            29.9302412,
+            40.7612722
+          ],
+          [
+            29.9278539,
+            40.7612309
+          ],
+          [
+            29.9240174,
+            40.7611645
+          ],
+          [
+            29.9226808,
+            40.7611414
+          ],
+          [
+            29.9224033,
+            40.7611373
+          ],
+          [
+            29.9221525,
+            40.7611445
+          ],
+          [
+            29.9218118,
+            40.7611688
+          ],
+          [
+            29.9208946,
+            40.761244
+          ]
+        ]
+      },
+      "id": "way/202182468"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215538900",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2618115,
+            40.6957845
+          ],
+          [
+            30.261731,
+            40.6958029
+          ],
+          [
+            30.2616634,
+            40.6958184
+          ]
+        ]
+      },
+      "id": "way/215538900"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215538904",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2190579,
+            40.7014475
+          ],
+          [
+            30.201821,
+            40.7026012
+          ],
+          [
+            30.1980755,
+            40.7028723
+          ]
+        ]
+      },
+      "id": "way/215538904"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215802127",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3612757,
+            40.7131609
+          ],
+          [
+            30.3608427,
+            40.7131609
+          ],
+          [
+            30.3604925,
+            40.7131557
+          ],
+          [
+            30.3593341,
+            40.7131384
+          ],
+          [
+            30.3561091,
+            40.7130998
+          ],
+          [
+            30.3508019,
+            40.7130578
+          ],
+          [
+            30.3489313,
+            40.7130357
+          ],
+          [
+            30.3461063,
+            40.7129929
+          ],
+          [
+            30.3456571,
+            40.7129858
+          ],
+          [
+            30.3306845,
+            40.7128384
+          ],
+          [
+            30.3293815,
+            40.7127876
+          ],
+          [
+            30.3288536,
+            40.7127443
+          ],
+          [
+            30.3283054,
+            40.7126789
+          ],
+          [
+            30.3277101,
+            40.7125829
+          ],
+          [
+            30.32714,
+            40.712481
+          ],
+          [
+            30.3264148,
+            40.7123066
+          ],
+          [
+            30.3256782,
+            40.7120958
+          ],
+          [
+            30.3251832,
+            40.7119264
+          ],
+          [
+            30.3246538,
+            40.7117093
+          ],
+          [
+            30.3237625,
+            40.7112948
+          ],
+          [
+            30.3210248,
+            40.7098555
+          ],
+          [
+            30.3207137,
+            40.7096734
+          ],
+          [
+            30.32026,
+            40.7093549
+          ],
+          [
+            30.3198843,
+            40.7090545
+          ],
+          [
+            30.3195238,
+            40.7086981
+          ],
+          [
+            30.3191872,
+            40.7083427
+          ],
+          [
+            30.3185769,
+            40.7075951
+          ],
+          [
+            30.3181479,
+            40.7071461
+          ],
+          [
+            30.3178149,
+            40.706824
+          ],
+          [
+            30.3176451,
+            40.7066629
+          ],
+          [
+            30.3174285,
+            40.7065047
+          ],
+          [
+            30.3172614,
+            40.7063826
+          ],
+          [
+            30.3169847,
+            40.7061882
+          ],
+          [
+            30.3165788,
+            40.705945
+          ],
+          [
+            30.3162734,
+            40.7057713
+          ],
+          [
+            30.3160045,
+            40.7056406
+          ],
+          [
+            30.3156724,
+            40.7054954
+          ],
+          [
+            30.3152291,
+            40.7053377
+          ],
+          [
+            30.3145709,
+            40.7051375
+          ],
+          [
+            30.314187,
+            40.7050119
+          ],
+          [
+            30.3136332,
+            40.7048404
+          ]
+        ]
+      },
+      "id": "way/215802127"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/215802143",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "branch",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3593306,
+            40.7131809
+          ],
+          [
+            30.3582513,
+            40.7132603
+          ],
+          [
+            30.3574841,
+            40.7132852
+          ],
+          [
+            30.3533568,
+            40.7132567
+          ],
+          [
+            30.3526738,
+            40.7132422
+          ],
+          [
+            30.3522715,
+            40.7132199
+          ],
+          [
+            30.35185,
+            40.7131883
+          ]
+        ]
+      },
+      "id": "way/215802143"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/219653365",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.266533,
+            40.6946903
+          ],
+          [
+            30.2664367,
+            40.694713
+          ]
+        ]
+      },
+      "id": "way/219653365"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/219653366",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1977765,
+            40.702904
+          ],
+          [
+            30.1738811,
+            40.7058111
+          ]
+        ]
+      },
+      "id": "way/219653366"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/219653367",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3102455,
+            40.703053
+          ],
+          [
+            30.3090692,
+            40.701965
+          ],
+          [
+            30.3085611,
+            40.7015341
+          ],
+          [
+            30.3083108,
+            40.7013383
+          ],
+          [
+            30.3081848,
+            40.7012397
+          ],
+          [
+            30.3077725,
+            40.70094
+          ],
+          [
+            30.3069142,
+            40.7004194
+          ],
+          [
+            30.3065375,
+            40.700222
+          ],
+          [
+            30.305998,
+            40.6999712
+          ],
+          [
+            30.3055853,
+            40.6998008
+          ],
+          [
+            30.3048076,
+            40.6994991
+          ],
+          [
+            30.3037622,
+            40.6991377
+          ],
+          [
+            30.3031955,
+            40.6989442
+          ],
+          [
+            30.3026053,
+            40.6987671
+          ],
+          [
+            30.3017694,
+            40.6985246
+          ],
+          [
+            30.3008868,
+            40.6983318
+          ],
+          [
+            30.3001559,
+            40.6981909
+          ],
+          [
+            30.2991323,
+            40.6980354
+          ],
+          [
+            30.2984311,
+            40.697953
+          ],
+          [
+            30.2976338,
+            40.6978865
+          ],
+          [
+            30.2970415,
+            40.6978627
+          ],
+          [
+            30.295664,
+            40.6978396
+          ],
+          [
+            30.29309,
+            40.6978746
+          ],
+          [
+            30.2923166,
+            40.6978584
+          ],
+          [
+            30.2919071,
+            40.6978296
+          ],
+          [
+            30.2914895,
+            40.6977838
+          ],
+          [
+            30.2911365,
+            40.697742
+          ],
+          [
+            30.290827,
+            40.697685
+          ],
+          [
+            30.2904777,
+            40.6976007
+          ],
+          [
+            30.2901323,
+            40.6975156
+          ],
+          [
+            30.2896589,
+            40.6973525
+          ],
+          [
+            30.2892122,
+            40.6971703
+          ],
+          [
+            30.288731,
+            40.6969328
+          ],
+          [
+            30.288435,
+            40.6967737
+          ],
+          [
+            30.288013,
+            40.6965074
+          ],
+          [
+            30.2876818,
+            40.6962706
+          ],
+          [
+            30.2872935,
+            40.6959431
+          ],
+          [
+            30.285837,
+            40.694571
+          ],
+          [
+            30.2855857,
+            40.6943462
+          ],
+          [
+            30.2849634,
+            40.693888
+          ],
+          [
+            30.284515,
+            40.6936207
+          ],
+          [
+            30.2842383,
+            40.6934665
+          ],
+          [
+            30.2840381,
+            40.6933697
+          ],
+          [
+            30.2836781,
+            40.6932165
+          ],
+          [
+            30.2832596,
+            40.6930595
+          ],
+          [
+            30.2828119,
+            40.6929224
+          ],
+          [
+            30.2822631,
+            40.6927865
+          ],
+          [
+            30.2810313,
+            40.6925509
+          ],
+          [
+            30.2798519,
+            40.6923524
+          ],
+          [
+            30.2794216,
+            40.6922838
+          ],
+          [
+            30.2790167,
+            40.6922343
+          ],
+          [
+            30.2785883,
+            40.6922082
+          ],
+          [
+            30.2781404,
+            40.6921906
+          ],
+          [
+            30.2777149,
+            40.6922101
+          ],
+          [
+            30.2772679,
+            40.6922341
+          ],
+          [
+            30.2767255,
+            40.6923231
+          ],
+          [
+            30.2762865,
+            40.6924137
+          ],
+          [
+            30.2734463,
+            40.6930706
+          ],
+          [
+            30.2698444,
+            40.6939108
+          ],
+          [
+            30.2686105,
+            40.6941986
+          ],
+          [
+            30.266533,
+            40.6946903
+          ]
+        ]
+      },
+      "id": "way/219653367"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/230051464",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1734513,
+            40.7058662
+          ],
+          [
+            30.1433701,
+            40.7095716
+          ],
+          [
+            30.1416874,
+            40.7097598
+          ],
+          [
+            30.1410912,
+            40.7098257
+          ],
+          [
+            30.140319,
+            40.7098966
+          ],
+          [
+            30.139305,
+            40.7099851
+          ],
+          [
+            30.1385738,
+            40.7100281
+          ],
+          [
+            30.1373015,
+            40.7100733
+          ],
+          [
+            30.1364782,
+            40.7100813
+          ],
+          [
+            30.1315909,
+            40.7100419
+          ]
+        ]
+      },
+      "id": "way/230051464"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263321288",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9110262,
+            40.7611861
+          ],
+          [
+            29.9115303,
+            40.7613108
+          ],
+          [
+            29.9120665,
+            40.7614132
+          ],
+          [
+            29.9130694,
+            40.7616201
+          ],
+          [
+            29.9133335,
+            40.7616524
+          ],
+          [
+            29.9136611,
+            40.7616728
+          ],
+          [
+            29.9139175,
+            40.7616853
+          ],
+          [
+            29.9142858,
+            40.7616667
+          ],
+          [
+            29.9146244,
+            40.7616483
+          ],
+          [
+            29.9150071,
+            40.7616079
+          ],
+          [
+            29.9198663,
+            40.7611657
+          ],
+          [
+            29.9208022,
+            40.7610912
+          ],
+          [
+            29.9217261,
+            40.7610458
+          ],
+          [
+            29.9226917,
+            40.7610614
+          ],
+          [
+            29.9268238,
+            40.7611235
+          ],
+          [
+            29.9272462,
+            40.7611298
+          ],
+          [
+            29.9287664,
+            40.7611527
+          ],
+          [
+            29.9302521,
+            40.761175
+          ],
+          [
+            29.9314748,
+            40.7612083
+          ],
+          [
+            29.9327991,
+            40.7612656
+          ],
+          [
+            29.9436626,
+            40.7619373
+          ],
+          [
+            29.9455119,
+            40.7620466
+          ],
+          [
+            29.9467592,
+            40.7621335
+          ],
+          [
+            29.9492463,
+            40.7622733
+          ],
+          [
+            29.9506907,
+            40.7623583
+          ],
+          [
+            29.9513936,
+            40.7623929
+          ],
+          [
+            29.9520118,
+            40.762401
+          ],
+          [
+            29.9526212,
+            40.7623959
+          ],
+          [
+            29.9530885,
+            40.7623769
+          ],
+          [
+            29.9535797,
+            40.7623407
+          ],
+          [
+            29.9541097,
+            40.762279
+          ],
+          [
+            29.9547071,
+            40.7621875
+          ],
+          [
+            29.955426,
+            40.7620439
+          ],
+          [
+            29.9561815,
+            40.7618454
+          ],
+          [
+            29.9566785,
+            40.7616999
+          ],
+          [
+            29.9574417,
+            40.7614471
+          ]
+        ]
+      },
+      "id": "way/263321288"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263321289",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9110262,
+            40.7611861
+          ],
+          [
+            29.9120772,
+            40.7613736
+          ],
+          [
+            29.9130934,
+            40.7615815
+          ],
+          [
+            29.9133437,
+            40.76161
+          ],
+          [
+            29.9136741,
+            40.7616316
+          ],
+          [
+            29.9139255,
+            40.7616397
+          ],
+          [
+            29.9142882,
+            40.761632
+          ],
+          [
+            29.9146199,
+            40.7616064
+          ],
+          [
+            29.915003,
+            40.761575
+          ],
+          [
+            29.9198603,
+            40.7611329
+          ],
+          [
+            29.9207989,
+            40.7610533
+          ],
+          [
+            29.9217331,
+            40.7610022
+          ],
+          [
+            29.9226925,
+            40.7610178
+          ],
+          [
+            29.9276944,
+            40.7610901
+          ],
+          [
+            29.9281945,
+            40.7610973
+          ],
+          [
+            29.9302575,
+            40.7611271
+          ],
+          [
+            29.9314822,
+            40.7611636
+          ],
+          [
+            29.9327962,
+            40.7612255
+          ],
+          [
+            29.9436646,
+            40.7619136
+          ],
+          [
+            29.945516,
+            40.7620167
+          ],
+          [
+            29.9467701,
+            40.7620967
+          ],
+          [
+            29.9492444,
+            40.7622424
+          ],
+          [
+            29.9506974,
+            40.7623264
+          ],
+          [
+            29.9513919,
+            40.762361
+          ],
+          [
+            29.9520161,
+            40.7623717
+          ],
+          [
+            29.95261,
+            40.7623656
+          ],
+          [
+            29.9530827,
+            40.7623456
+          ],
+          [
+            29.9535775,
+            40.762306
+          ],
+          [
+            29.9540884,
+            40.762247
+          ],
+          [
+            29.9546848,
+            40.7621518
+          ],
+          [
+            29.9554,
+            40.7620054
+          ],
+          [
+            29.9561564,
+            40.7618194
+          ],
+          [
+            29.9566551,
+            40.7616687
+          ],
+          [
+            29.9574239,
+            40.7614125
+          ]
+        ]
+      },
+      "id": "way/263321289"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263558902",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9576018,
+            40.7613406
+          ],
+          [
+            29.9582242,
+            40.761077
+          ],
+          [
+            29.9585959,
+            40.7608949
+          ],
+          [
+            29.9589482,
+            40.7607121
+          ]
+        ]
+      },
+      "id": "way/263558902"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263558903",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9574239,
+            40.7614125
+          ],
+          [
+            29.9576018,
+            40.7613406
+          ]
+        ]
+      },
+      "id": "way/263558903"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263558955",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9589482,
+            40.7607121
+          ],
+          [
+            29.9595129,
+            40.7603899
+          ]
+        ]
+      },
+      "id": "way/263558955"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263559261",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0105266,
+            40.749109
+          ],
+          [
+            30.0089911,
+            40.7490543
+          ],
+          [
+            30.0074387,
+            40.7489972
+          ],
+          [
+            29.9978466,
+            40.748536
+          ],
+          [
+            29.9958443,
+            40.748436
+          ],
+          [
+            29.9950933,
+            40.7484082
+          ],
+          [
+            29.9896113,
+            40.7481401
+          ],
+          [
+            29.9886412,
+            40.7481062
+          ],
+          [
+            29.9880846,
+            40.7480893
+          ],
+          [
+            29.9868907,
+            40.7481076
+          ],
+          [
+            29.9858371,
+            40.7481571
+          ],
+          [
+            29.9850342,
+            40.7482222
+          ],
+          [
+            29.9842383,
+            40.7483014
+          ],
+          [
+            29.9833907,
+            40.7484078
+          ],
+          [
+            29.9823843,
+            40.7485481
+          ],
+          [
+            29.9811303,
+            40.7488046
+          ],
+          [
+            29.9799528,
+            40.7490837
+          ],
+          [
+            29.9791579,
+            40.7492981
+          ],
+          [
+            29.9781855,
+            40.7496033
+          ],
+          [
+            29.9773581,
+            40.7498949
+          ],
+          [
+            29.9766221,
+            40.7501668
+          ],
+          [
+            29.9759385,
+            40.7504414
+          ],
+          [
+            29.9751367,
+            40.7507942
+          ],
+          [
+            29.9744452,
+            40.7511219
+          ],
+          [
+            29.9735359,
+            40.7515982
+          ],
+          [
+            29.9724087,
+            40.75224
+          ],
+          [
+            29.964401,
+            40.7573314
+          ],
+          [
+            29.9628159,
+            40.758349
+          ],
+          [
+            29.9595659,
+            40.7604111
+          ]
+        ]
+      },
+      "id": "way/263559261"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263559637",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9595129,
+            40.7603899
+          ],
+          [
+            29.9627826,
+            40.7583205
+          ],
+          [
+            29.9643885,
+            40.7572887
+          ],
+          [
+            29.9723757,
+            40.7522081
+          ],
+          [
+            29.9735047,
+            40.7515653
+          ],
+          [
+            29.9744149,
+            40.7510885
+          ],
+          [
+            29.9751098,
+            40.7507592
+          ],
+          [
+            29.9759129,
+            40.7504058
+          ],
+          [
+            29.9765927,
+            40.7501333
+          ],
+          [
+            29.9773302,
+            40.7498586
+          ],
+          [
+            29.9781578,
+            40.7495578
+          ],
+          [
+            29.9791464,
+            40.7492599
+          ],
+          [
+            29.9799347,
+            40.7490449
+          ],
+          [
+            29.9811148,
+            40.7487628
+          ],
+          [
+            29.982371,
+            40.7485155
+          ],
+          [
+            29.9833879,
+            40.7483663
+          ],
+          [
+            29.9842323,
+            40.7482649
+          ],
+          [
+            29.9850368,
+            40.7481856
+          ],
+          [
+            29.9858369,
+            40.7481232
+          ],
+          [
+            29.9868995,
+            40.748068
+          ],
+          [
+            29.9880833,
+            40.7480574
+          ],
+          [
+            29.9886432,
+            40.748071
+          ],
+          [
+            29.9896124,
+            40.7481049
+          ],
+          [
+            29.9951088,
+            40.7483623
+          ],
+          [
+            29.9958489,
+            40.7483992
+          ],
+          [
+            29.9978513,
+            40.7484854
+          ],
+          [
+            29.9994726,
+            40.7485642
+          ],
+          [
+            30.0014687,
+            40.748629
+          ],
+          [
+            30.0076888,
+            40.7489054
+          ],
+          [
+            30.0089915,
+            40.7490098
+          ],
+          [
+            30.0100948,
+            40.7490438
+          ],
+          [
+            30.0113862,
+            40.7491096
+          ],
+          [
+            30.0122074,
+            40.7491541
+          ]
+        ]
+      },
+      "id": "way/263559637"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263616854",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.027958,
+            40.746071
+          ],
+          [
+            30.0590486,
+            40.7304046
+          ],
+          [
+            30.0613591,
+            40.729143
+          ],
+          [
+            30.0628209,
+            40.7281511
+          ],
+          [
+            30.0642988,
+            40.7271287
+          ],
+          [
+            30.0658926,
+            40.7259632
+          ],
+          [
+            30.0673565,
+            40.7247423
+          ],
+          [
+            30.0679118,
+            40.7242585
+          ],
+          [
+            30.0685998,
+            40.7235887
+          ],
+          [
+            30.0696747,
+            40.7224874
+          ],
+          [
+            30.0712694,
+            40.720605
+          ],
+          [
+            30.0735483,
+            40.717996
+          ]
+        ]
+      },
+      "id": "way/263616854"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263821818",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1980752,
+            40.702834
+          ],
+          [
+            30.2018156,
+            40.702573
+          ],
+          [
+            30.2190522,
+            40.7014127
+          ]
+        ]
+      },
+      "id": "way/263821818"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263823475",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2664367,
+            40.694713
+          ],
+          [
+            30.2624534,
+            40.6956263
+          ]
+        ]
+      },
+      "id": "way/263823475"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263823476",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2624534,
+            40.6956263
+          ],
+          [
+            30.2623633,
+            40.6956485
+          ],
+          [
+            30.2623284,
+            40.6956571
+          ]
+        ]
+      },
+      "id": "way/263823476"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263837336",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2623171,
+            40.6956307
+          ],
+          [
+            30.2624421,
+            40.6955999
+          ]
+        ]
+      },
+      "id": "way/263837336"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263837337",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2616517,
+            40.6957889
+          ],
+          [
+            30.2617998,
+            40.6957551
+          ]
+        ]
+      },
+      "id": "way/263837337"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263837338",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2617998,
+            40.6957551
+          ],
+          [
+            30.2623171,
+            40.6956307
+          ]
+        ]
+      },
+      "id": "way/263837338"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263838094",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2664221,
+            40.6946805
+          ],
+          [
+            30.266517,
+            40.6946606
+          ]
+        ]
+      },
+      "id": "way/263838094"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263838095",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2624421,
+            40.6955999
+          ],
+          [
+            30.2664221,
+            40.6946805
+          ]
+        ]
+      },
+      "id": "way/263838095"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263838202",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.266517,
+            40.6946606
+          ],
+          [
+            30.2681482,
+            40.6942655
+          ],
+          [
+            30.2734356,
+            40.693037
+          ],
+          [
+            30.2763372,
+            40.692363
+          ],
+          [
+            30.2767151,
+            40.6922861
+          ],
+          [
+            30.277263,
+            40.6921991
+          ],
+          [
+            30.2777056,
+            40.6921723
+          ],
+          [
+            30.2781448,
+            40.6921525
+          ],
+          [
+            30.2785876,
+            40.6921631
+          ],
+          [
+            30.2790246,
+            40.6921932
+          ],
+          [
+            30.2794448,
+            40.6922457
+          ],
+          [
+            30.279871,
+            40.6923114
+          ],
+          [
+            30.2813453,
+            40.6925683
+          ],
+          [
+            30.2822751,
+            40.6927572
+          ],
+          [
+            30.2828273,
+            40.6928906
+          ],
+          [
+            30.2832597,
+            40.6930188
+          ],
+          [
+            30.2837001,
+            40.6931796
+          ],
+          [
+            30.28407,
+            40.693345
+          ],
+          [
+            30.2842772,
+            40.6934431
+          ],
+          [
+            30.2845567,
+            40.6936005
+          ],
+          [
+            30.2849897,
+            40.6938647
+          ],
+          [
+            30.2856412,
+            40.6943339
+          ],
+          [
+            30.2858334,
+            40.6945097
+          ],
+          [
+            30.2873238,
+            40.6959211
+          ],
+          [
+            30.2877355,
+            40.6962577
+          ],
+          [
+            30.2880578,
+            40.6964875
+          ],
+          [
+            30.2884425,
+            40.6967401
+          ],
+          [
+            30.2887558,
+            40.6969089
+          ],
+          [
+            30.2892351,
+            40.6971471
+          ],
+          [
+            30.2896911,
+            40.6973329
+          ],
+          [
+            30.2901425,
+            40.6974846
+          ],
+          [
+            30.2904747,
+            40.6975673
+          ],
+          [
+            30.290823,
+            40.6976444
+          ],
+          [
+            30.2911655,
+            40.6977085
+          ],
+          [
+            30.2915016,
+            40.6977495
+          ],
+          [
+            30.2918859,
+            40.6978004
+          ],
+          [
+            30.2923497,
+            40.6978357
+          ],
+          [
+            30.2930738,
+            40.6978466
+          ],
+          [
+            30.2956638,
+            40.6978089
+          ],
+          [
+            30.2970437,
+            40.6978321
+          ],
+          [
+            30.2976185,
+            40.6978583
+          ],
+          [
+            30.2984363,
+            40.6979226
+          ],
+          [
+            30.2991384,
+            40.6980047
+          ],
+          [
+            30.3001372,
+            40.6981489
+          ],
+          [
+            30.3009004,
+            40.6983007
+          ],
+          [
+            30.3017822,
+            40.6984955
+          ],
+          [
+            30.3026188,
+            40.6987308
+          ],
+          [
+            30.3032312,
+            40.698918
+          ],
+          [
+            30.3037939,
+            40.6991098
+          ],
+          [
+            30.3048352,
+            40.6994737
+          ],
+          [
+            30.3056215,
+            40.6997737
+          ],
+          [
+            30.3060362,
+            40.6999512
+          ],
+          [
+            30.3065509,
+            40.7002019
+          ],
+          [
+            30.3069382,
+            40.7003947
+          ],
+          [
+            30.3077986,
+            40.7009165
+          ],
+          [
+            30.3082379,
+            40.7012304
+          ],
+          [
+            30.3085922,
+            40.7015065
+          ],
+          [
+            30.3091088,
+            40.7019419
+          ],
+          [
+            30.3102766,
+            40.7030331
+          ]
+        ]
+      },
+      "id": "way/263838202"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263863411",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3103737,
+            40.7031202
+          ],
+          [
+            30.3105437,
+            40.7032652
+          ],
+          [
+            30.3107328,
+            40.7034039
+          ]
+        ]
+      },
+      "id": "way/263863411"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263863412",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "Bing",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3102766,
+            40.7030331
+          ],
+          [
+            30.3103096,
+            40.7030627
+          ],
+          [
+            30.3103737,
+            40.7031202
+          ]
+        ]
+      },
+      "id": "way/263863412"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263865496",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "-1",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "Bing",
+        "tunnel": "yes",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3107328,
+            40.7034039
+          ],
+          [
+            30.3111312,
+            40.7036851
+          ],
+          [
+            30.3116973,
+            40.703979
+          ],
+          [
+            30.3123798,
+            40.7043313
+          ],
+          [
+            30.3128895,
+            40.704559
+          ],
+          [
+            30.3136521,
+            40.7048069
+          ]
+        ]
+      },
+      "id": "way/263865496"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263865497",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3136521,
+            40.7048069
+          ],
+          [
+            30.314205,
+            40.7049794
+          ],
+          [
+            30.3145887,
+            40.7051049
+          ],
+          [
+            30.3152476,
+            40.7053053
+          ],
+          [
+            30.315694,
+            40.7054642
+          ],
+          [
+            30.3160287,
+            40.7056105
+          ],
+          [
+            30.3162999,
+            40.7057423
+          ],
+          [
+            30.3166071,
+            40.7059171
+          ],
+          [
+            30.317015,
+            40.7061614
+          ],
+          [
+            30.3172933,
+            40.706357
+          ],
+          [
+            30.3176795,
+            40.7066391
+          ],
+          [
+            30.3178513,
+            40.7068021
+          ],
+          [
+            30.318185,
+            40.7071249
+          ],
+          [
+            30.3186155,
+            40.7075755
+          ],
+          [
+            30.3192259,
+            40.7083232
+          ],
+          [
+            30.3195612,
+            40.7086771
+          ],
+          [
+            30.3199197,
+            40.7090315
+          ],
+          [
+            30.3202927,
+            40.7093298
+          ],
+          [
+            30.3207437,
+            40.7096464
+          ],
+          [
+            30.3210523,
+            40.7098271
+          ],
+          [
+            30.3237879,
+            40.7112653
+          ],
+          [
+            30.3246771,
+            40.7116788
+          ],
+          [
+            30.3252038,
+            40.7118948
+          ],
+          [
+            30.3256959,
+            40.7120633
+          ],
+          [
+            30.3264301,
+            40.7122733
+          ],
+          [
+            30.3271523,
+            40.712447
+          ],
+          [
+            30.3277202,
+            40.7125485
+          ],
+          [
+            30.3283138,
+            40.7126443
+          ],
+          [
+            30.3288597,
+            40.7127094
+          ],
+          [
+            30.3293852,
+            40.7127525
+          ],
+          [
+            30.3306859,
+            40.7128032
+          ],
+          [
+            30.3450576,
+            40.7129402
+          ],
+          [
+            30.3465761,
+            40.7129599
+          ],
+          [
+            30.3470168,
+            40.7129672
+          ],
+          [
+            30.3561521,
+            40.713075
+          ],
+          [
+            30.3592412,
+            40.7131114
+          ],
+          [
+            30.3599936,
+            40.7131213
+          ],
+          [
+            30.3608485,
+            40.7131326
+          ],
+          [
+            30.361273,
+            40.7131355
+          ]
+        ]
+      },
+      "id": "way/263865497"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/263866533",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "operator": "TCDD",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3489313,
+            40.7130357
+          ],
+          [
+            30.3492602,
+            40.7130753
+          ],
+          [
+            30.3507458,
+            40.7130996
+          ],
+          [
+            30.35185,
+            40.7131883
+          ]
+        ]
+      },
+      "id": "way/263866533"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/318166897",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "85",
+        "name": "Arifiye - Adapazarı şube demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "source": "bing;local knowledge",
+        "usage": "branch",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3775105,
+            40.7560611
+          ],
+          [
+            30.3766595,
+            40.7551381
+          ],
+          [
+            30.3766389,
+            40.7551091
+          ],
+          [
+            30.3764898,
+            40.754885
+          ],
+          [
+            30.3764034,
+            40.7547456
+          ],
+          [
+            30.3763095,
+            40.7545849
+          ],
+          [
+            30.3762122,
+            40.7544052
+          ],
+          [
+            30.3760552,
+            40.7540331
+          ],
+          [
+            30.3759512,
+            40.7537077
+          ],
+          [
+            30.3758851,
+            40.7531362
+          ],
+          [
+            30.3758901,
+            40.7526722
+          ],
+          [
+            30.3759202,
+            40.7523566
+          ],
+          [
+            30.3759974,
+            40.7518937
+          ],
+          [
+            30.3765855,
+            40.7501873
+          ],
+          [
+            30.3767876,
+            40.7495896
+          ],
+          [
+            30.3769162,
+            40.7491445
+          ],
+          [
+            30.3769633,
+            40.7487663
+          ],
+          [
+            30.3769705,
+            40.7484604
+          ],
+          [
+            30.3769493,
+            40.7480503
+          ],
+          [
+            30.3768665,
+            40.7476309
+          ],
+          [
+            30.3765602,
+            40.7468538
+          ],
+          [
+            30.3762271,
+            40.7462884
+          ],
+          [
+            30.375239,
+            40.7448596
+          ],
+          [
+            30.3747776,
+            40.7440353
+          ],
+          [
+            30.3744851,
+            40.7433552
+          ],
+          [
+            30.374292,
+            40.7427794
+          ],
+          [
+            30.3741268,
+            40.7420186
+          ],
+          [
+            30.3740312,
+            40.740942
+          ],
+          [
+            30.3740268,
+            40.7404449
+          ],
+          [
+            30.3740954,
+            40.7398559
+          ],
+          [
+            30.3745062,
+            40.7377436
+          ],
+          [
+            30.374706,
+            40.7367601
+          ],
+          [
+            30.3761866,
+            40.7296598
+          ],
+          [
+            30.3763578,
+            40.7285408
+          ],
+          [
+            30.3763691,
+            40.7282415
+          ],
+          [
+            30.3762144,
+            40.7274527
+          ],
+          [
+            30.3759843,
+            40.7268846
+          ],
+          [
+            30.3756001,
+            40.7262128
+          ],
+          [
+            30.3738764,
+            40.7243896
+          ],
+          [
+            30.3696025,
+            40.7199815
+          ],
+          [
+            30.3674856,
+            40.7178175
+          ],
+          [
+            30.3661916,
+            40.7164943
+          ],
+          [
+            30.3648518,
+            40.7151073
+          ],
+          [
+            30.3641457,
+            40.7143924
+          ],
+          [
+            30.3637769,
+            40.7140454
+          ],
+          [
+            30.3632946,
+            40.7137216
+          ],
+          [
+            30.3629872,
+            40.7135638
+          ],
+          [
+            30.3628024,
+            40.713484
+          ],
+          [
+            30.3625986,
+            40.7134087
+          ],
+          [
+            30.3623332,
+            40.7133357
+          ],
+          [
+            30.3618998,
+            40.7132492
+          ],
+          [
+            30.3616187,
+            40.7132238
+          ]
+        ]
+      },
+      "id": "way/318166897"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100485",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0280133,
+            40.7461382
+          ],
+          [
+            30.0591499,
+            40.7305079
+          ],
+          [
+            30.0614455,
+            40.7292281
+          ],
+          [
+            30.0629979,
+            40.7282792
+          ],
+          [
+            30.0636819,
+            40.727836
+          ],
+          [
+            30.0644651,
+            40.7272567
+          ],
+          [
+            30.0660557,
+            40.7260575
+          ],
+          [
+            30.0687271,
+            40.7237829
+          ],
+          [
+            30.070889,
+            40.7218863
+          ],
+          [
+            30.0730991,
+            40.7200181
+          ],
+          [
+            30.0738823,
+            40.7193737
+          ],
+          [
+            30.0749499,
+            40.7185971
+          ],
+          [
+            30.0766289,
+            40.7174526
+          ],
+          [
+            30.0776911,
+            40.7168142
+          ],
+          [
+            30.0785574,
+            40.7163223
+          ],
+          [
+            30.0794855,
+            40.7158059
+          ],
+          [
+            30.0803894,
+            40.7153424
+          ],
+          [
+            30.0811994,
+            40.71495
+          ],
+          [
+            30.0828087,
+            40.71421
+          ],
+          [
+            30.0840855,
+            40.7136793
+          ],
+          [
+            30.0850189,
+            40.7133235
+          ],
+          [
+            30.0856599,
+            40.7130836
+          ]
+        ]
+      },
+      "id": "way/503100485"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100486",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0057712,
+            40.7491159
+          ],
+          [
+            30.0051832,
+            40.749089
+          ],
+          [
+            30.0018789,
+            40.7489347
+          ],
+          [
+            29.9968626,
+            40.7486211
+          ],
+          [
+            29.9886395,
+            40.7482057
+          ],
+          [
+            29.9880887,
+            40.7481935
+          ],
+          [
+            29.9868683,
+            40.7482077
+          ],
+          [
+            29.9858378,
+            40.7482584
+          ],
+          [
+            29.9850449,
+            40.7483197
+          ],
+          [
+            29.984259,
+            40.7483983
+          ],
+          [
+            29.9834023,
+            40.7485058
+          ],
+          [
+            29.9824251,
+            40.7486477
+          ],
+          [
+            29.9811657,
+            40.7488989
+          ],
+          [
+            29.9800007,
+            40.7491728
+          ],
+          [
+            29.9791954,
+            40.7493999
+          ],
+          [
+            29.9782368,
+            40.7496879
+          ],
+          [
+            29.9774154,
+            40.7499696
+          ],
+          [
+            29.9766875,
+            40.7502413
+          ],
+          [
+            29.9759997,
+            40.7505191
+          ],
+          [
+            29.9751966,
+            40.7508719
+          ],
+          [
+            29.9745144,
+            40.7511982
+          ],
+          [
+            29.9736282,
+            40.7516607
+          ],
+          [
+            29.972498,
+            40.7523099
+          ],
+          [
+            29.9644885,
+            40.7574413
+          ],
+          [
+            29.9629018,
+            40.7584225
+          ],
+          [
+            29.9596775,
+            40.7604605
+          ]
+        ]
+      },
+      "id": "way/503100486"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100487",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara yüksek hızlıdemiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9596775,
+            40.7604605
+          ],
+          [
+            29.9591408,
+            40.760776
+          ]
+        ]
+      },
+      "id": "way/503100487"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100488",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9591408,
+            40.760776
+          ],
+          [
+            29.9587369,
+            40.7609918
+          ],
+          [
+            29.9583306,
+            40.7611886
+          ],
+          [
+            29.9576828,
+            40.7614665
+          ]
+        ]
+      },
+      "id": "way/503100488"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100489",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9576828,
+            40.7614665
+          ],
+          [
+            29.9574996,
+            40.7615357
+          ]
+        ]
+      },
+      "id": "way/503100489"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100491",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9574823,
+            40.7615004
+          ],
+          [
+            29.9576643,
+            40.7614293
+          ]
+        ]
+      },
+      "id": "way/503100491"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100492",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9576643,
+            40.7614293
+          ],
+          [
+            29.9583011,
+            40.7611576
+          ],
+          [
+            29.9587008,
+            40.760967
+          ],
+          [
+            29.9590824,
+            40.7607591
+          ]
+        ]
+      },
+      "id": "way/503100492"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100493",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9590824,
+            40.7607591
+          ],
+          [
+            29.9596296,
+            40.7604385
+          ]
+        ]
+      },
+      "id": "way/503100493"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100494",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "tr:Ankara-İstanbul yüksek hızlı demiryolu"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.8954814,
+            40.761741
+          ],
+          [
+            29.898998,
+            40.7613223
+          ],
+          [
+            29.9019816,
+            40.760967
+          ],
+          [
+            29.9057139,
+            40.7605225
+          ],
+          [
+            29.9061757,
+            40.7604765
+          ],
+          [
+            29.9066964,
+            40.7604647
+          ],
+          [
+            29.9071356,
+            40.7604688
+          ],
+          [
+            29.9075101,
+            40.760481
+          ],
+          [
+            29.9079842,
+            40.7605298
+          ],
+          [
+            29.9085034,
+            40.7606169
+          ],
+          [
+            29.9090254,
+            40.760725
+          ],
+          [
+            29.9110064,
+            40.7612209
+          ],
+          [
+            29.9115374,
+            40.7613588
+          ],
+          [
+            29.9126374,
+            40.7616309
+          ],
+          [
+            29.913022,
+            40.7616961
+          ],
+          [
+            29.9133128,
+            40.761738
+          ],
+          [
+            29.913627,
+            40.7617688
+          ],
+          [
+            29.913899,
+            40.7617804
+          ],
+          [
+            29.9142777,
+            40.7617835
+          ],
+          [
+            29.9146373,
+            40.7617666
+          ],
+          [
+            29.9150236,
+            40.7617405
+          ],
+          [
+            29.9198887,
+            40.7612901
+          ],
+          [
+            29.9208957,
+            40.7612092
+          ],
+          [
+            29.9218024,
+            40.7611312
+          ],
+          [
+            29.9221472,
+            40.7611078
+          ],
+          [
+            29.9224167,
+            40.7611028
+          ],
+          [
+            29.9226843,
+            40.7611044
+          ],
+          [
+            29.9247961,
+            40.7611369
+          ],
+          [
+            29.9256131,
+            40.7611494
+          ],
+          [
+            29.9268799,
+            40.7611689
+          ],
+          [
+            29.930247,
+            40.7612206
+          ],
+          [
+            29.9314663,
+            40.7612598
+          ],
+          [
+            29.932803,
+            40.7613187
+          ],
+          [
+            29.9436576,
+            40.7620335
+          ],
+          [
+            29.9467358,
+            40.7622121
+          ],
+          [
+            29.9492505,
+            40.7623389
+          ],
+          [
+            29.9506786,
+            40.7624158
+          ],
+          [
+            29.9513972,
+            40.7624585
+          ],
+          [
+            29.9520021,
+            40.7624671
+          ],
+          [
+            29.9526446,
+            40.7624594
+          ],
+          [
+            29.9530985,
+            40.7624312
+          ],
+          [
+            29.9535836,
+            40.7624021
+          ],
+          [
+            29.9541454,
+            40.7623326
+          ],
+          [
+            29.9547469,
+            40.7622516
+          ],
+          [
+            29.9554712,
+            40.7621105
+          ],
+          [
+            29.9562434,
+            40.7619094
+          ],
+          [
+            29.9567279,
+            40.7617658
+          ],
+          [
+            29.9574823,
+            40.7615004
+          ]
+        ]
+      },
+      "id": "way/503100494"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100499",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara high speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9596296,
+            40.7604385
+          ],
+          [
+            29.9628635,
+            40.7583898
+          ],
+          [
+            29.9644527,
+            40.7574163
+          ],
+          [
+            29.9724654,
+            40.7522779
+          ],
+          [
+            29.9735972,
+            40.7516277
+          ],
+          [
+            29.9744841,
+            40.7511648
+          ],
+          [
+            29.9751697,
+            40.750837
+          ],
+          [
+            29.9759737,
+            40.7504838
+          ],
+          [
+            29.9766581,
+            40.7502079
+          ],
+          [
+            29.9773887,
+            40.7499348
+          ],
+          [
+            29.9782145,
+            40.7496512
+          ],
+          [
+            29.9791809,
+            40.7493519
+          ],
+          [
+            29.9799829,
+            40.7491347
+          ],
+          [
+            29.9811513,
+            40.74886
+          ],
+          [
+            29.9824094,
+            40.7486092
+          ],
+          [
+            29.9833996,
+            40.7484657
+          ],
+          [
+            29.9842524,
+            40.7483582
+          ],
+          [
+            29.9850422,
+            40.7482831
+          ],
+          [
+            29.9858375,
+            40.7482181
+          ],
+          [
+            29.986877,
+            40.7481687
+          ],
+          [
+            29.9880871,
+            40.7481531
+          ],
+          [
+            29.9886417,
+            40.7481653
+          ],
+          [
+            29.9896093,
+            40.7482019
+          ],
+          [
+            29.9968667,
+            40.7485808
+          ],
+          [
+            30.0018861,
+            40.7488939
+          ],
+          [
+            30.0065811,
+            40.7491056
+          ]
+        ]
+      },
+      "id": "way/503100499"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503100989",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1312874,
+            40.7100452
+          ],
+          [
+            30.1162129,
+            40.7101664
+          ],
+          [
+            30.1157571,
+            40.7101705
+          ],
+          [
+            30.1132641,
+            40.7102043
+          ],
+          [
+            30.1128644,
+            40.7102299
+          ],
+          [
+            30.1116927,
+            40.7102814
+          ],
+          [
+            30.1103175,
+            40.7102983
+          ],
+          [
+            30.1082388,
+            40.7103186
+          ],
+          [
+            30.107021,
+            40.7103267
+          ],
+          [
+            30.1057081,
+            40.7102902
+          ],
+          [
+            30.1052213,
+            40.7102759
+          ],
+          [
+            30.1048109,
+            40.7102678
+          ],
+          [
+            30.1041677,
+            40.7102732
+          ],
+          [
+            30.102649,
+            40.7102879
+          ],
+          [
+            30.1015371,
+            40.7103111
+          ],
+          [
+            30.1011497,
+            40.7103324
+          ],
+          [
+            30.1003566,
+            40.7104114
+          ],
+          [
+            30.0996014,
+            40.7105307
+          ],
+          [
+            30.0990249,
+            40.7106561
+          ],
+          [
+            30.0985261,
+            40.7107795
+          ],
+          [
+            30.0976555,
+            40.7110507
+          ],
+          [
+            30.0971413,
+            40.7112487
+          ],
+          [
+            30.0953343,
+            40.7120555
+          ],
+          [
+            30.0943427,
+            40.712471
+          ],
+          [
+            30.0937796,
+            40.7126793
+          ],
+          [
+            30.0931653,
+            40.7128753
+          ],
+          [
+            30.0926506,
+            40.7130142
+          ],
+          [
+            30.0922454,
+            40.7131105
+          ],
+          [
+            30.0916385,
+            40.7132188
+          ],
+          [
+            30.0912014,
+            40.7132761
+          ],
+          [
+            30.0907343,
+            40.7133232
+          ],
+          [
+            30.0902516,
+            40.7133436
+          ],
+          [
+            30.0897936,
+            40.7133559
+          ],
+          [
+            30.0893055,
+            40.7133477
+          ],
+          [
+            30.0888364,
+            40.7133252
+          ],
+          [
+            30.0883541,
+            40.7132844
+          ],
+          [
+            30.0874759,
+            40.7131887
+          ],
+          [
+            30.0860437,
+            40.7130187
+          ]
+        ]
+      },
+      "id": "way/503100989"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503101314",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0856827,
+            40.7131202
+          ],
+          [
+            30.0850427,
+            40.7133597
+          ],
+          [
+            30.0841103,
+            40.7137151
+          ],
+          [
+            30.0828354,
+            40.714245
+          ],
+          [
+            30.0812276,
+            40.7149843
+          ],
+          [
+            30.0804187,
+            40.7153761
+          ],
+          [
+            30.0795162,
+            40.7158389
+          ],
+          [
+            30.0785892,
+            40.7163547
+          ],
+          [
+            30.0777237,
+            40.7168463
+          ],
+          [
+            30.0766634,
+            40.7174835
+          ],
+          [
+            30.0749862,
+            40.7186267
+          ],
+          [
+            30.0739205,
+            40.719402
+          ],
+          [
+            30.0731386,
+            40.7200453
+          ],
+          [
+            30.070929,
+            40.721913
+          ],
+          [
+            30.0687673,
+            40.7238095
+          ],
+          [
+            30.0660947,
+            40.7260851
+          ],
+          [
+            30.064502,
+            40.7272859
+          ],
+          [
+            30.0637176,
+            40.727866
+          ],
+          [
+            30.0630324,
+            40.72831
+          ],
+          [
+            30.061478,
+            40.7292601
+          ],
+          [
+            30.0591817,
+            40.7305403
+          ],
+          [
+            30.0280422,
+            40.7461734
+          ]
+        ]
+      },
+      "id": "way/503101314"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503102868",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1734379,
+            40.7056849
+          ],
+          [
+            30.1433218,
+            40.709468
+          ],
+          [
+            30.1421928,
+            40.7095867
+          ],
+          [
+            30.1412514,
+            40.709668
+          ],
+          [
+            30.1401409,
+            40.7097412
+          ],
+          [
+            30.1387891,
+            40.7098083
+          ],
+          [
+            30.1376653,
+            40.7098469
+          ],
+          [
+            30.136072,
+            40.7098693
+          ],
+          [
+            30.1316036,
+            40.7099133
+          ]
+        ]
+      },
+      "id": "way/503102868"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503102870",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1977468,
+            40.7028118
+          ],
+          [
+            30.1962026,
+            40.7029079
+          ],
+          [
+            30.194312,
+            40.7030934
+          ],
+          [
+            30.1738396,
+            40.7056375
+          ]
+        ]
+      },
+      "id": "way/503102870"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503102873",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2591569,
+            40.6963973
+          ],
+          [
+            30.2582065,
+            40.6965736
+          ],
+          [
+            30.2567006,
+            40.6968545
+          ],
+          [
+            30.2546042,
+            40.6973519
+          ],
+          [
+            30.2539632,
+            40.6974983
+          ],
+          [
+            30.2529815,
+            40.6977118
+          ],
+          [
+            30.2522948,
+            40.6978521
+          ],
+          [
+            30.2518067,
+            40.6979396
+          ],
+          [
+            30.2490467,
+            40.6983992
+          ],
+          [
+            30.2479423,
+            40.6985578
+          ],
+          [
+            30.2400532,
+            40.6996925
+          ],
+          [
+            30.2390823,
+            40.6998348
+          ],
+          [
+            30.2381086,
+            40.699965
+          ],
+          [
+            30.2373737,
+            40.7000585
+          ],
+          [
+            30.2366012,
+            40.700152
+          ],
+          [
+            30.235759,
+            40.7002435
+          ],
+          [
+            30.2347036,
+            40.7003289
+          ],
+          [
+            30.2210149,
+            40.7012501
+          ],
+          [
+            30.2190596,
+            40.7013517
+          ]
+        ]
+      },
+      "id": "way/503102873"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503103738",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2190522,
+            40.7014127
+          ],
+          [
+            30.2210295,
+            40.7013081
+          ],
+          [
+            30.2347102,
+            40.7003873
+          ],
+          [
+            30.2376312,
+            40.7001643
+          ],
+          [
+            30.2394838,
+            40.6999688
+          ],
+          [
+            30.2420434,
+            40.6995888
+          ],
+          [
+            30.2475849,
+            40.6987916
+          ],
+          [
+            30.2495643,
+            40.698513
+          ],
+          [
+            30.2502932,
+            40.6983869
+          ],
+          [
+            30.2508044,
+            40.6982944
+          ],
+          [
+            30.2513947,
+            40.6981784
+          ],
+          [
+            30.2567285,
+            40.6969106
+          ],
+          [
+            30.2582065,
+            40.6965736
+          ]
+        ]
+      },
+      "id": "way/503103738"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/503103740",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2591569,
+            40.6963973
+          ],
+          [
+            30.2567393,
+            40.6969675
+          ],
+          [
+            30.2514245,
+            40.6982111
+          ],
+          [
+            30.2508223,
+            40.6983443
+          ],
+          [
+            30.2503207,
+            40.6984581
+          ],
+          [
+            30.2495268,
+            40.6986228
+          ],
+          [
+            30.2488965,
+            40.6987388
+          ],
+          [
+            30.2395436,
+            40.7000707
+          ],
+          [
+            30.2388304,
+            40.7001454
+          ],
+          [
+            30.2376293,
+            40.7002309
+          ],
+          [
+            30.2347126,
+            40.7004214
+          ],
+          [
+            30.2210334,
+            40.7013416
+          ],
+          [
+            30.2190579,
+            40.7014475
+          ]
+        ]
+      },
+      "id": "way/503103740"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/541948128",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3615732,
+            40.7131309
+          ],
+          [
+            30.3623266,
+            40.7130987
+          ],
+          [
+            30.3625815,
+            40.7130732
+          ],
+          [
+            30.363016,
+            40.7129987
+          ],
+          [
+            30.3634139,
+            40.7129189
+          ],
+          [
+            30.3638487,
+            40.7127822
+          ],
+          [
+            30.3643484,
+            40.7125983
+          ],
+          [
+            30.3646851,
+            40.7124519
+          ],
+          [
+            30.3651344,
+            40.7122143
+          ],
+          [
+            30.3655774,
+            40.7119172
+          ],
+          [
+            30.365751,
+            40.7117932
+          ],
+          [
+            30.3660074,
+            40.7115932
+          ],
+          [
+            30.3661705,
+            40.7114276
+          ],
+          [
+            30.3665247,
+            40.711018
+          ],
+          [
+            30.3668144,
+            40.7106033
+          ],
+          [
+            30.3669324,
+            40.710404
+          ],
+          [
+            30.3670826,
+            40.7101255
+          ],
+          [
+            30.3671792,
+            40.7098408
+          ],
+          [
+            30.3672677,
+            40.7095582
+          ],
+          [
+            30.3673053,
+            40.7092716
+          ],
+          [
+            30.3673267,
+            40.7090835
+          ],
+          [
+            30.3673341,
+            40.7087632
+          ],
+          [
+            30.3671866,
+            40.7078352
+          ],
+          [
+            30.3670898,
+            40.707088
+          ],
+          [
+            30.3648877,
+            40.6929874
+          ]
+        ]
+      },
+      "id": "way/541948128"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/541948129",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3648877,
+            40.6929874
+          ],
+          [
+            30.3648548,
+            40.6927682
+          ]
+        ]
+      },
+      "id": "way/541948129"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/541948130",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3648548,
+            40.6927682
+          ],
+          [
+            30.3638034,
+            40.6859749
+          ],
+          [
+            30.3637294,
+            40.6855985
+          ],
+          [
+            30.3636213,
+            40.6852206
+          ],
+          [
+            30.363502,
+            40.6848786
+          ],
+          [
+            30.3630704,
+            40.6839778
+          ],
+          [
+            30.3627032,
+            40.6834261
+          ],
+          [
+            30.3622967,
+            40.682904
+          ],
+          [
+            30.3601694,
+            40.6804144
+          ],
+          [
+            30.3592269,
+            40.6793535
+          ],
+          [
+            30.3589831,
+            40.6790265
+          ],
+          [
+            30.3586902,
+            40.6785728
+          ],
+          [
+            30.3585064,
+            40.6781812
+          ],
+          [
+            30.3583224,
+            40.6776839
+          ],
+          [
+            30.3582393,
+            40.677251
+          ],
+          [
+            30.358207,
+            40.6768383
+          ],
+          [
+            30.3582264,
+            40.676575
+          ],
+          [
+            30.3582566,
+            40.6762934
+          ],
+          [
+            30.3583005,
+            40.6760432
+          ],
+          [
+            30.3584022,
+            40.6756888
+          ],
+          [
+            30.3585251,
+            40.6753405
+          ],
+          [
+            30.3586855,
+            40.6750017
+          ],
+          [
+            30.3588678,
+            40.6746816
+          ],
+          [
+            30.3618059,
+            40.6698688
+          ],
+          [
+            30.3621652,
+            40.6692449
+          ],
+          [
+            30.3624094,
+            40.6687637
+          ],
+          [
+            30.3625863,
+            40.6683582
+          ],
+          [
+            30.362795,
+            40.6678691
+          ],
+          [
+            30.3628765,
+            40.6676185
+          ],
+          [
+            30.3629979,
+            40.6672983
+          ],
+          [
+            30.3632169,
+            40.6664644
+          ],
+          [
+            30.3633931,
+            40.6656252
+          ],
+          [
+            30.3634503,
+            40.6651871
+          ]
+        ]
+      },
+      "id": "way/541948130"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/541948139",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3649334,
+            40.6929852
+          ],
+          [
+            30.3649019,
+            40.6927639
+          ]
+        ]
+      },
+      "id": "way/541948139"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/541948140",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "120",
+        "name": "İstanbul - Ankara demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3649334,
+            40.6929852
+          ],
+          [
+            30.3671853,
+            40.707406
+          ],
+          [
+            30.3671997,
+            40.7075498
+          ],
+          [
+            30.3673854,
+            40.7087607
+          ],
+          [
+            30.3673718,
+            40.709095
+          ],
+          [
+            30.3673481,
+            40.7092839
+          ],
+          [
+            30.367312,
+            40.7095663
+          ],
+          [
+            30.3672262,
+            40.7098499
+          ],
+          [
+            30.3671219,
+            40.7101397
+          ],
+          [
+            30.3669809,
+            40.7104271
+          ],
+          [
+            30.3668568,
+            40.7106336
+          ],
+          [
+            30.3665677,
+            40.7110464
+          ],
+          [
+            30.3662323,
+            40.7114531
+          ],
+          [
+            30.3660526,
+            40.7116279
+          ],
+          [
+            30.3658169,
+            40.7118295
+          ],
+          [
+            30.3656155,
+            40.7119614
+          ],
+          [
+            30.3651711,
+            40.7122531
+          ],
+          [
+            30.3647196,
+            40.7124839
+          ],
+          [
+            30.3643709,
+            40.7126364
+          ],
+          [
+            30.3638586,
+            40.7128193
+          ],
+          [
+            30.3634375,
+            40.7129495
+          ],
+          [
+            30.3630164,
+            40.7130369
+          ],
+          [
+            30.3625846,
+            40.713108
+          ],
+          [
+            30.3623338,
+            40.7131304
+          ],
+          [
+            30.3615761,
+            40.7131609
+          ]
+        ]
+      },
+      "id": "way/541948140"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/656836626",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3615761,
+            40.7131609
+          ],
+          [
+            30.3612757,
+            40.7131609
+          ]
+        ]
+      },
+      "id": "way/656836626"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/656836628",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "120",
+        "operator": "TCDD",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3615732,
+            40.7131309
+          ],
+          [
+            30.361273,
+            40.7131355
+          ]
+        ]
+      },
+      "id": "way/656836628"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/694481014",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9110262,
+            40.7611861
+          ],
+          [
+            29.9090445,
+            40.7606874
+          ],
+          [
+            29.908508,
+            40.7605777
+          ],
+          [
+            29.9079796,
+            40.7604882
+          ],
+          [
+            29.9075076,
+            40.7604415
+          ],
+          [
+            29.9071374,
+            40.7604313
+          ],
+          [
+            29.906703,
+            40.7604273
+          ],
+          [
+            29.9061747,
+            40.7604419
+          ],
+          [
+            29.9057071,
+            40.7604894
+          ],
+          [
+            29.8982834,
+            40.7613742
+          ],
+          [
+            29.8954779,
+            40.7617086
+          ]
+        ]
+      },
+      "id": "way/694481014"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/852469245",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2190596,
+            40.7013517
+          ],
+          [
+            30.2018157,
+            40.7025271
+          ],
+          [
+            30.1980713,
+            40.7027772
+          ]
+        ]
+      },
+      "id": "way/852469245"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/852469247",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2190598,
+            40.701307
+          ],
+          [
+            30.2210096,
+            40.7012054
+          ],
+          [
+            30.2346979,
+            40.7002842
+          ],
+          [
+            30.2357517,
+            40.700199
+          ],
+          [
+            30.2365924,
+            40.7001076
+          ],
+          [
+            30.2373641,
+            40.7000142
+          ],
+          [
+            30.2380986,
+            40.6999207
+          ],
+          [
+            30.2390715,
+            40.6997906
+          ],
+          [
+            30.240042,
+            40.6996484
+          ],
+          [
+            30.2478919,
+            40.6985194
+          ],
+          [
+            30.2490348,
+            40.6983551
+          ],
+          [
+            30.2517935,
+            40.6978958
+          ],
+          [
+            30.2522803,
+            40.6978086
+          ],
+          [
+            30.2529656,
+            40.6976685
+          ],
+          [
+            30.2539465,
+            40.6974552
+          ],
+          [
+            30.2545871,
+            40.6973089
+          ],
+          [
+            30.2566928,
+            40.6968065
+          ],
+          [
+            30.2593678,
+            40.6963056
+          ]
+        ]
+      },
+      "id": "way/852469247"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/852469248",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1980711,
+            40.7027325
+          ],
+          [
+            30.2018106,
+            40.7024824
+          ],
+          [
+            30.2190598,
+            40.701307
+          ]
+        ]
+      },
+      "id": "way/852469248"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006423",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1977708,
+            40.7028637
+          ],
+          [
+            30.1980752,
+            40.702834
+          ]
+        ]
+      },
+      "id": "way/853006423"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006425",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1980755,
+            40.7028723
+          ],
+          [
+            30.1977765,
+            40.702904
+          ]
+        ]
+      },
+      "id": "way/853006425"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006426",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "layer": "1",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1977388,
+            40.7027672
+          ],
+          [
+            30.1980711,
+            40.7027325
+          ]
+        ]
+      },
+      "id": "way/853006426"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006428",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "layer": "1",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1980713,
+            40.7027772
+          ],
+          [
+            30.1977468,
+            40.7028118
+          ]
+        ]
+      },
+      "id": "way/853006428"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006429",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "layer": "1",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1738396,
+            40.7056375
+          ],
+          [
+            30.1734379,
+            40.7056849
+          ]
+        ]
+      },
+      "id": "way/853006429"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006430",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "layer": "1",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1734299,
+            40.7056462
+          ],
+          [
+            30.1738237,
+            40.7056011
+          ]
+        ]
+      },
+      "id": "way/853006430"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006431",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1738237,
+            40.7056011
+          ],
+          [
+            30.1942907,
+            40.7030446
+          ],
+          [
+            30.1962054,
+            40.7028652
+          ],
+          [
+            30.1977388,
+            40.7027672
+          ]
+        ]
+      },
+      "id": "way/853006431"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006432",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1738811,
+            40.7058111
+          ],
+          [
+            30.1734513,
+            40.7058662
+          ]
+        ]
+      },
+      "id": "way/853006432"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006433",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1738667,
+            40.7057717
+          ],
+          [
+            30.1977708,
+            40.7028637
+          ]
+        ]
+      },
+      "id": "way/853006433"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006434",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1734423,
+            40.7058284
+          ],
+          [
+            30.1738667,
+            40.7057717
+          ]
+        ]
+      },
+      "id": "way/853006434"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006439",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "layer": "1",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1313132,
+            40.709876
+          ],
+          [
+            30.1316002,
+            40.7098725
+          ]
+        ]
+      },
+      "id": "way/853006439"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006440",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1316002,
+            40.7098725
+          ],
+          [
+            30.1360711,
+            40.7098244
+          ],
+          [
+            30.1376634,
+            40.709802
+          ],
+          [
+            30.1387858,
+            40.7097634
+          ],
+          [
+            30.1401364,
+            40.7096964
+          ],
+          [
+            30.1412455,
+            40.7096233
+          ],
+          [
+            30.1421855,
+            40.7095421
+          ],
+          [
+            30.1433025,
+            40.7094264
+          ],
+          [
+            30.1734299,
+            40.7056462
+          ]
+        ]
+      },
+      "id": "way/853006440"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006441",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "layer": "1",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1316036,
+            40.7099133
+          ],
+          [
+            30.1313084,
+            40.7099164
+          ]
+        ]
+      },
+      "id": "way/853006441"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006442",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikimedia_commons": "Category:Istanbul–Ankara railway",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1312872,
+            40.7100052
+          ],
+          [
+            30.1315902,
+            40.7100028
+          ]
+        ]
+      },
+      "id": "way/853006442"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006443",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1315902,
+            40.7100028
+          ],
+          [
+            30.1364645,
+            40.7100398
+          ],
+          [
+            30.1372882,
+            40.7100287
+          ],
+          [
+            30.1385628,
+            40.7099831
+          ],
+          [
+            30.1393063,
+            40.7099422
+          ],
+          [
+            30.1403183,
+            40.7098569
+          ],
+          [
+            30.1410622,
+            40.7097835
+          ],
+          [
+            30.1416692,
+            40.7097198
+          ],
+          [
+            30.1433546,
+            40.7095273
+          ],
+          [
+            30.1734423,
+            40.7058284
+          ]
+        ]
+      },
+      "id": "way/853006443"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006444",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1315909,
+            40.7100419
+          ],
+          [
+            30.1312874,
+            40.7100452
+          ]
+        ]
+      },
+      "id": "way/853006444"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006447",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.1313084,
+            40.7099164
+          ],
+          [
+            30.116221,
+            40.7100624
+          ],
+          [
+            30.1026517,
+            40.7101763
+          ],
+          [
+            30.101096,
+            40.710221
+          ],
+          [
+            30.1000285,
+            40.7102678
+          ],
+          [
+            30.0994468,
+            40.7102938
+          ],
+          [
+            30.0982244,
+            40.7103933
+          ],
+          [
+            30.097236,
+            40.7104928
+          ],
+          [
+            30.0960632,
+            40.7106359
+          ],
+          [
+            30.0934694,
+            40.7110493
+          ],
+          [
+            30.0918943,
+            40.7113619
+          ],
+          [
+            30.0907163,
+            40.7116258
+          ],
+          [
+            30.0896878,
+            40.7119019
+          ],
+          [
+            30.0863249,
+            40.7129012
+          ]
+        ]
+      },
+      "id": "way/853006447"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006448",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0863249,
+            40.7129012
+          ],
+          [
+            30.0856827,
+            40.7131202
+          ]
+        ]
+      },
+      "id": "way/853006448"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006449",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0856599,
+            40.7130836
+          ],
+          [
+            30.0863036,
+            40.7128641
+          ]
+        ]
+      },
+      "id": "way/853006449"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006450",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0863036,
+            40.7128641
+          ],
+          [
+            30.0896698,
+            40.7118638
+          ],
+          [
+            30.0906998,
+            40.7115873
+          ],
+          [
+            30.09188,
+            40.711323
+          ],
+          [
+            30.0934571,
+            40.7110099
+          ],
+          [
+            30.0960535,
+            40.7105961
+          ],
+          [
+            30.0972283,
+            40.7104528
+          ],
+          [
+            30.098218,
+            40.7103532
+          ],
+          [
+            30.0994437,
+            40.7102534
+          ],
+          [
+            30.1000254,
+            40.7102274
+          ],
+          [
+            30.1010935,
+            40.7101806
+          ],
+          [
+            30.1026504,
+            40.7101359
+          ],
+          [
+            30.1162203,
+            40.710022
+          ],
+          [
+            30.1313132,
+            40.709876
+          ]
+        ]
+      },
+      "id": "way/853006450"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006451",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0735483,
+            40.717996
+          ],
+          [
+            30.0736239,
+            40.7179078
+          ]
+        ]
+      },
+      "id": "way/853006451"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006452",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0861217,
+            40.7129914
+          ],
+          [
+            30.0874838,
+            40.7131487
+          ],
+          [
+            30.0883609,
+            40.7132443
+          ],
+          [
+            30.088841,
+            40.7132849
+          ],
+          [
+            30.0893077,
+            40.7133073
+          ],
+          [
+            30.0897932,
+            40.7133154
+          ],
+          [
+            30.0902492,
+            40.7133032
+          ],
+          [
+            30.0907293,
+            40.7132829
+          ],
+          [
+            30.0911933,
+            40.7132361
+          ],
+          [
+            30.0916278,
+            40.7131792
+          ],
+          [
+            30.0922313,
+            40.7130714
+          ],
+          [
+            30.0926337,
+            40.7129759
+          ],
+          [
+            30.093146,
+            40.7128376
+          ],
+          [
+            30.0937575,
+            40.7126425
+          ],
+          [
+            30.0943181,
+            40.7124351
+          ],
+          [
+            30.0953078,
+            40.7120203
+          ],
+          [
+            30.0971156,
+            40.7112132
+          ],
+          [
+            30.0976333,
+            40.7110139
+          ],
+          [
+            30.0985077,
+            40.7107415
+          ],
+          [
+            30.0990093,
+            40.7106175
+          ],
+          [
+            30.0995886,
+            40.7104914
+          ],
+          [
+            30.1003477,
+            40.7103715
+          ],
+          [
+            30.1011443,
+            40.7102922
+          ],
+          [
+            30.1015332,
+            40.7102708
+          ],
+          [
+            30.102649,
+            40.7102511
+          ],
+          [
+            30.10363,
+            40.7102337
+          ],
+          [
+            30.1162124,
+            40.710123
+          ],
+          [
+            30.1312872,
+            40.7100052
+          ]
+        ]
+      },
+      "id": "way/853006452"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006453",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0736659,
+            40.7179275
+          ],
+          [
+            30.0735899,
+            40.718018
+          ]
+        ]
+      },
+      "id": "way/853006453"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/853006454",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0735899,
+            40.718018
+          ],
+          [
+            30.0697072,
+            40.7225102
+          ],
+          [
+            30.068652,
+            40.7236162
+          ],
+          [
+            30.0679466,
+            40.7242839
+          ],
+          [
+            30.0674155,
+            40.7247591
+          ],
+          [
+            30.0659354,
+            40.7259881
+          ],
+          [
+            30.0643364,
+            40.7271653
+          ],
+          [
+            30.0628504,
+            40.7281816
+          ],
+          [
+            30.0613898,
+            40.7291732
+          ],
+          [
+            30.0590888,
+            40.7304456
+          ],
+          [
+            30.0279837,
+            40.7461023
+          ]
+        ]
+      },
+      "id": "way/853006454"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1191873062",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "no",
+        "maxspeed": "100",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "railway:traffic_mode": "mixed",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2616634,
+            40.6958184
+          ],
+          [
+            30.2591569,
+            40.6963973
+          ]
+        ]
+      },
+      "id": "way/1191873062"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1191873063",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "no",
+        "maxspeed": "100",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "railway:traffic_mode": "mixed",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.2593678,
+            40.6963056
+          ],
+          [
+            30.2616517,
+            40.6957889
+          ]
+        ]
+      },
+      "id": "way/1191873063"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1193630473",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.008878,
+            40.7491727
+          ],
+          [
+            30.0104053,
+            40.7491792
+          ],
+          [
+            30.0117082,
+            40.7492426
+          ],
+          [
+            30.0137191,
+            40.7493411
+          ],
+          [
+            30.0146132,
+            40.7493562
+          ],
+          [
+            30.0155617,
+            40.7493438
+          ],
+          [
+            30.0161838,
+            40.7493195
+          ],
+          [
+            30.0170082,
+            40.749261
+          ],
+          [
+            30.0179017,
+            40.7491799
+          ],
+          [
+            30.0185882,
+            40.7490962
+          ],
+          [
+            30.0197031,
+            40.7489145
+          ],
+          [
+            30.0206915,
+            40.7487261
+          ],
+          [
+            30.0216688,
+            40.7485173
+          ],
+          [
+            30.0222556,
+            40.7483737
+          ],
+          [
+            30.0230645,
+            40.7481479
+          ],
+          [
+            30.024073,
+            40.747838
+          ],
+          [
+            30.0249646,
+            40.7475195
+          ],
+          [
+            30.0257682,
+            40.7472023
+          ],
+          [
+            30.0263917,
+            40.7469317
+          ],
+          [
+            30.0272604,
+            40.7465248
+          ],
+          [
+            30.0280133,
+            40.7461382
+          ]
+        ]
+      },
+      "id": "way/1193630473"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1193630474",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "250",
+        "name": "Ankara - İstanbul yüksek hızlı demiryolu",
+        "name:en": "Ankara - İstanbul high-speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "en:Ankara–Istanbul high-speed railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0280422,
+            40.7461734
+          ],
+          [
+            30.0272831,
+            40.7465597
+          ],
+          [
+            30.0264252,
+            40.7469635
+          ],
+          [
+            30.0257951,
+            40.7472372
+          ],
+          [
+            30.0249929,
+            40.7475533
+          ],
+          [
+            30.0241059,
+            40.7478732
+          ],
+          [
+            30.0230849,
+            40.7481841
+          ],
+          [
+            30.0222785,
+            40.7484108
+          ],
+          [
+            30.0216948,
+            40.7485556
+          ],
+          [
+            30.0207129,
+            40.7487688
+          ],
+          [
+            30.019724,
+            40.7489544
+          ],
+          [
+            30.018608,
+            40.7491409
+          ],
+          [
+            30.0179089,
+            40.7492265
+          ],
+          [
+            30.017027,
+            40.7493048
+          ],
+          [
+            30.0161903,
+            40.7493607
+          ],
+          [
+            30.0155562,
+            40.7493842
+          ],
+          [
+            30.0146108,
+            40.7494005
+          ],
+          [
+            30.013711,
+            40.7493826
+          ],
+          [
+            30.0125655,
+            40.7493289
+          ],
+          [
+            30.010367,
+            40.749221
+          ],
+          [
+            30.008886,
+            40.7492112
+          ],
+          [
+            30.0078609,
+            40.7491947
+          ],
+          [
+            30.0073306,
+            40.7491751
+          ],
+          [
+            30.0057712,
+            40.7491159
+          ]
+        ]
+      },
+      "id": "way/1193630474"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1195223250",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0122074,
+            40.7491541
+          ],
+          [
+            30.0124122,
+            40.7491596
+          ],
+          [
+            30.0137414,
+            40.7492263
+          ],
+          [
+            30.0146194,
+            40.74924
+          ],
+          [
+            30.0155309,
+            40.749233
+          ],
+          [
+            30.0161645,
+            40.7491977
+          ],
+          [
+            30.016961,
+            40.7491512
+          ],
+          [
+            30.0178421,
+            40.7490755
+          ],
+          [
+            30.0185128,
+            40.7490008
+          ],
+          [
+            30.0196547,
+            40.748822
+          ],
+          [
+            30.0206459,
+            40.7486428
+          ],
+          [
+            30.0216168,
+            40.7484408
+          ],
+          [
+            30.02221,
+            40.7482995
+          ],
+          [
+            30.0230236,
+            40.7480755
+          ],
+          [
+            30.0240072,
+            40.7477675
+          ],
+          [
+            30.0249079,
+            40.7474519
+          ],
+          [
+            30.0257144,
+            40.7471325
+          ],
+          [
+            30.0263246,
+            40.7468681
+          ],
+          [
+            30.027215,
+            40.7464548
+          ],
+          [
+            30.027958,
+            40.746071
+          ]
+        ]
+      },
+      "id": "way/1195223250"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1195223251",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0279837,
+            40.7461023
+          ],
+          [
+            30.0272377,
+            40.7464898
+          ],
+          [
+            30.0263581,
+            40.7468999
+          ],
+          [
+            30.0257413,
+            40.7471674
+          ],
+          [
+            30.0249363,
+            40.7474857
+          ],
+          [
+            30.0240401,
+            40.7478027
+          ],
+          [
+            30.023044,
+            40.7481117
+          ],
+          [
+            30.0222328,
+            40.7483366
+          ],
+          [
+            30.0216428,
+            40.7484791
+          ],
+          [
+            30.0206673,
+            40.7486773
+          ],
+          [
+            30.0196782,
+            40.748867
+          ],
+          [
+            30.0185386,
+            40.7490389
+          ],
+          [
+            30.0178546,
+            40.749114
+          ],
+          [
+            30.0169764,
+            40.749187
+          ],
+          [
+            30.0161716,
+            40.7492425
+          ],
+          [
+            30.0155348,
+            40.7492784
+          ],
+          [
+            30.0146166,
+            40.7492914
+          ],
+          [
+            30.0137317,
+            40.7492759
+          ],
+          [
+            30.0127467,
+            40.7492276
+          ],
+          [
+            30.0122004,
+            40.7492023
+          ],
+          [
+            30.0113763,
+            40.7491541
+          ]
+        ]
+      },
+      "id": "way/1195223251"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1329151085",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "85",
+        "name": "Arifiye - Adapazarı şube demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "source": "bing;local knowledge",
+        "usage": "branch",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3613872,
+            40.7132101
+          ],
+          [
+            30.3611689,
+            40.7131946
+          ],
+          [
+            30.3593306,
+            40.7131809
+          ]
+        ]
+      },
+      "id": "way/1329151085"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1334302722",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0065811,
+            40.7491056
+          ],
+          [
+            30.0074113,
+            40.7491371
+          ],
+          [
+            30.0079713,
+            40.7491526
+          ],
+          [
+            30.008878,
+            40.7491727
+          ]
+        ]
+      },
+      "id": "way/1334302722"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1334302723",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "highspeed": "yes",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "tr:Ankara-İstanbul yüksek hızlı demiryolu"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9115153,
+            40.7614057
+          ],
+          [
+            29.9109866,
+            40.7612557
+          ],
+          [
+            29.9090064,
+            40.7607627
+          ],
+          [
+            29.9084987,
+            40.7606562
+          ],
+          [
+            29.9079813,
+            40.760569
+          ],
+          [
+            29.9075125,
+            40.7605204
+          ],
+          [
+            29.9071337,
+            40.7605062
+          ],
+          [
+            29.9066899,
+            40.7605022
+          ],
+          [
+            29.9061768,
+            40.7605111
+          ],
+          [
+            29.9057207,
+            40.7605557
+          ],
+          [
+            29.9024662,
+            40.7609431
+          ],
+          [
+            29.8954865,
+            40.761774
+          ]
+        ]
+      },
+      "id": "way/1334302723"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1334302724",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara yüksek hızlı demiryolu",
+        "name:en": "İstanbul - Ankara high speed railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "1",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q513146",
+        "wikipedia": "tr:Ankara-İstanbul yüksek hızlı demiryolu"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            29.9208946,
+            40.761244
+          ],
+          [
+            29.9198943,
+            40.7613212
+          ],
+          [
+            29.9150277,
+            40.7617732
+          ],
+          [
+            29.9146411,
+            40.7618019
+          ],
+          [
+            29.9142749,
+            40.7618236
+          ],
+          [
+            29.9138917,
+            40.7618215
+          ],
+          [
+            29.9136136,
+            40.7618111
+          ],
+          [
+            29.9133031,
+            40.7617785
+          ],
+          [
+            29.9129975,
+            40.7617356
+          ],
+          [
+            29.9126131,
+            40.7616698
+          ],
+          [
+            29.9115153,
+            40.7614057
+          ]
+        ]
+      },
+      "id": "way/1334302724"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1334311715",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "100",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "railway:etcs": "yes",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0113763,
+            40.7491541
+          ],
+          [
+            30.0105266,
+            40.749109
+          ]
+        ]
+      },
+      "id": "way/1334311715"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1376663609",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "85",
+        "name": "Arifiye - Adapazarı şube demiryolu",
+        "operator": "TCDD",
+        "railway": "rail",
+        "source": "bing;local knowledge",
+        "usage": "branch",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.3616187,
+            40.7132238
+          ],
+          [
+            30.3613872,
+            40.7132101
+          ]
+        ]
+      },
+      "id": "way/1376663609"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1474158387",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0736239,
+            40.7179078
+          ],
+          [
+            30.0737882,
+            40.7177212
+          ],
+          [
+            30.0738988,
+            40.7175954
+          ],
+          [
+            30.0754618,
+            40.7158197
+          ],
+          [
+            30.0757972,
+            40.715483
+          ],
+          [
+            30.076033,
+            40.7152744
+          ],
+          [
+            30.0762735,
+            40.7150892
+          ],
+          [
+            30.0766075,
+            40.7148361
+          ],
+          [
+            30.0769186,
+            40.7146186
+          ],
+          [
+            30.0772847,
+            40.7143736
+          ],
+          [
+            30.0777219,
+            40.7141205
+          ],
+          [
+            30.0781457,
+            40.713904
+          ],
+          [
+            30.0786875,
+            40.7136519
+          ],
+          [
+            30.0791582,
+            40.7134628
+          ],
+          [
+            30.0798207,
+            40.7132402
+          ],
+          [
+            30.0804967,
+            40.7130735
+          ],
+          [
+            30.0810465,
+            40.7129576
+          ],
+          [
+            30.0816339,
+            40.71286
+          ],
+          [
+            30.0823447,
+            40.7127827
+          ],
+          [
+            30.0831038,
+            40.7127523
+          ],
+          [
+            30.0838575,
+            40.7127584
+          ],
+          [
+            30.0849062,
+            40.7128437
+          ],
+          [
+            30.0858316,
+            40.7129524
+          ]
+        ]
+      },
+      "id": "way/1474158387"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1474158388",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0858316,
+            40.7129524
+          ],
+          [
+            30.0861217,
+            40.7129914
+          ]
+        ]
+      },
+      "id": "way/1474158388"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1474158389",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0857454,
+            40.7129824
+          ],
+          [
+            30.0848993,
+            40.7128838
+          ],
+          [
+            30.0838543,
+            40.7127988
+          ],
+          [
+            30.0831049,
+            40.7127927
+          ],
+          [
+            30.0823499,
+            40.712823
+          ],
+          [
+            30.0816434,
+            40.7128998
+          ],
+          [
+            30.0810594,
+            40.7129968
+          ],
+          [
+            30.0805121,
+            40.7131122
+          ],
+          [
+            30.0798399,
+            40.713278
+          ],
+          [
+            30.0791816,
+            40.7134992
+          ],
+          [
+            30.078714,
+            40.713687
+          ],
+          [
+            30.0781746,
+            40.713938
+          ],
+          [
+            30.077753,
+            40.7141534
+          ],
+          [
+            30.0773186,
+            40.7144049
+          ],
+          [
+            30.0769543,
+            40.7146486
+          ],
+          [
+            30.0766444,
+            40.7148653
+          ],
+          [
+            30.0763127,
+            40.7151167
+          ],
+          [
+            30.0760707,
+            40.7153304
+          ],
+          [
+            30.0758361,
+            40.7155239
+          ],
+          [
+            30.0755021,
+            40.7158387
+          ],
+          [
+            30.0741673,
+            40.7173571
+          ],
+          [
+            30.0736659,
+            40.7179275
+          ]
+        ]
+      },
+      "id": "way/1474158389"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1474158390",
+        "bridge": "yes",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1435",
+        "layer": "1",
+        "maxspeed": "160",
+        "name": "İstanbul - Ankara demiryolu",
+        "name:en": "İstanbul - Ankara railway",
+        "operator": "TCDD",
+        "passenger_lines": "1",
+        "railway": "rail",
+        "source": "bing",
+        "usage": "main",
+        "voltage": "25000",
+        "wikidata": "Q15103266",
+        "wikipedia": "en:Istanbul–Ankara railway"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            30.0860437,
+            40.7130187
+          ],
+          [
+            30.0857454,
+            40.7129824
+          ]
+        ]
+      },
+      "id": "way/1474158390"
+    }
+  ]
+}
