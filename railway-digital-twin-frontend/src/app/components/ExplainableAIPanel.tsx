@@ -177,7 +177,13 @@ export function ExplainableAIPanel() {
         const response = await fetch("http://localhost:8080/api/segments?size=100");
         if (response.ok) {
           const page = await response.json();
-          const ids: string[] = page.content.map((seg: any) => seg.segmentId).sort();
+          const ids: string[] = page.content.map((seg: any) => seg.segmentId);
+          ids.sort((a, b) => {
+            const numA = parseInt(a.replace(/\D/g, ""), 10);
+            const numB = parseInt(b.replace(/\D/g, ""), 10);
+            if (isNaN(numA) || isNaN(numB)) return a.localeCompare(b);
+            return numA - numB;
+          });
           setSegmentOptions(ids);
           if (ids.length > 0) {
             setSelectedSegment(ids[0]);
@@ -185,7 +191,10 @@ export function ExplainableAIPanel() {
         }
       } catch (err) {
         console.error("Error fetching segment list in XAI Panel:", err);
-        const fallback = ["S1", "S2", "S3", "S4", "S5", "S6"];
+        const fallback = [
+          "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", 
+          "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18"
+        ];
         setSegmentOptions(fallback);
         setSelectedSegment(fallback[0]);
       }

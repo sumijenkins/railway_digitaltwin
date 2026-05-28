@@ -6,34 +6,51 @@ import hmac
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
+import urllib.request
+import urllib.error
+
 BROKER = "mosquitto"
 PORT = 1883
 TOPIC = "railway/sensors/data"
 SECRET_KEY = b"railway-digital-twin-secret"
 
-segments = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17"]
+# Default fallback list supporting all 18 segments
+segments = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18"]
 
 SCENARIO = "normal"
 
-SENSORS = {
-    "S1": 109,
-    "S2": 110,
-    "S3": 111,
-    "S4": 112,
-    "S5": 113,
-    "S6": 114,
-    "S7": 115,
-    "S8": 116,
-    "S9": 117,
-    "S10": 118,
-    "S11": 119,
-    "S12": 120,
-    "S13": 121,
-    "S14": 122,
-    "S15": 123,
-    "S16": 124,
-    "S17": 125,
-}
+def get_sensor_id(segment_id):
+    try:
+        # Extract number from segment id, e.g. "S18" -> 18, "S2" -> 2
+        num = int("".join(filter(str.isdigit, segment_id)))
+        return 108 + num
+    except Exception:
+        return random.randint(109, 300)
+
+last_segment_fetch_time = 0
+
+def update_segments():
+    global segments, last_segment_fetch_time
+    current_time = time.time()
+    # Fetch at most once every 30 seconds to avoid spamming
+    if current_time - last_segment_fetch_time < 30:
+        return
+    
+    last_segment_fetch_time = current_time
+    try:
+        url = "http://backend:8080/api/segments?size=100"
+        with urllib.request.urlopen(url, timeout=3) as req:
+            if req.status == 200:
+                resp_data = json.loads(req.read().decode())
+                content = resp_data.get("content", [])
+                if content:
+                    new_segments = [seg["segmentId"] for seg in content]
+                    # Natural sort segments
+                    new_segments.sort(key=lambda s: int("".join(filter(str.isdigit, s))) if any(c.isdigit() for c in s) else s)
+                    segments = new_segments
+                    print(f"[{datetime.now().isoformat()}] Dynamically updated segments from backend: {segments}")
+    except Exception as e:
+        print(f"[{datetime.now().isoformat()}] Failed to fetch dynamic segments from backend (using current list): {e}")
 
 client = mqtt.Client()
 client.connect(BROKER, PORT, 60)
@@ -97,7 +114,7 @@ def generate_sensor_data(segment_id):
             train_speed = round(random.uniform(90, 110), 2)
 
     payload = {
-        "sensorId": SENSORS[segment_id],
+        "sensorId": get_sensor_id(segment_id),
         "segmentId": segment_id,
         "sensorType": "RAY_SENSOR",
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -122,6 +139,7 @@ def generate_sensor_data(segment_id):
 
 
 while True:
+    update_segments()
     for segment in segments:
         data = generate_sensor_data(segment)
         topic = f"railway/sensors/{segment}"

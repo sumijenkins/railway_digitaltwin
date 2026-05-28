@@ -13,6 +13,8 @@ import com.railway.digitaltwin.entity.RulPredictionResult;
 import com.railway.digitaltwin.repository.RulPredictionResultRepository;
 import com.railway.digitaltwin.entity.AnomalyResult;
 import com.railway.digitaltwin.repository.AnomalyResultRepository;
+import com.railway.digitaltwin.repository.RailwaySegmentRepository;
+import com.railway.digitaltwin.entity.RailwaySegment;
 import java.util.Optional;
 
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class DecisionSupportService {
     private final AnomalyRepository anomalyRepository;
     private final RulPredictionResultRepository rulPredictionResultRepository;
     private final AnomalyResultRepository anomalyResultRepository;
+    private final RailwaySegmentRepository railwaySegmentRepository;
 
     public DecisionSupportResponseDto generateSegmentReport(String segmentId) {
         List<TelemetryResponseDto> telemetryList =
@@ -112,7 +115,18 @@ public class DecisionSupportService {
     }
 
     public DecisionSupportOverviewDto generateOverviewReport() {
-        List<String> segmentIds = List.of("S1", "S2", "S3", "S4", "S5", "S6");
+        List<String> segmentIds = railwaySegmentRepository.findAll().stream()
+                .map(RailwaySegment::getSegmentId)
+                .sorted((a, b) -> {
+                    try {
+                        int numA = Integer.parseInt(a.replaceAll("\\D", ""));
+                        int numB = Integer.parseInt(b.replaceAll("\\D", ""));
+                        return Integer.compare(numA, numB);
+                    } catch (Exception e) {
+                        return a.compareTo(b);
+                    }
+                })
+                .toList();
 
         List<DecisionSupportResponseDto> reports = segmentIds.stream()
                 .map(this::generateSegmentReport)

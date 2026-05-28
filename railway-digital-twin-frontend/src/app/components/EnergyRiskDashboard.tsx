@@ -67,59 +67,64 @@ export function EnergyRiskDashboard({
   }) {
     console.log("EnergyRiskDashboard energyRiskResults:", energyRiskResults);
     
-    const dynamicData = energyRiskResults.map((item) => {
-      const energy = Number(
-        item.energyScore ??
-        item.energyConsumption ??
-        item.energy ??
-        0
-      );
-      const rawRisk = Number(
-        item.riskScore ??
-        item.risk ??
-        0
-      );
-      // 0-1 normalized risk is converted to a 0-100 percentage
-      const risk = rawRisk <= 1.0 ? rawRisk * 100.0 : rawRisk;
+    const dynamicData = React.useMemo(() => {
+      return energyRiskResults.map((item) => {
+        const energy = Number(
+          item.energyScore ??
+          item.energyConsumption ??
+          item.energy ??
+          0
+        );
+        const rawRisk = Number(
+          item.riskScore ??
+          item.risk ??
+          0
+        );
+        // 0-1 normalized risk is converted to a 0-100 percentage
+        const risk = rawRisk <= 1.0 ? rawRisk * 100.0 : rawRisk;
 
-      const efficiency = Math.max(
-        0,
-        Math.min(
-          100,
-          Math.round(
-            100
-            - ((risk / 100.0) * 60.0)
-            - ((energy - 100) * 0.2)
+        const efficiency = Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round(
+              100
+              - ((risk / 100.0) * 60.0)
+              - ((energy - 100) * 0.2)
+            )
           )
-        )
-      );
+        );
 
-      return {
-        segment: item.segmentId,
-        segmentName: item.segmentName,
-        energy,
-        baseline: 200,
-        efficiency,
-        riskScore: risk,
-        risk,
-        // Gerçek telemetri alanları — backend'den gelen ham değerler
-        temperature: Number(item.temperature ?? 0),
-        vibration:   Number(item.vibration   ?? item.tilt ?? 0),
-        slope:       Number(item.tilt        ?? 0),
-        size: Math.max(40, Math.round(risk)),
-        riskLevel: item.riskLevel,
-        recommendation: item.recommendation,
-      };
-    });
+        return {
+          segment: item.segmentId,
+          segmentName: item.segmentName,
+          energy,
+          baseline: 200,
+          efficiency,
+          riskScore: risk,
+          risk,
+          // Gerçek telemetri alanları — backend'den gelen ham değerler
+          temperature: Number(item.temperature ?? 0),
+          vibration:   Number(item.vibration   ?? item.tilt ?? 0),
+          slope:       Number(item.tilt        ?? 0),
+          size: Math.max(40, Math.round(risk)),
+          riskLevel: item.riskLevel,
+          recommendation: item.recommendation,
+        };
+      });
+    }, [energyRiskResults]);
 
-    const displayEnergyData =
-      dynamicData.length > 0 ? dynamicData : energyData;
+    const displayEnergyData = React.useMemo(() => {
+      return dynamicData.length > 0 ? dynamicData : energyData;
+    }, [dynamicData]);
 
-    const displayRiskData =
-      dynamicData.length > 0 ? dynamicData : riskData;
+    const displayRiskData = React.useMemo(() => {
+      return dynamicData.length > 0 ? dynamicData : riskData;
+    }, [dynamicData]);
 
-    const displayTradeoffData =
-      dynamicData.length > 0 ? dynamicData : tradeoffData;
+    const displayTradeoffData = React.useMemo(() => {
+      return dynamicData.length > 0 ? dynamicData : tradeoffData;
+    }, [dynamicData]);
 
     const averageEnergy =
       displayEnergyData.length > 0
@@ -157,10 +162,24 @@ export function EnergyRiskDashboard({
         (item) => Number(item.riskScore) >= 30.0
       ).length;
 
-      const [dynamicTimelineData, setDynamicTimelineData] = useState<any[]>([]);
+    const activeSegments = React.useMemo(() => {
+      const segmentsSet = new Set<string>();
+      displayRiskData.forEach((item: any) => {
+        if (item.segment) segmentsSet.add(item.segment);
+      });
+      const segments = Array.from(segmentsSet);
+      return segments.sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, ""), 10);
+        const numB = parseInt(b.replace(/\D/g, ""), 10);
+        if (isNaN(numA) || isNaN(numB)) return a.localeCompare(b);
+        return numA - numB;
+      });
+    }, [displayRiskData]);
 
-      useEffect(() => {
-        if (displayRiskData.length === 0) return;
+    const [dynamicTimelineData, setDynamicTimelineData] = useState<any[]>([]);
+
+    useEffect(() => {
+      if (displayRiskData.length === 0) return;
 
       const currentTime = new Date().toLocaleTimeString("tr-TR", {
         hour: "2-digit",
@@ -168,21 +187,21 @@ export function EnergyRiskDashboard({
         second: "2-digit",
       });
 
-      const newPoint = {
+      const newPoint: any = {
         time: currentTime,
-        S1: Number(displayRiskData.find((item: any) => item.segment === "S1")?.riskScore ?? 0),
-        S2: Number(displayRiskData.find((item: any) => item.segment === "S2")?.riskScore ?? 0),
-        S3: Number(displayRiskData.find((item: any) => item.segment === "S3")?.riskScore ?? 0),
-        S4: Number(displayRiskData.find((item: any) => item.segment === "S4")?.riskScore ?? 0),
-        S5: Number(displayRiskData.find((item: any) => item.segment === "S5")?.riskScore ?? 0),
-        S6: Number(displayRiskData.find((item: any) => item.segment === "S6")?.riskScore ?? 0),
       };
+
+      displayRiskData.forEach((item: any) => {
+        if (item.segment) {
+          newPoint[item.segment] = Number(item.riskScore ?? 0);
+        }
+      });
 
       setDynamicTimelineData((prev) => {
         const updated = [...prev, newPoint];
         return updated.slice(-10);
       });
-    }, [energyRiskResults]);
+    }, [energyRiskResults, displayRiskData]);
 
     return (
     <div className="space-y-6">
@@ -380,54 +399,24 @@ export function EnergyRiskDashboard({
                 }}
               />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="S1"
-                stroke="#10b981"
-                name="S1 (Düşük)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="S2"
-                stroke="#eab308"
-                name="S2 (Orta)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="S3"
-                stroke="#ef4444"
-                name="S3 (Yüksek)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="S4"
-                stroke="#3b82f6"
-                name="S4 (Düşük-Orta)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="S5"
-                stroke="#f59e0b"
-                name="S5 (Orta-Yüksek)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="S6"
-                stroke="#a78bfa"
-                name="S6"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
+              {(() => {
+                const COLORS = [
+                  "#10b981", "#eab308", "#ef4444", "#3b82f6", "#f59e0b", "#a78bfa", 
+                  "#ec4899", "#14b8a6", "#f97316", "#06b6d4", "#8b5cf6", "#6366f1", 
+                  "#0d9488", "#4f46e5", "#b45309", "#be185d", "#0369a1", "#15803d"
+                ];
+                return activeSegments.map((seg, index) => (
+                  <Line
+                    key={seg}
+                    type="monotone"
+                    dataKey={seg}
+                    stroke={COLORS[index % COLORS.length]}
+                    name={seg}
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                ));
+              })()}
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

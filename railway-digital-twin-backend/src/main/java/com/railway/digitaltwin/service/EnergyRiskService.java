@@ -37,7 +37,7 @@ public class EnergyRiskService {
     @Transactional(readOnly = true)
     public List<EnergyRiskResponseDto> calculateCurrentEnergyRisk() {
         List<TelemetryView> readings = sensorReadingRepository
-                .findLatestTelemetry(PageRequest.of(0, 500))
+                .findLatestTelemetry(PageRequest.of(0, 3000))
                 .getContent();
 
         Map<String, Map<String, TelemetryView>> latestBySegment = new HashMap<>();

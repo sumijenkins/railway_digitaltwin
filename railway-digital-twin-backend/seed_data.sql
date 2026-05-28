@@ -12,16 +12,18 @@ INSERT INTO railway_segment (segment_id, name, length_km, risk_level, start_stat
   ('S4', 'Soma - Balikesir',       88.0, 'LOW',    'Soma',      'Balikesir'),
   ('S5', 'Balikesir - Susurluk',   45.0, 'MEDIUM', 'Balikesir', 'Susurluk'),
   ('S6', 'Susurluk - Bandirma',    42.0, 'LOW',    'Susurluk',  'Bandirma'),
-  ('S7', 'Susurluk - Bandirma', 42.0, 'LOW', 'Susurluk', 'Bandirma'),
-  ('S8',  'Manisa - Usak',             210.0, 'LOW',    'Manisa',            'Usak'),
-  ('S9',  'Usak - Afyonkarahisar',     115.0, 'LOW',    'Usak',              'Afyonkarahisar'),
-  ('S10', 'Afyon - Eskisehir',         145.0, 'LOW',    'Afyonkarahisar',    'Eskisehir'),
-  ('S11', 'Eskisehir - Ankara',        235.0, 'LOW',    'Eskisehir',         'Ankara'),
+  ('S7', 'Susurluk - Bandirma',    42.0, 'LOW',    'Susurluk',  'Bandirma'),
+  ('S8', 'Manisa - Usak',          210.0, 'LOW',    'Manisa',    'Usak'),
+  ('S9', 'Usak - Afyonkarahisar',  115.0, 'LOW',    'Usak',      'Afyonkarahisar'),
+  ('S10', 'Afyon - Eskisehir',     145.0, 'LOW',    'Afyonkarahisar', 'Eskisehir'),
+  ('S11', 'Eskisehir - Ankara',    235.0, 'LOW',    'Eskisehir', 'Ankara'),
   ('S12', 'Istanbul - Gebze',      55.0,  'MEDIUM', 'Istanbul',  'Gebze'),
   ('S13', 'Gebze - Izmit',         50.0,  'MEDIUM', 'Gebze',     'Izmit'),
   ('S14', 'Izmit - Arifiye',       42.0,  'LOW',    'Izmit',     'Arifiye'),
   ('S15', 'Arifiye - Bilecik',     95.0,  'LOW',    'Arifiye',   'Bilecik'),
-  ('S16', 'Bilecik - Eskisehir',   85.0,  'LOW',    'Bilecik',   'Eskisehir')
+  ('S16', 'Bilecik - Eskisehir',   85.0,  'LOW',    'Bilecik',   'Eskisehir'),
+  ('S17', 'Balikesir - Kutahya',   180.0, 'LOW',    'Balikesir', 'Kutahya'),
+  ('S18', 'Kutahya - Eskisehir',   140.0, 'LOW',    'Kutahya',   'Eskisehir')
   ON CONFLICT (segment_id) DO NOTHING;
 
 
@@ -35,17 +37,19 @@ INSERT INTO sensor (sensor_type, segment_id, status) VALUES
   ('RAY_SENSOR',   'S3', 'ACTIVE'), ('TRAIN_SENSOR', 'S3', 'ACTIVE'),
   ('RAY_SENSOR',   'S4', 'ACTIVE'), ('TRAIN_SENSOR', 'S4', 'ACTIVE'),
   ('RAY_SENSOR',   'S5', 'ACTIVE'), ('TRAIN_SENSOR', 'S5', 'ACTIVE'),
-  ('RAY_SENSOR',   'S6', 'ACTIVE'), ('TRAIN_SENSOR', 'S6', 'ACTIVE');
-  ('RAY_SENSOR',   'S7',  'ACTIVE'), ('TRAIN_SENSOR', 'S7',  'ACTIVE'),
-  ('RAY_SENSOR',   'S8',  'ACTIVE'),('TRAIN_SENSOR', 'S8',  'ACTIVE'),
-  ('RAY_SENSOR',   'S9',  'ACTIVE'),('TRAIN_SENSOR', 'S9',  'ACTIVE'),
-  ('RAY_SENSOR',   'S10', 'ACTIVE'),('TRAIN_SENSOR', 'S10', 'ACTIVE'),
-  ('RAY_SENSOR',   'S11', 'ACTIVE'),('TRAIN_SENSOR', 'S11', 'ACTIVE'),
-  ('RAY_SENSOR',   'S12', 'ACTIVE'),('TRAIN_SENSOR', 'S12', 'ACTIVE'),
-  ('RAY_SENSOR',   'S13', 'ACTIVE'),('TRAIN_SENSOR', 'S13', 'ACTIVE'),
-  ('RAY_SENSOR',   'S14', 'ACTIVE'),('TRAIN_SENSOR', 'S14', 'ACTIVE'),
-  ('RAY_SENSOR',   'S15', 'ACTIVE'),('TRAIN_SENSOR', 'S15', 'ACTIVE'),
-  ('RAY_SENSOR',   'S16', 'ACTIVE');('TRAIN_SENSOR', 'S16', 'ACTIVE');
+  ('RAY_SENSOR',   'S6', 'ACTIVE'), ('TRAIN_SENSOR', 'S6', 'ACTIVE'),
+  ('RAY_SENSOR',   'S7', 'ACTIVE'), ('TRAIN_SENSOR', 'S7', 'ACTIVE'),
+  ('RAY_SENSOR',   'S8', 'ACTIVE'), ('TRAIN_SENSOR', 'S8', 'ACTIVE'),
+  ('RAY_SENSOR',   'S9', 'ACTIVE'), ('TRAIN_SENSOR', 'S9', 'ACTIVE'),
+  ('RAY_SENSOR',   'S10', 'ACTIVE'), ('TRAIN_SENSOR', 'S10', 'ACTIVE'),
+  ('RAY_SENSOR',   'S11', 'ACTIVE'), ('TRAIN_SENSOR', 'S11', 'ACTIVE'),
+  ('RAY_SENSOR',   'S12', 'ACTIVE'), ('TRAIN_SENSOR', 'S12', 'ACTIVE'),
+  ('RAY_SENSOR',   'S13', 'ACTIVE'), ('TRAIN_SENSOR', 'S13', 'ACTIVE'),
+  ('RAY_SENSOR',   'S14', 'ACTIVE'), ('TRAIN_SENSOR', 'S14', 'ACTIVE'),
+  ('RAY_SENSOR',   'S15', 'ACTIVE'), ('TRAIN_SENSOR', 'S15', 'ACTIVE'),
+  ('RAY_SENSOR',   'S16', 'ACTIVE'), ('TRAIN_SENSOR', 'S16', 'ACTIVE'),
+  ('RAY_SENSOR',   'S17', 'ACTIVE'), ('TRAIN_SENSOR', 'S17', 'ACTIVE'),
+  ('RAY_SENSOR',   'S18', 'ACTIVE'), ('TRAIN_SENSOR', 'S18', 'ACTIVE');
 
 
 -- ③ SENSOR CHANNELS (Backend MqttSensorIngestionService ile %100 Uyumlu)

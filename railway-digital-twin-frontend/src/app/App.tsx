@@ -123,7 +123,7 @@ export default function App() {
       setTelemetryError(null);
 
       try {
-        const readings = await telemetryService.getLatestTelemetry(120);
+        const readings = await telemetryService.getLatestTelemetry(400);
 
         if (readings && readings.length > 0) {
           const bySegment: Record<string, Record<string, number | string>> = {};
@@ -771,22 +771,22 @@ export default function App() {
                   onChange={(e) => setSelectedSensorSegment(e.target.value)}
                   className="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2"
                 >
-                  <option value="S1">S1 - Izmir - Manisa</option>
-                  <option value="S2">S2 - Manisa - Akhisar</option>
-                  <option value="S3">S3 - Akhisar - Soma</option>
-                  <option value="S4">S4 - Soma - Balikesir</option>
-                  <option value="S5">S5 - Balikesir - Susurluk</option>
-                  <option value="S6">S6 - Susurluk - Bandirma</option>
-                  <option value="S7">S7 - Susurluk - Bandirma</option>
-                  <option value="S8">S8 - Manisa - Usak</option>
-                  <option value="S9">S9 - Usak - Afyonkarahisar</option>
-                  <option value="S10">S10 - Afyonkarahisar - Eskisehir</option>
-                  <option value="S11">S11 - Eskisehir - Ankara</option>
-                  <option value="S12">S12 - Istanbul - Gebze</option>
-                  <option value="S13">S13 - Gebze - Izmit</option>
-                  <option value="S14">S14 - Izmit - Arifiye</option>
-                  <option value="S15">S15 - Arifiye - Bilecik</option>
-                  <option value="S16">S16 - Bilecik - Eskisehir</option>
+                  {(network?.tracks ?? [])
+                    .filter((t) => !t.id.endsWith("-R"))
+                    .sort((a, b) => {
+                      const numA = parseInt(a.id.replace(/\D/g, ""), 10);
+                      const numB = parseInt(b.id.replace(/\D/g, ""), 10);
+                      return numA - numB;
+                    })
+                    .map((track) => {
+                      const sourceName = network?.stations.find(s => s.id === track.sourceStationId)?.name || track.sourceStationId;
+                      const targetName = network?.stations.find(s => s.id === track.targetStationId)?.name || track.targetStationId;
+                      return (
+                        <option key={track.id} value={track.id}>
+                          {track.id} - {sourceName} - {targetName}
+                        </option>
+                      );
+                    })}
                 </select>
               </div>
 

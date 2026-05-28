@@ -70,9 +70,38 @@ export function ScenarioAnalysisPanel() {
       setLoading(false);
     }
   };
+  const [segmentOptions, setSegmentOptions] = useState<string[]>([]);
 
-  const segmentOptions = ["S1", "S2", "S3", "S4", "S5", "S6"];
-
+  useEffect(() => {
+    const fetchSegments = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/segments?size=100");
+        if (response.ok) {
+          const page = await response.json();
+          const ids: string[] = page.content.map((seg: any) => seg.segmentId);
+          ids.sort((a, b) => {
+            const numA = parseInt(a.replace(/\D/g, ""), 10);
+            const numB = parseInt(b.replace(/\D/g, ""), 10);
+            if (isNaN(numA) || isNaN(numB)) return a.localeCompare(b);
+            return numA - numB;
+          });
+          setSegmentOptions(ids);
+          if (ids.length > 0) {
+            setSegmentId(ids[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching segment list in Scenario Panel:", err);
+        const fallback = [
+          "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", 
+          "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18"
+        ];
+        setSegmentOptions(fallback);
+        setSegmentId(fallback[0]);
+      }
+    };
+    fetchSegments();
+  }, []);
   return (
     <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
