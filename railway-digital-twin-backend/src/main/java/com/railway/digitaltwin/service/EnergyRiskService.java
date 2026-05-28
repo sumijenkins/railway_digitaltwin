@@ -16,10 +16,12 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class EnergyRiskService {
 
     private final EnergyRiskRepository energyRiskRepository;
     private final SensorReadingRepository sensorReadingRepository;
+    private final com.railway.digitaltwin.dss.service.DecisionSupportService decisionSupportService;
 
     @Transactional(readOnly = true)
     public Page<EnergyRiskResponseDto> getAllEnergyRisks(Pageable pageable) {
@@ -52,15 +54,27 @@ public class EnergyRiskService {
             String segmentId = entry.getKey();
             Map<String, TelemetryView> channels = entry.getValue();
 
-            Double temperature = getValueByKeyword(channels, "temperature", "temp");
-            Double vibration = getValueByKeyword(channels, "vibration", "vib");
-            Double tilt = getValueByKeyword(channels, "slope", "tilt");
+            Double temperature = getValue(channels, "temperature");
+            Double vibration = getValue(channels, "vibrationX");
+            Double tilt = getValue(channels, "rail_slope");
 
             String segmentName = getSegmentName(channels);
 
+            // DSS Raporunu Çekerek Risk Skoru ve Seviyesini Birebir DSS İle Senkronize Et
+            com.railway.digitaltwin.dss.dto.DecisionSupportResponseDto dssReport = 
+                    decisionSupportService.generateSegmentReport(segmentId);
+
+            double dssRisk = dssReport.getRiskScore() != null ? dssReport.getRiskScore() : 0.0;
+            String dssLevel = dssReport.getSeverity() != null ? dssReport.getSeverity().toString() : "LOW";
+
+            String riskLevel = "LOW";
+            if ("WARNING".equalsIgnoreCase(dssLevel)) {
+                riskLevel = "WARNING";
+            } else if ("CRITICAL".equalsIgnoreCase(dssLevel)) {
+                riskLevel = "CRITICAL";
+            }
+
             double energyScore = calculateEnergyScore(temperature, vibration, tilt);
-            double riskScore = calculateRiskScore(temperature, vibration, tilt);
-            String riskLevel = determineRiskLevel(riskScore);
             String recommendation = generateRecommendation(riskLevel);
 
             result.add(EnergyRiskResponseDto.builder()
@@ -70,7 +84,7 @@ public class EnergyRiskService {
                     .vibration(vibration)
                     .tilt(tilt)
                     .energyScore(round(energyScore))
-                    .riskScore(round(riskScore))
+                    .riskScore(round(dssRisk))
                     .riskLevel(riskLevel)
                     .recommendation(recommendation)
                     .build());
@@ -97,29 +111,6 @@ public class EnergyRiskService {
         return view != null ? view.getValue() : 0.0;
     }
 
-    private Double getValueByKeyword(
-        Map<String, TelemetryView> channels,
-        String... keywords
-) {
-    return channels.entrySet()
-            .stream()
-            .filter(entry -> entry.getKey() != null)
-            .filter(entry -> {
-                String channelName = entry.getKey().toLowerCase();
-
-                for (String keyword : keywords) {
-                    if (channelName.contains(keyword.toLowerCase())) {
-                        return true;
-                    }
-                }
-
-                return false;
-            })
-            .map(entry -> entry.getValue().getValue())
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(0.0);
-}
 
     private String getSegmentName(Map<String, TelemetryView> channels) {
         return channels.values()
@@ -146,22 +137,26 @@ public class EnergyRiskService {
         return tempRisk + vibrationRisk + tiltRisk;
     }
 
-    private String determineRiskLevel(double riskScore) {
-        if (riskScore >= 70) {
-            return "HIGH";
-        } else if (riskScore >= 40) {
-            return "MEDIUM";
+    /**
+     * Eşikleri 0.0–1.0 aralığında değerlendirir (DSS ile tam uyumlu).
+     * 0.30 eşiği: DSS'nin WARNING başlangıç noktası ile birebir örtüşür.
+     */
+    private String determineRiskLevel(double normalizedRiskScore) {
+        if (normalizedRiskScore > 0.60) {
+            return "CRITICAL";
+        } else if (normalizedRiskScore > 0.30) {
+            return "WARNING"; // DSS ile tam uyumlu: 0.34 artık WARNING döndürür
         } else {
             return "LOW";
         }
     }
 
     private String generateRecommendation(String riskLevel) {
-        if ("HIGH".equals(riskLevel)) {
+        if ("CRITICAL".equals(riskLevel)) {
             return "Bu segment için acil inceleme önerilir.";
         }
 
-        if ("MEDIUM".equals(riskLevel)) {
+        if ("WARNING".equals(riskLevel)) {
             return "Bu segment yakından izlenmeli ve önleyici bakım için planlanmalıdır.";
         }
 

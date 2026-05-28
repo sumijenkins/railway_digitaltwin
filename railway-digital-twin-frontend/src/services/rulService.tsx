@@ -35,4 +35,12 @@ export const rulService = {
 
     return response.json();
   },
+
+  async predictRulForSegment(segmentId: string): Promise<RulPrediction> {
+    const response = await fetch(`${API_URL}/rul/predict/${segmentId}`);
+    if (!response.ok) {
+      throw new Error("RUL prediction could not be loaded");
+    }
+    return response.json();
+  },
 };

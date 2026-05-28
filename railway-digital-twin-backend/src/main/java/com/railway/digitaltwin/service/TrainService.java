@@ -9,7 +9,6 @@ import com.railway.digitaltwin.repository.TrainLocationRepository;
 import com.railway.digitaltwin.repository.TrainRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class TrainService {
 
     private final TrainRepository trainRepository;

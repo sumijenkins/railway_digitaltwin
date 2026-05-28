@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import com.railway.digitaltwin.entity.RulPredictionResult;
 import com.railway.digitaltwin.repository.RulPredictionResultRepository;
+import com.railway.digitaltwin.entity.AnomalyResult;
+import com.railway.digitaltwin.repository.AnomalyResultRepository;
 import java.util.Optional;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ public class DecisionSupportService {
     private final TelemetryService telemetryService;
     private final AnomalyRepository anomalyRepository;
     private final RulPredictionResultRepository rulPredictionResultRepository;
+    private final AnomalyResultRepository anomalyResultRepository;
 
     public DecisionSupportResponseDto generateSegmentReport(String segmentId) {
         List<TelemetryResponseDto> telemetryList =
@@ -49,6 +52,35 @@ public class DecisionSupportService {
                 .stream()
                 .findFirst();
 
+        // ÇÖZÜM ENJEKSİYONU: En güncel anomali/alarm kayıtlarını kontrol et
+        List<AnomalyResult> latestAnomalies = anomalyResultRepository.findBySegmentIdOrderByDetectedAtDesc(segmentId);
+        
+        boolean hasActiveTempAnomaly = false;
+        boolean hasActiveVibAnomaly = false;
+        
+        if (latestAnomalies != null && !latestAnomalies.isEmpty()) {
+            AnomalyResult lastAnomaly = latestAnomalies.get(0);
+            if (lastAnomaly.getIsAnomaly() != null && lastAnomaly.getIsAnomaly()) {
+                // xaiExplanation (description) VE channelName her ikisini de kontrol et
+                String desc = lastAnomaly.getDescription() != null ? lastAnomaly.getDescription().toLowerCase() : "";
+                String channel = lastAnomaly.getChannelName() != null ? lastAnomaly.getChannelName().toLowerCase() : "";
+
+                boolean tempSignal = desc.contains("temp") || desc.contains("sıcaklık")
+                        || channel.contains("temp") || channel.contains("sıcaklık");
+                boolean vibSignal = desc.contains("vib") || desc.contains("titreşim")
+                        || channel.contains("vib") || channel.contains("titreşim") || channel.contains("vibration");
+
+                // Herhangi bir tür belirtilmemişse → genel anomali; her iki bayrağı da kaldır
+                if (!tempSignal && !vibSignal) {
+                    hasActiveTempAnomaly = true;
+                    hasActiveVibAnomaly = true;
+                } else {
+                    if (tempSignal) hasActiveTempAnomaly = true;
+                    if (vibSignal)  hasActiveVibAnomaly = true;
+                }
+            }
+        }
+
         double riskScore = calculateRiskScore(
                 temperature,
                 vibration,
@@ -59,7 +91,7 @@ public class DecisionSupportService {
                 latestRul
         );
         double energyImpact = calculateEnergyImpact(temperature, vibration, tilt, speed);
-        DecisionSeverity severity = determineSeverity(riskScore, existingRiskLevel, anomalies);
+        DecisionSeverity severity = determineSeverity(riskScore, existingRiskLevel, anomalies, hasActiveTempAnomaly || hasActiveVibAnomaly);
 
         return DecisionSupportResponseDto.builder()
                 .segmentId(segmentId)
@@ -73,7 +105,8 @@ public class DecisionSupportService {
                 .routeRecommendation(generateRouteRecommendation(severity))
                 .keyFindings(generateKeyFindings(segmentId, segmentName, temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel, riskScore, severity))
                 .recommendedActions(generateActions(severity, temperature, vibration, tilt, speed, anomalies.size()))
-                .technicalDetails(generateTechnicalDetails(temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel))                .featureContributions(generateFeatureContributions(temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel))
+                .technicalDetails(generateTechnicalDetails(temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel))
+                .featureContributions(generateFeatureContributions(temperature, vibration, tilt, speed, anomalies.size(), existingRiskLevel, hasActiveTempAnomaly, hasActiveVibAnomaly))
                 .generatedAt(LocalDateTime.now())
                 .build();
     }
@@ -224,7 +257,9 @@ public class DecisionSupportService {
                 + (0.15 * tempFactor);
     }
 
-    private DecisionSeverity determineSeverity(double riskScore, String existingRiskLevel, List<Anomaly> anomalies) {
+    private DecisionSeverity determineSeverity(double riskScore, String existingRiskLevel, List<Anomaly> anomalies, boolean hasActiveAnomaly) {
+        // Veritabanı risk seviyesi yalnızca CRITICAL veya WARNING ise yükselt;
+        // LOW → hesaplanan risk skoruna göre karar ver (sabit LOW ataması yapmıyoruz)
         if (existingRiskLevel != null) {
             String value = existingRiskLevel.toUpperCase();
 
@@ -244,21 +279,37 @@ public class DecisionSupportService {
             return DecisionSeverity.CRITICAL;
         }
 
-        if (riskScore >= 0.40 || !anomalies.isEmpty()) {
+        // hasActiveAnomaly tek başına WARNING üretemez; en az bir anomali kaydı da olmak zorunda.
+        // Bu, 0 anomalisi olan temiz segmentlerin (S1 gibi) haksız yere WARNING almasını önler.
+        boolean anomalyBasedWarning = !anomalies.isEmpty() && hasActiveAnomaly;
+
+        if (riskScore >= 0.40 || !anomalies.isEmpty() || anomalyBasedWarning) {
             return DecisionSeverity.WARNING;
         }
 
         return DecisionSeverity.NORMAL;
     }
 
-    private List<FeatureContributionDto> generateFeatureContributions(double temperature, double vibration, double tilt, double speed, int anomalyCount, String riskLevel) {
+    private List<FeatureContributionDto> generateFeatureContributions(double temperature, double vibration, double tilt, double speed, int anomalyCount, String riskLevel, boolean hasActiveTempAnomaly, boolean hasActiveVibAnomaly) {
         List<FeatureContributionDto> list = new ArrayList<>();
 
-        list.add(feature("Sıcaklık", temperature > 45 ? "HIGH" : "LOW",
-                temperature > 45 ? "Yüksek sıcaklık ray üzerinde termal stres oluşturabilir." : "Sıcaklık normal aralıktadır."));
+        // 1. Sıcaklık Katkısı Ayarı
+        String tempLevel = "LOW";
+        String tempDesc = "Sıcaklık normal aralıktadır.";
+        if (hasActiveTempAnomaly || temperature > 40.0) {
+            tempLevel = "HIGH";
+            tempDesc = "KRİTİK SICAKLIK: Ray sıcaklığı güvenli limitlerin üzerinde!";
+        }
+        list.add(feature("Sıcaklık", tempLevel, tempDesc));
 
-        list.add(feature("Titreşim", vibration > 2.5 ? "HIGH" : "LOW",
-                vibration > 2.5 ? "Yüksek titreşim yapısal bozulma veya ray aşınması göstergesi olabilir." : "Titreşim seviyesi kararlıdır."));
+        // 2. Titreşim Katkısı Ayarı
+        String vibLevel = "LOW";
+        String vibDesc = "Titreşim seviyesi kararlıdır.";
+        if (hasActiveVibAnomaly || vibration > 2.5) {
+            vibLevel = "HIGH";
+            vibDesc = "YÜKSEK TİTREŞİM: Spektral RMS değerlerinde sapma algılandı!";
+        }
+        list.add(feature("Titreşim", vibLevel, vibDesc));
 
         list.add(feature("Eğim", Math.abs(tilt) > 3 ? "MEDIUM" : "LOW",
                 Math.abs(tilt) > 3 ? "Eğim değişimi enerji tüketimini ve güvenlik riskini artırabilir." : "Eğim değeri kabul edilebilir düzeydedir."));

@@ -56,8 +56,9 @@ public class GlobalExceptionHandler {
     // ─── 500 Internal Server Error — beklenmeyen hatalar ─────────────────────
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+        ex.printStackTrace(); // Gerçek hatayı loglara yaz
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.", null);
+                ex.getClass().getSimpleName() + ": " + ex.getMessage(), null);
     }
 
     // ─── Yardımcı metot ───────────────────────────────────────────────────────

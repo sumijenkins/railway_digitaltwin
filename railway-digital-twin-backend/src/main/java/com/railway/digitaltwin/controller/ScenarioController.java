@@ -6,13 +6,9 @@ import com.railway.digitaltwin.entity.SensorFeature;
 import com.railway.digitaltwin.service.ScenarioService;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/scenario")

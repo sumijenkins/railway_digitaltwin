@@ -93,15 +93,30 @@ INSERT INTO train (locomotive_id, route_id, wagon_count, total_weight, current_s
 VALUES (1, 1, 8, 450.0, 85.0);
 
 INSERT INTO train_location (train_id, segment_id, latitude, longitude, last_update)
-VALUES (1, 'S2', 38.6191, 27.4289, NOW());
+VALUES (1, 'S2', 38.6191, 27.4289, NOW())
+ON CONFLICT (train_id) DO UPDATE SET
+  segment_id = EXCLUDED.segment_id,
+  latitude = EXCLUDED.latitude,
+  longitude = EXCLUDED.longitude,
+  last_update = EXCLUDED.last_update;
 
 -- ⑥ ANOMALİ VE RİSK VERİLERİ
 -- ============================================================
-INSERT INTO anomaly (segment_id, anomaly_type, severity, detected_time, description) VALUES
-  ('S5', 'CRITICAL_TEMP', 'HIGH', NOW() - INTERVAL '10 minutes', 'Yüksek ray sıcaklığı tespit edildi.'),
-  ('S3', 'VIBRATION_ALERT', 'MEDIUM', NOW() - INTERVAL '25 minutes', 'Sıradışı titreşim seviyesi.');
+INSERT INTO anomaly (segment_id, anomaly_type, severity, detected_time, measured_value, threshold_value, description) VALUES
+  ('S5', 'CRITICAL_TEMP', 'HIGH', NOW() - INTERVAL '10 minutes', 42.50, 40.00, 'Yüksek ray sıcaklığı tespit edildi.'),
+  ('S3', 'VIBRATION_ALERT', 'MEDIUM', NOW() - INTERVAL '25 minutes', 2.80, 2.50, 'Sıradışı titreşim seviyesi.')
+ON CONFLICT DO NOTHING;
 
-INSERT INTO energy_risk (segment_id, energy_consumption, risk_score, calculated_time, risk_level) VALUES
-  ('S1', 120.0, 0.1, NOW(), 'LOW'), ('S2', 140.0, 0.15, NOW(), 'LOW'),
-  ('S3', 180.0, 0.3, NOW(), 'MEDIUM'), ('S4', 210.0, 0.12, NOW(), 'LOW'),
-  ('S5', 250.0, 0.45, NOW(), 'HIGH'), ('S6', 190.0, 0.1, NOW(), 'LOW');
+INSERT INTO energy_risk (segment_id, energy_consumption, risk_score, calculated_time) VALUES
+  ('S1', 120.0, 0.1, NOW()), ('S2', 140.0, 0.15, NOW()),
+  ('S3', 180.0, 0.3, NOW()), ('S4', 210.0, 0.12, NOW()),
+  ('S5', 250.0, 0.45, NOW()), ('S6', 190.0, 0.1, NOW());
+
+-- S1-S6 segmentleri için ilk temiz/normal yapay zeka analiz geçmişinin oluşturulması
+INSERT INTO anomaly_result (segment_id, sensor_id, detected_at, anomaly_score, is_anomaly, model_type, xai_explanation, channel_name, severity) VALUES
+('S1', (SELECT sensor_id FROM sensor WHERE segment_id = 'S1' AND sensor_type = 'RAY_SENSOR' LIMIT 1), NOW(), 0.12, false, 'IsolationForest', 'Model kararı stabil. RMS ve FFT Energy spektrumları normal sınırlar içerisinde.', 'vibrationX', 'LOW'),
+('S2', (SELECT sensor_id FROM sensor WHERE segment_id = 'S2' AND sensor_type = 'RAY_SENSOR' LIMIT 1), NOW(), 0.08, false, 'IsolationForest', 'Model kararı stabil. Herhangi bir yapısal sapma gözlemlenmedi.', 'vibrationX', 'LOW'),
+('S3', (SELECT sensor_id FROM sensor WHERE segment_id = 'S3' AND sensor_type = 'RAY_SENSOR' LIMIT 1), NOW(), 0.15, false, 'IsolationForest', 'Model kararı stabil. Titreşim genliği operasyonel tolerans dahilinde.', 'vibrationX', 'LOW'),
+('S4', (SELECT sensor_id FROM sensor WHERE segment_id = 'S4' AND sensor_type = 'RAY_SENSOR' LIMIT 1), NOW(), 0.11, false, 'IsolationForest', 'Model kararı stabil. Hat geometrisi sismik olarak kararlı.', 'vibrationX', 'LOW'),
+('S5', (SELECT sensor_id FROM sensor WHERE segment_id = 'S5' AND sensor_type = 'RAY_SENSOR' LIMIT 1), NOW(), 0.19, false, 'IsolationForest', 'Model kararı stabil. Sinyal-gürültü oranı (SNR) ideal seviyede.', 'vibrationX', 'LOW'),
+('S6', (SELECT sensor_id FROM sensor WHERE segment_id = 'S6' AND sensor_type = 'RAY_SENSOR' LIMIT 1), NOW(), 0.05, false, 'IsolationForest', 'Model kararı stabil. Eğim katsayısı ve vibrasyon dengeli.', 'vibrationX', 'LOW');

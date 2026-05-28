@@ -29,6 +29,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class MqttSensorIngestionService {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttSensorIngestionService.class);
@@ -44,7 +45,6 @@ public class MqttSensorIngestionService {
 
     private final AIAnomalyDetectionService aiAnomalyDetectionService;
     private final AIRulPredictionService aiRulPredictionService;
-    private final AIXaiExplanationService aiXaiExplanationService;
 
     public void processSensorData(MqttSensorPayload payload) {
         try {
@@ -82,9 +82,16 @@ public class MqttSensorIngestionService {
             saveReading(sensor.getSensorId(), "vibrationY", payload.getVibrationY(), recordedAt);
             saveReading(sensor.getSensorId(), "vibrationZ", payload.getVibrationZ(), recordedAt);
             saveReading(sensor.getSensorId(), "rail_slope", payload.getTilt(), recordedAt);
-            saveReading(sensor.getSensorId(), "train_temperature", payload.getTrainTemperature(), recordedAt);
-            saveReading(sensor.getSensorId(), "train_speed", payload.getTrainSpeed(), recordedAt);
-            saveReading(sensor.getSensorId(), "train_vibration_x", payload.getTrainVibrationX(), recordedAt);
+
+            Optional<Sensor> trainSensorOpt = sensorRepository.findBySegment_SegmentIdAndSensorType(segmentId, "TRAIN_SENSOR");
+            if (trainSensorOpt.isPresent()) {
+                Integer trainSensorId = trainSensorOpt.get().getSensorId();
+                saveReading(trainSensorId, "train_temperature", payload.getTrainTemperature(), recordedAt);
+                saveReading(trainSensorId, "train_speed", payload.getTrainSpeed(), recordedAt);
+                saveReading(trainSensorId, "train_vibration_x", payload.getTrainVibrationX(), recordedAt);
+            } else {
+                logger.warn("No TRAIN_SENSOR found for segmentId: {}", segmentId);
+            }
 
             SensorFeature feature = dataPreprocessingService.processAndSaveFeatures(
                     segmentId,
@@ -167,24 +174,6 @@ public class MqttSensorIngestionService {
                 && payload.getDigitalSignature() != null;
     }
 
-    private boolean verifyDigitalSignature(MqttSensorPayload payload) {
-        try {
-            String expectedHash = calculateExpectedHash(payload);
-
-            if (!expectedHash.equals(payload.getCrcHash())) {
-                logger.warn("CRC/hash mismatch. Expected: {}, Received: {}", expectedHash, payload.getCrcHash());
-                return false;
-            }
-
-            String expectedSignature = calculateHmacSignature(expectedHash);
-
-            return expectedSignature.equals(payload.getDigitalSignature());
-
-        } catch (Exception e) {
-            logger.error("Error during digital signature verification: {}", e.getMessage(), e);
-            return false;
-        }
-    }
 
     private String calculateExpectedHash(MqttSensorPayload payload) throws Exception {
         ObjectMapper mapper = new ObjectMapper();

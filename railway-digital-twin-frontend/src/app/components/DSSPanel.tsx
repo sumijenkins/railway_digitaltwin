@@ -216,13 +216,41 @@ export function DSSPanel({ overview, routeReport }: DSSPanelProps) {
 
                   <p className="text-gray-300">
                     Bozulma Trendi:
-                    <span className="text-yellow-300 ml-2 font-bold">
-                      {segment.executiveSummary?.includes("KARARLI")
-                        ? "KARARLI"
-                        : segment.executiveSummary?.includes("KÖTÜLEŞİYOR")
-                          ? "KÖTÜLEŞİYOR"
-                          : "BİLİNMİYOR"}
-                    </span>
+                    {(() => {
+                      let resolvedTrend: string | null = null;
+
+                      if (segment.executiveSummary) {
+                        const match = segment.executiveSummary.match(/bozulma trendi:\s*([^.]+)/i);
+                        const parsed = match && match[1] ? match[1].trim() : null;
+                        if (parsed && parsed.toUpperCase() !== "BİLİNMİYOR") {
+                          resolvedTrend = parsed;
+                        }
+                      }
+
+                      if (!resolvedTrend) {
+                        resolvedTrend = segment.degradationTrend || segment.trend || null;
+                      }
+
+                      if (!resolvedTrend || resolvedTrend.toUpperCase() === "BİLİNMİYOR") {
+                        resolvedTrend = "STABİL";
+                      }
+
+                      const upperTrend = resolvedTrend.toUpperCase();
+                      const trendColor =
+                        upperTrend.includes("KÖTÜLEŞ") || upperTrend.includes("YIPRANMA")
+                          ? "text-red-400"
+                          : upperTrend.includes("STABİL")
+                          ? "text-green-400"
+                          : upperTrend.includes("İYİLEŞ")
+                          ? "text-blue-400"
+                          : "text-yellow-300";
+
+                      return (
+                        <span className={`ml-2 font-bold ${trendColor}`}>
+                          {resolvedTrend}
+                        </span>
+                      );
+                    })()}
                   </p>
                 </div>
               </div>

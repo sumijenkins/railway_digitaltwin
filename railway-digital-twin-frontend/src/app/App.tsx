@@ -15,6 +15,7 @@ import { RouteOptimizationPanel } from "./components/RouteOptimizationPanel";
 import { ScenarioAnalysisPanel } from "./components/ScenarioAnalysisPanel";
 import { anomalyService } from "../services/anomalyService";
 import { energyRiskService } from "../services/energyRiskService";
+import { rulService } from "../services/rulService";
 import { DSSPanel } from "./components/DSSPanel";
 import { dssService } from "../services/dssService";
 import {
@@ -44,6 +45,7 @@ export default function App() {
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   const [energyRiskResults, setEnergyRiskResults] = useState<any[]>([]);
+  const [rulPredictions, setRulPredictions] = useState<Record<string, number>>({});
   const [userRole, setUserRole] = useState<string>("engineer");
   const [telemetryLoading, setTelemetryLoading] = useState<boolean>(false);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
@@ -168,18 +170,33 @@ export default function App() {
           const backendAnomalies = await anomalyService.getLatestAnomalies(20);
           const backendAnomalyResults = await anomalyService.getLatestAnomalyResults();
 
-          const formattedAnomalies = backendAnomalies.map((a) => ({
-            time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            type: a.anomalyType,
-            severity: a.severity === "HIGH" ? "yüksek" : "orta",
-            location: `${a.segmentId} - ${a.segmentName}`,
-            value: `${Number(a.measuredValue).toFixed(2)} / threshold: ${a.thresholdValue}`,
-            status: "aktif" as const,
-            description: a.description,
-          }));
+          const formattedAnomalies = backendAnomalies.map((a) => {
+            const hasValue = a.measuredValue !== null && a.measuredValue !== undefined;
+            const hasThreshold = a.thresholdValue !== null && a.thresholdValue !== undefined;
+
+            let valDisplay = "N/A";
+            if (hasValue) {
+              valDisplay = Number(a.measuredValue).toFixed(2);
+              if (hasThreshold) {
+                valDisplay += ` / threshold: ${a.thresholdValue}`;
+              }
+            } else if (hasThreshold) {
+              valDisplay = `threshold: ${a.thresholdValue}`;
+            }
+
+            return {
+              time: new Date(a.detectedTime).toLocaleTimeString("tr-TR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              type: a.anomalyType,
+              severity: a.severity === "HIGH" ? "yüksek" : "orta",
+              location: `${a.segmentId} - ${a.segmentName}`,
+              value: valDisplay,
+              status: "aktif" as const,
+              description: a.description,
+            };
+          });
 
           const formattedAiAnomalies = backendAnomalyResults
             .filter((a) => a.isAnomaly)
@@ -286,24 +303,31 @@ export default function App() {
 
               if (!segmentData) return track;
 
-              let health = 95;
+              // DSS overview'dan bu segment için gerçek riskScore'u al
+              // (dssOverview henüz yüklenmemişse ham telemetri eşiklerine göre hesapla)
+              const temp      = Number(segmentData["ray_temperature"] ?? 0);
+              const vibration = Number(segmentData["ray_vibration_x"] ?? 0);
+              const speed     = Number(segmentData["train_speed"]     ?? 0);
+              const tilt      = Math.abs(Number(segmentData["rail_slope"] ?? 0));
 
-              if (
-                Number(segmentData["ray_temperature"]) > 40 ||
-                Number(segmentData["ray_vibration_x"]) > 2.5
-              ) {
+              let health = 95;
+              if (temp > 40 || vibration > 2.5) {
                 health = 40;
-              } else if (
-                Number(segmentData["train_speed"]) > 85 ||
-                Math.abs(Number(segmentData["rail_slope"] ?? 0)) > 3
-              ) {
+              } else if (speed > 85 || tilt > 3) {
                 health = 70;
               }
 
               return {
                 ...track,
                 healthScore: health,
-              };
+                // Telemetri alt nesnesini güvenle güncelle — tüm zorunlu alanlar garantili
+                telemetry: {
+                  axleTemp:       temp,
+                  vibrationLevel: vibration,
+                  trafficDensity: track.telemetry?.trafficDensity ?? 0,
+                  ...(track.telemetry?.detailed ? { detailed: track.telemetry.detailed } : {}),
+                } satisfies import("../types/Railway").TelemetryData,
+              } satisfies import("../types/Railway").Track;
             });
 
             return {
@@ -311,6 +335,37 @@ export default function App() {
               tracks: newTracks,
             };
           });
+        }
+
+        // Real database-driven RUL predictions fetch
+        try {
+          const segmentsResponse = await fetch("http://localhost:8080/api/segments?size=100");
+          if (!segmentsResponse.ok) {
+            throw new Error("Could not fetch segments from database");
+          }
+          const segmentsPage = await segmentsResponse.json();
+          const segmentIds: string[] = segmentsPage.content.map((seg: any) => seg.segmentId);
+
+          const results = await Promise.all(
+            segmentIds.map(async (segId) => {
+              try {
+                const pred = await rulService.predictRulForSegment(segId);
+                return { id: segId, prediction: pred };
+              } catch (e) {
+                return null;
+              }
+            })
+          );
+          const map: Record<string, number> = {};
+          results.forEach((r) => {
+            if (r) {
+              map[r.id] = r.prediction.remainingLifeDays;
+              map[r.id + "-R"] = r.prediction.remainingLifeDays;
+            }
+          });
+          setRulPredictions((prev) => ({ ...prev, ...map }));
+        } catch (err) {
+          console.error("RUL fetch in App.tsx error:", err);
         }
 
         const liveTrains = await trainService.getLiveTrainLocations();
@@ -879,10 +934,27 @@ export default function App() {
                       !t.id.endsWith("-R") ||
                       !arr.some((x) => x.id === t.id.replace("-R", ""))
                   )
-                  .sort((a, b) => a.healthScore - b.healthScore)
+                  .sort((a, b) => {
+                    const realRulA = rulPredictions[a.id] ?? rulPredictions[a.id + "-R"];
+                    const rulDaysA = realRulA !== undefined
+                      ? realRulA
+                      : Math.max(3, (a.healthScore - 20) * 1.8);
+
+                    const realRulB = rulPredictions[b.id] ?? rulPredictions[b.id + "-R"];
+                    const rulDaysB = realRulB !== undefined
+                      ? realRulB
+                      : Math.max(3, (b.healthScore - 20) * 1.8);
+
+                    return rulDaysA - rulDaysB;
+                  })
                   .slice(0, 3)
                   .map((track) => {
-                    const rul = Math.max(3, Math.round((track.healthScore - 20) * 1.8));
+                    const realRul = rulPredictions[track.id] ?? rulPredictions[track.id + "-R"];
+                    const rulDays = realRul
+                      ? Math.round(realRul)
+                      : Math.max(3, Math.round((track.healthScore - 20) * 1.8));
+                    const isFromBackend = !!realRul;
+
                     const color =
                       track.healthScore < 50
                         ? "red"
@@ -894,7 +966,7 @@ export default function App() {
                       track.healthScore < 50
                         ? "⚠️ Kritik: Acil bakım gerekli"
                         : track.healthScore < 80
-                          ? `Öneri: ${Math.round(rul * 0.6)} gün içinde muayene`
+                          ? `Öneri: ${Math.round(rulDays * 0.6)} gün içinde muayene`
                           : "✓ İyi durum - Düzenli izleme";
 
                     return (
@@ -905,12 +977,17 @@ export default function App() {
                         <h3 className="text-white text-lg font-bold mb-4">{track.id} Hattı</h3>
 
                         <div className={`text-${color}-400 text-4xl font-bold mb-2`}>
-                          {rul} gün
+                          {rulDays} gün
                         </div>
 
-                        <p className="text-gray-500 text-sm mb-6 uppercase tracking-wider">
+                        <p className="text-gray-500 text-sm mb-1 uppercase tracking-wider">
                           Kalan Yararlı Ömür (RUL)
                         </p>
+                        {isFromBackend ? (
+                          <p className="text-green-400 text-[10px] mb-4">AI Modeli • Canlı Veri</p>
+                        ) : (
+                          <p className="text-yellow-600 text-[10px] mb-4">Hesaplanıyor…</p>
+                        )}
 
                         <div className="w-full bg-gray-700 rounded-full h-3 mb-6">
                           <div

@@ -1,8 +1,10 @@
 package com.railway.digitaltwin.service;
 
 import com.railway.digitaltwin.dto.RulPredictionResponseDto;
+import com.railway.digitaltwin.entity.AnomalyResult;
 import com.railway.digitaltwin.entity.RulPredictionResult;
 import com.railway.digitaltwin.entity.SensorFeature;
+import com.railway.digitaltwin.repository.AnomalyResultRepository;
 import com.railway.digitaltwin.repository.RulPredictionResultRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ public class AIRulPredictionService {
 
     private final ExternalAIService externalAIService;
     private final RulPredictionResultRepository rulRepository;
+    private final AnomalyResultRepository anomalyResultRepository;
 
     public RulPredictionResponseDto predictRul(SensorFeature feature) {
         if (feature == null) {
@@ -42,18 +45,83 @@ public class AIRulPredictionService {
                 ? response.get("condition").toString()
                 : "UNKNOWN";
 
-        String degradationTrend = response.get("degradationTrend") != null
-                ? response.get("degradationTrend").toString()
-                : "BİLİNMİYOR";
+        String degradationTrend = "STABİL";
+        String trend = "STABLE";
+
+        // Segmentin gerçek anomali geçmişini çek
+        java.util.List<AnomalyResult> anomalyHistory =
+                anomalyResultRepository.findBySegmentIdOrderByDetectedAtDesc(feature.getSegmentId());
+        long activeAnomalyCount = anomalyHistory.stream()
+                .filter(a -> Boolean.TRUE.equals(a.getIsAnomaly()))
+                .count();
+        double latestAnomalyScore = anomalyHistory.isEmpty() ? 0.0
+                : (anomalyHistory.get(0).getAnomalyScore() != null ? anomalyHistory.get(0).getAnomalyScore() : 0.0);
+
+        // AKADEMİK MANTIK: Bozulma trendi önce anomali durumuna göre belirlenir,
+        // ardından geçmiş RUL kayıtlarıyla rafine edilir
+        degradationTrend = determineDegradationTrend(latestAnomalyScore, activeAnomalyCount);
+        trend = mapTrendCode(degradationTrend);
+
+        // Geçmiş RUL kaydı varsa degradation skoru farkıyla rafine et (yalnızca WARNING/CRITICAL zonu için)
+        java.util.List<RulPredictionResult> history = rulRepository.findBySegmentIdOrderByPredictedAtDesc(feature.getSegmentId());
+        if (history != null && !history.isEmpty() && activeAnomalyCount > 0) {
+            RulPredictionResult latestPast = history.get(0);
+            if (latestPast.getDegradationScore() != null) {
+                double diff = degradationScore - latestPast.getDegradationScore();
+                if (diff > 0.01) {
+                    degradationTrend = "HIZLI YIPRANMA (KÖTÜLEŞİYOR)";
+                    trend = "RAPID_DETERIORATION";
+                } else if (diff > 0.0001) {
+                    degradationTrend = "KÖTÜLEŞİYOR";
+                    trend = "DETERIORATING";
+                } else if (diff < -0.01) {
+                    degradationTrend = "ANLAMLI İYİLEŞME (BAKIM YAPILDI)";
+                    trend = "SIGNIFICANT_IMPROVEMENT";
+                } else if (diff < -0.0001) {
+                    degradationTrend = "İYİLEŞİYOR";
+                    trend = "IMPROVING";
+                }
+            }
+        }
+
+        if (response.get("degradationTrend") != null) {
+            degradationTrend = response.get("degradationTrend").toString();
+        }
+        if (response.get("trend") != null) {
+            trend = response.get("trend").toString();
+        }
 
         String maintenancePriority = response.get("maintenancePriority") != null
                 ? response.get("maintenancePriority").toString()
                 : generatePriority(condition);
+        // DINAMIK ENJEKSIYON: Sadece en son anomali tahmini AKTIF ise RUL ve önceliği güncelle
+        boolean hasActiveAnomaly = false;
+        double latestAnomalyScoreVar = 0.0;
+        if (anomalyHistory != null && !anomalyHistory.isEmpty()) {
+            AnomalyResult latest = anomalyHistory.get(0);
+            if (Boolean.TRUE.equals(latest.getIsAnomaly())) {
+                hasActiveAnomaly = true;
+                latestAnomalyScoreVar = latest.getAnomalyScore() != null ? latest.getAnomalyScore() : 0.0;
+            }
+        }
 
-        String trend = response.get("trend") != null
-                ? response.get("trend").toString()
-                : "UNKNOWN";
-
+        if (hasActiveAnomaly) {
+            if (latestAnomalyScoreVar > 0.70) {
+                condition = "CRITICAL";
+                maintenancePriority = "YÜKSEK";
+                remainingLifeDays = Math.min(remainingLifeDays, 25.0);
+                degradationScore = Math.max(degradationScore, 0.85);
+                confidenceLowerBound = remainingLifeDays * 0.9;
+                confidenceUpperBound = remainingLifeDays * 1.1;
+            } else {
+                condition = "WARNING";
+                maintenancePriority = "ORTA";
+                remainingLifeDays = Math.min(remainingLifeDays, 75.0);
+                degradationScore = Math.max(degradationScore, 0.55);
+                confidenceLowerBound = remainingLifeDays * 0.9;
+                confidenceUpperBound = remainingLifeDays * 1.1;
+            }
+        }
         String model = response.get("model") != null
                 ? response.get("model").toString()
                 : "RuleBasedRUL";
@@ -105,6 +173,35 @@ public class AIRulPredictionService {
         }
 
         return "Düzenli izlemeye devam edin.";
+    }
+
+    /**
+     * AKADEMİK MANTIK KORELASYoNU:
+     * Bozulma trendi, segmentin gerçek anomali sayısı ve anomali skoruna bağlıdır.
+     * Sıfır anomali + düşük skor → temiz hat asla aniden hızlı yıpranamaz.
+     */
+    public String determineDegradationTrend(double anomalyScore, long anomalyCount) {
+        if (anomalyCount == 0 && anomalyScore < 0.30) {
+            return "STABİL"; // Temiz hat asla aniden hızlı yıpranamaz
+        } else if (anomalyCount > 3 || anomalyScore > 0.70) {
+            return "HIZLI YIPRANMA (KÖTÜLEŞİYOR)";
+        } else if (anomalyCount > 0 || anomalyScore > 0.30) {
+            return "YAVAŞ AKIŞ / NORMAL";
+        } else {
+            return "STABİL";
+        }
+    }
+
+    private String mapTrendCode(String degradationTrend) {
+        if (degradationTrend == null) return "STABLE";
+        return switch (degradationTrend) {
+            case "HIZLI YIPRANMA (KÖTÜLEŞİYOR)" -> "RAPID_DETERIORATION";
+            case "KÖTÜLEŞİYOR"                  -> "DETERIORATING";
+            case "ANLAMLI İYİLEŞME (BAKIM YAPILDI)" -> "SIGNIFICANT_IMPROVEMENT";
+            case "İYİLEŞİYOR"                   -> "IMPROVING";
+            case "YAVAŞ AKIŞ / NORMAL"           -> "SLOW_FLOW";
+            default                              -> "STABLE";
+        };
     }
 
     private RulPredictionResponseDto toDto(RulPredictionResult result) {

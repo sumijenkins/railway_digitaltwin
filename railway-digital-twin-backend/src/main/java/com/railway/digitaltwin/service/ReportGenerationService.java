@@ -1,107 +1,57 @@
 package com.railway.digitaltwin.service;
 
 import com.railway.digitaltwin.dto.GeneratedReportDto;
+import com.railway.digitaltwin.entity.AnomalyResult;
 import com.railway.digitaltwin.repository.AnomalyResultRepository;
-import com.railway.digitaltwin.repository.SensorReadingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ReportGenerationService {
 
-    private final SensorReadingRepository sensorReadingRepository;
-    private final AnomalyResultRepository anomalyResultRepository;
+        private final ExternalAIService externalAIService;
+        private final AnomalyResultRepository anomalyResultRepository;
 
-    public GeneratedReportDto generateReport(String type) {
+        public GeneratedReportDto generateReport(String type) {
+                AnomalyResult latestAnomaly = anomalyResultRepository.findTop50ByOrderByDetectedAtDesc().stream()
+                                .findFirst()
+                                .orElseThrow(() -> new RuntimeException("Rapor üretilecek herhangi bir anomali kaydı bulunamadı."));
 
-        long telemetryCount = sensorReadingRepository.count();
+                String content = generateReportForAnomaly(latestAnomaly.getAnomalyId(), type);
 
-        long anomalyCount =
-                anomalyResultRepository.countByIsAnomalyTrue();
-
-        String content = buildReport(type, telemetryCount, anomalyCount);
-
-        return GeneratedReportDto.builder()
-                .reportType(type)
-                .generatedAt(LocalDateTime.now().toString())
-                .content(content)
-                .build();
-    }
-
-    private String buildReport(
-            String type,
-            long telemetryCount,
-            long anomalyCount
-    ) {
-
-        String severity =
-                anomalyCount > 20 ? "KRITIK"
-                        : anomalyCount > 5 ? "UYARI"
-                        : "NORMAL";
-
-        if ("EXECUTIVE".equalsIgnoreCase(type)) {
-
-            return """
-                    📊 ÖZET RAPOR
-                                        
-                    Sistem Durumu: %s
-                    
-                    Toplam Telemetry Kaydı: %d
-                    Tespit Edilen AI Anomalisi: %d
-                    
-                    Sistem gerçek zamanlı olarak izlenmektedir.
-                    Telemetry akışı aktif durumda çalışmaktadır.
-                    
-                    ÖNERİLER:
-                    • Kritik segmentler gözlemlenmelidir
-                    • Sensör sağlık durumu düzenli kontrol edilmelidir
-                    • Anomali trendleri analiz edilmelidir
-                    """
-                    .formatted(
-                            severity,
-                            telemetryCount,
-                            anomalyCount
-                    );
+                return GeneratedReportDto.builder()
+                                .reportType(type)
+                                .generatedAt(LocalDateTime.now().toString())
+                                .content(content)
+                                .build();
         }
 
-        return """
-                📊 DETAYLI OPERASYON RAPORU
-                
-                RAPOR ZAMANI:
-                %s
-                
-                SİSTEM DURUMU:
-                %s
-                
-                TELEMETRY ANALİZİ:
-                • Toplam telemetry kaydı: %d
-                • MQTT veri akışı aktif
-                • Dijital ikiz sistemi çalışıyor
-                
-                AI ANOMALİ ANALİZİ:
-                • Tespit edilen anomaly sayısı: %d
-                • Isolation Forest modeli aktif
-                • Gerçek zamanlı anomaly monitoring aktif
-                
-                OPERASYONEL DURUM:
-                • Segment bazlı monitoring aktif
-                • Enerji ve risk analizi aktif
-                • Sensör sağlık sistemi aktif
-                
-                ÖNERİLEN AKSİYONLAR:
-                1. Kritik segmentleri gözlemleyin
-                2. Sensör health metriklerini kontrol edin
-                3. Vibrasyon trendlerini analiz edin
-                4. Risk seviyesi artan segmentlere bakım planlayın
-                """
-                .formatted(
-                        LocalDateTime.now(),
-                        severity,
-                        telemetryCount,
-                        anomalyCount
-                );
-    }
+        public String generateReportForAnomaly(Long anomalyId, String type) {
+                AnomalyResult anomaly = anomalyResultRepository.findById(anomalyId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                 "Talep edilen siber-fiziksel anomali kaydı bulunamadı: " + anomalyId));
+
+                String condition = Boolean.TRUE.equals(anomaly.getIsAnomaly()) ? "CRITICAL / ANOMALOUS"
+                                : "STABLE / NORMAL";
+
+                // Raporlama döngüsü için varsayılan baskın sinyal etkeni belirlenir
+                String dominantFactor = "Vibration / RMS Spectrum Shift";
+                if (anomaly.getXaiExplanation() != null && anomaly.getXaiExplanation().contains("Slope Gradient")) {
+                        dominantFactor = "Slope Gradient / Tilt Instability";
+                }
+
+                Map<String, Object> response = externalAIService.generateGenerativeReport(
+                                anomaly.getSegmentId(),
+                                anomaly.getAnomalyScore(),
+                                condition,
+                                dominantFactor,
+                                type);
+
+                return response.get("report") != null ? response.get("report").toString()
+                                : "Doğal dil karar destek raporu üretilemedi.";
+        }
 }

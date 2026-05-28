@@ -15,11 +15,9 @@ public class ReportGenerationController {
 
     @PostMapping("/generate")
     public ResponseEntity<GeneratedReportDto> generateReport(
-            @RequestParam(defaultValue = "EXECUTIVE") String type
-    ) {
+            @RequestParam(defaultValue = "EXECUTIVE") String type) {
 
         return ResponseEntity.ok(
-                reportGenerationService.generateReport(type)
-        );
+                reportGenerationService.generateReport(type));
     }
 }

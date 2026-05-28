@@ -24,7 +24,6 @@ import { telemetryService } from "../../services/telemetryService";
 import { TelemetryReading } from "../../types/Railway";
 
 const colors = ["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6"];
-const segmentOptions = ["S1", "S2", "S3", "S4", "S5", "S6"];
 
 type XaiPayload = {
   rms: number;
@@ -97,7 +96,8 @@ function calculateXaiPayload(readings: TelemetryReading[]): XaiPayload {
 
 export function ExplainableAIPanel() {
   const [selectedTab, setSelectedTab] = useState<"SHAP" | "LIME">("SHAP");
-  const [selectedSegment, setSelectedSegment] = useState("S1");
+  const [segmentOptions, setSegmentOptions] = useState<string[]>([]);
+  const [selectedSegment, setSelectedSegment] = useState("");
   const [xaiData, setXaiData] = useState<XaiExplanation | null>(null);
   const [payload, setPayload] = useState<XaiPayload | null>(null);
   const [telemetryCount, setTelemetryCount] = useState(0);
@@ -106,6 +106,7 @@ export function ExplainableAIPanel() {
   const [error, setError] = useState<string | null>(null);
 
   const loadXaiForSegment = async (segmentId: string) => {
+    if (!segmentId) return;
     setLoading(true);
 
     try {
@@ -121,10 +122,44 @@ export function ExplainableAIPanel() {
       }
 
       const calculatedPayload = calculateXaiPayload(readings);
-      const explanation = await xaiService.explainFeature(calculatedPayload);
+      const explanation = await xaiService.explainFeatureForSegment(segmentId);
+
+      // Dinamik SHAP zenginleştirme (backend'den gelmeyen kural-tabanlı alanları güvenle üretir)
+      const enrichedExplanation = {
+        ...explanation,
+        topFactors: explanation.topFactors || (explanation.featureImportance || []).slice(0, 2).map((item: any) => ({
+          feature: item.feature,
+          reason: `Model kararı üzerinde en yüksek etkisi olan ${item.feature} parametresi.`,
+          severity: item.importance > 0.22 ? "HIGH" : "MEDIUM"
+        })),
+        keyFactors: explanation.keyFactors || (explanation.featureImportance || []).slice(0, 3).map((item: any) => 
+          `${item.feature} bileşeni %${(item.importance * 100).toFixed(1)} katkı payı ile karar ağacını etkilemiştir.`
+        ),
+        recommendedActions: explanation.recommendedActions || (() => {
+          const actions = [];
+          const topItem = explanation.featureImportance && explanation.featureImportance[0];
+          if (topItem) {
+            if (topItem.importance > 0.22) {
+              actions.push(
+                `İlgili demiryolu segmentindeki ${topItem.feature} sapmaları acilen incelenmelidir.`,
+                `Önleyici bakım programına bu segment yüksek öncelikli olarak eklenmelidir.`,
+                `Güvenlik amacıyla geçiş hız limitinin düşürülmesi önerilir.`
+              );
+            } else {
+              actions.push(
+                `${topItem.feature} parametresi takip altında tutulmalıdır.`,
+                `Rutin bakım döngüsünde bu segmentin gözlenmesi yeterlidir.`
+              );
+            }
+          } else {
+            actions.push("Şu an için herhangi bir önleyici aksiyon gerekmemektedir.");
+          }
+          return actions;
+        })()
+      };
 
       setPayload(calculatedPayload);
-      setXaiData(explanation);
+      setXaiData(enrichedExplanation);
       setTelemetryCount(readings.length);
       setLatestTimestamp(readings[0]?.recordedAt ?? null);
       setError(null);
@@ -135,6 +170,28 @@ export function ExplainableAIPanel() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchSegments = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/segments?size=100");
+        if (response.ok) {
+          const page = await response.json();
+          const ids: string[] = page.content.map((seg: any) => seg.segmentId).sort();
+          setSegmentOptions(ids);
+          if (ids.length > 0) {
+            setSelectedSegment(ids[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching segment list in XAI Panel:", err);
+        const fallback = ["S1", "S2", "S3", "S4", "S5", "S6"];
+        setSegmentOptions(fallback);
+        setSelectedSegment(fallback[0]);
+      }
+    };
+    fetchSegments();
+  }, []);
 
   useEffect(() => {
     loadXaiForSegment(selectedSegment);
@@ -294,7 +351,7 @@ export function ExplainableAIPanel() {
                       formatter={(value: any) => `${(value * 100).toFixed(1)}%`}
                     />
                     <Bar dataKey="importance" radius={[0, 8, 8, 0]}>
-                      {xaiData.featureImportance.map((_, index) => (
+                      {(xaiData.featureImportance || []).map((_, index) => (
                         <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                       ))}
                     </Bar>
@@ -303,7 +360,7 @@ export function ExplainableAIPanel() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {xaiData.featureImportance.map((item, idx) => (
+                {(xaiData.featureImportance || []).map((item, idx) => (
                   <div key={idx} className="bg-gray-900 p-3 rounded border border-gray-700">
                     <p className="text-xs text-gray-400 mb-1">{item.feature}</p>
                     <span className="text-lg font-bold text-white">
@@ -321,7 +378,7 @@ export function ExplainableAIPanel() {
                 </h3>
 
                 <div className="flex gap-2 flex-wrap">
-                  {xaiData.topFactors.map((factor, idx) => (
+                  {(xaiData.topFactors || []).map((factor, idx) => (
                     <Badge
                       key={idx}
                       variant="outline"
@@ -348,7 +405,7 @@ export function ExplainableAIPanel() {
             </h3>
 
             <ul className="space-y-2">
-              {xaiData.keyFactors.map((factor, idx) => (
+              {(xaiData.keyFactors || []).map((factor, idx) => (
                 <li key={idx} className="text-sm text-gray-300 flex gap-2">
                   <span className="text-cyan-400">•</span>
                   {factor}
@@ -364,7 +421,7 @@ export function ExplainableAIPanel() {
             </h3>
 
             <ul className="space-y-2">
-              {xaiData.recommendedActions.map((action, idx) => (
+              {(xaiData.recommendedActions || []).map((action, idx) => (
                 <li key={idx} className="text-sm text-gray-200">
                   {action}
                 </li>

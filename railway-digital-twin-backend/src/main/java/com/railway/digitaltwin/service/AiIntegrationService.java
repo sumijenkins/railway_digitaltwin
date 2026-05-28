@@ -8,7 +8,7 @@ import com.railway.digitaltwin.entity.SensorReading;
 import com.railway.digitaltwin.repository.SensorChannelRepository;
 import com.railway.digitaltwin.repository.SensorReadingRepository;
 import com.railway.digitaltwin.repository.SensorRepository;
-import com.railway.digitaltwin.repository.SensorFeatureRepository;
+
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,6 +23,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class AiIntegrationService {
 
     private static final Logger logger = LoggerFactory.getLogger(AiIntegrationService.class);
@@ -30,7 +31,6 @@ public class AiIntegrationService {
     private final SensorRepository sensorRepository;
     private final SensorChannelRepository sensorChannelRepository;
     private final SensorReadingRepository sensorReadingRepository;
-    private final SensorFeatureRepository sensorFeatureRepository;
 
     private final AnomalyService anomalyService;
     private final DataPreprocessingService dataPreprocessingService;

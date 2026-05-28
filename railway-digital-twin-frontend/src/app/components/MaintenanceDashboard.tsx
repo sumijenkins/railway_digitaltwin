@@ -15,62 +15,67 @@ export function MaintenanceDashboard({ network }: Props) {
     const [loadingRul, setLoadingRul] = useState(true);
 
     useEffect(() => {
-    if (!network) return;
+        if (!network) return;
 
-    const fetchRulForAllSegments = async () => {
-        try {
-            setLoadingRul(true);
+        const fetchRulForAllSegments = async () => {
+            try {
+                setLoadingRul(true);
 
-            const results = await Promise.all(
-                network.tracks.map(async (track) => {
-                    const payload = {
-                        segmentId: track.id.toUpperCase(),
-                        sensorId: 1,
+                const results = await Promise.all(
+                    network.tracks.map(async (track) => {
+                        const prediction = await rulService.predictRulForSegment(track.id.toUpperCase());
 
-                        // Temporary feature mapping based on track condition
-                        rms: Math.max(5, 50 - track.healthScore),
-                        peakToPeak: Math.max(10, 70 - track.healthScore),
-                        fftEnergy: Math.max(300, (100 - track.healthScore) * 35),
-                        slopeGradient: Math.max(0.01, (100 - track.healthScore) / 1000),
-                        snr: Math.max(20, track.healthScore),
-                    };
+                        return {
+                            segmentId: track.id,
+                            prediction,
+                        };
+                    })
+                );
 
-                    const prediction = await rulService.predictRul(payload);
+                const predictionMap: Record<string, RulPrediction> = {};
 
-                    return {
-                        segmentId: track.id,
-                        prediction,
-                    };
-                })
-            );
+                results.forEach((item) => {
+                    predictionMap[item.segmentId] = item.prediction;
+                });
 
-            const predictionMap: Record<string, RulPrediction> = {};
+                setRulPredictions(predictionMap);
+            } catch (err) {
+                console.error("RUL ERROR:", err);
+            } finally {
+                setLoadingRul(false);
+            }
+        };
 
-            results.forEach((item) => {
-                predictionMap[item.segmentId] = item.prediction;
-            });
-
-            setRulPredictions(predictionMap);
-        } catch (err) {
-            console.error("RUL ERROR:", err);
-        } finally {
-            setLoadingRul(false);
-        }
-    };
-
-    fetchRulForAllSegments();
-}, [network]);
+        fetchRulForAllSegments();
+    }, [network]);
 
     if (!network) return null;
-
-    const priorityTracks = [...network.tracks]
-        .sort((a, b) => a.healthScore - b.healthScore);
 
     const getUrgencyColor = (score: number) => {
         if (score < 50) return 'text-red-500 bg-red-500/10 border-red-500/20';
         if (score < 70) return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
         return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
     };
+
+    const priorityTracks = [...network.tracks]
+        .filter(
+            (t, _, arr) =>
+                !t.id.endsWith("-R") ||
+                !arr.some((x) => x.id === t.id.replace("-R", ""))
+        )
+        .sort((a, b) => {
+            const predA = rulPredictions[a.id] ?? rulPredictions[a.id + "-R"];
+            const rulDaysA = predA && predA.remainingLifeDays !== undefined
+                ? predA.remainingLifeDays
+                : Math.max(3, (a.healthScore - 40) * 1.5);
+
+            const predB = rulPredictions[b.id] ?? rulPredictions[b.id + "-R"];
+            const rulDaysB = predB && predB.remainingLifeDays !== undefined
+                ? predB.remainingLifeDays
+                : Math.max(3, (b.healthScore - 40) * 1.5);
+
+            return rulDaysA - rulDaysB;
+        });
 
     return (
         <div className="bg-[#1a1f26] rounded-xl border border-gray-700 overflow-hidden shadow-2xl min-h-[300px]">
@@ -90,8 +95,6 @@ export function MaintenanceDashboard({ network }: Props) {
                     </div>
                 ) : (
                     priorityTracks.map(track => {
-                        // Simulated Remaining Useful Life (RUL) logic
-                        const rulDays = Math.max(2, Math.floor((track.healthScore - 40) * 1.5));
                         const segmentRul = rulPredictions[track.id];
                         return (
                             <div key={track.id} className={`p-4 rounded-lg border flex flex-col gap-3 ${getUrgencyColor(track.healthScore)}`}>
@@ -113,10 +116,10 @@ export function MaintenanceDashboard({ network }: Props) {
                                             <span className="block opacity-60 uppercase">Tahmini Bakım</span>
                                             <span className="font-bold font-mono">
                                                 {segmentRul
-                                                    ? `${segmentRul.remainingLifeDays} GÜN`
+                                                    ? `${Number(segmentRul.remainingLifeDays).toFixed(2)} GÜN`
                                                     : track.healthScore < 50
                                                     ? "ACİL"
-                                                    : `${rulDays} GÜN`}
+                                                    : "Veri bekleniyor"}
                                                 </span>
                                         </div>
                                     </div>
@@ -136,7 +139,7 @@ export function MaintenanceDashboard({ network }: Props) {
                                             {loadingRul
                                                 ? "Yükleniyor..."
                                                 : segmentRul
-                                                    ? `${segmentRul.remainingLifeDays} gün`
+                                                    ? `${Number(segmentRul.remainingLifeDays).toFixed(2)} gün`
                                                     : "Veri yok"}
                                         </span>
                                     </div>
@@ -146,7 +149,7 @@ export function MaintenanceDashboard({ network }: Props) {
                                             <div className="flex justify-between">
                                                 <span className="opacity-60">Güven Aralığı</span>
                                                 <span className="font-bold text-blue-300">
-                                                    {segmentRul.confidenceLowerBound} - {segmentRul.confidenceUpperBound} gün
+                                                    {Number(segmentRul.confidenceLowerBound).toFixed(2)} - {Number(segmentRul.confidenceUpperBound).toFixed(2)} gün
                                                 </span>
                                             </div>
 
@@ -184,7 +187,7 @@ export function MaintenanceDashboard({ network }: Props) {
             </div>
 
             <div className="bg-gray-800/30 p-3 border-t border-gray-700 text-[9px] text-gray-500">
-                * Veriler simüle edilmiş metal yorgunluğu ve toplam aks yükü algoritmasına dayanmaktadır.
+                * Tahmini bakım verisi; AI/RUL modeli çıktısından alınmaktadır. Backend veri yoksa sağlık puanına dayalı yaklaşık değer kullanılır.
             </div>
         </div>
     );

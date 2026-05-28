@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -23,6 +24,7 @@ public class ExternalAIService {
     // -------------------------
     // SCENARIO ANALYZE
     // -------------------------
+    @SuppressWarnings("unchecked")
     public Map<String, Object> analyzeScenario(Map<String, Object> request) {
         return restTemplate.postForObject(
                 aiUrl + "/scenario-analyze",
@@ -54,6 +56,7 @@ public class ExternalAIService {
     // -------------------------
     // COMMON MAPPER
     // -------------------------
+    @SuppressWarnings("unchecked")
     private Map<String, Object> post(String path, SensorFeature feature) {
 
         Map<String, Object> req = new HashMap<>();
@@ -67,5 +70,37 @@ public class ExternalAIService {
                 aiUrl + path,
                 req,
                 Map.class);
+    }
+
+    // -------------------------
+    // GENERATIVE AI REPORT
+    // -------------------------
+    public Map<String, Object> generateGenerativeReport(String segmentId, double anomalyScore, String condition,
+            String topFeature, String type) {
+        Map<String, Object> req = new HashMap<>();
+        req.put("segmentId", segmentId);
+        req.put("anomalyScore", anomalyScore);
+        req.put("condition", condition);
+        req.put("topFeature", topFeature);
+        req.put("type", type);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> result = restTemplate.postForObject(
+                aiUrl + "/generate-report",
+                req,
+                Map.class);
+        return result;
+    }
+
+    // -------------------------
+    // ANOMALY SEQUENCE (LSTM Autoencoder - Zaman Serisi Analizi)
+    // -------------------------
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> analyzeSequence(List<Map<String, Object>> sequenceData) {
+        Map<String, Object> req = new HashMap<>();
+        req.put("sequence", sequenceData);
+
+        return restTemplate.postForObject(aiUrl + "/anomaly-sequence", req, Map.class);
     }
 }

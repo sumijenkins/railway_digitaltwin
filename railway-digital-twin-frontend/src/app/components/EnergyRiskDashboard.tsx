@@ -74,11 +74,13 @@ export function EnergyRiskDashboard({
         item.energy ??
         0
       );
-      const risk = Number(
+      const rawRisk = Number(
         item.riskScore ??
         item.risk ??
         0
       );
+      // 0-1 normalized risk is converted to a 0-100 percentage
+      const risk = rawRisk <= 1.0 ? rawRisk * 100.0 : rawRisk;
 
       const efficiency = Math.max(
         0,
@@ -86,7 +88,7 @@ export function EnergyRiskDashboard({
           100,
           Math.round(
             100
-            - (risk * 0.6)
+            - ((risk / 100.0) * 60.0)
             - ((energy - 100) * 0.2)
           )
         )
@@ -100,10 +102,11 @@ export function EnergyRiskDashboard({
         efficiency,
         riskScore: risk,
         risk,
-        temperature: risk * 0.45,
-        vibration: risk * 0.35,
-        slope: risk * 0.2,
-        size: Math.max(40, risk),
+        // Gerçek telemetri alanları — backend'den gelen ham değerler
+        temperature: Number(item.temperature ?? 0),
+        vibration:   Number(item.vibration   ?? item.tilt ?? 0),
+        slope:       Number(item.tilt        ?? 0),
+        size: Math.max(40, Math.round(risk)),
         riskLevel: item.riskLevel,
         recommendation: item.recommendation,
       };
@@ -148,9 +151,10 @@ export function EnergyRiskDashboard({
           ).toFixed(1)
         : "0.0";
 
+    // Eşik %30.0 (DSS ile uyumlu)
     const warningSegmentCount =
       displayRiskData.filter(
-        (item) => Number(item.riskScore) >= 50
+        (item) => Number(item.riskScore) >= 30.0
       ).length;
 
       const [dynamicTimelineData, setDynamicTimelineData] = useState<any[]>([]);
@@ -485,13 +489,14 @@ export function EnergyRiskDashboard({
                       </td>
 
                       <td className="text-center">
-                        {riskLevel === "HIGH" && (
+                        {/* Backend: CRITICAL / WARNING / LOW */}
+                        {(riskLevel === "HIGH" || riskLevel === "CRITICAL") && (
                           <Badge variant="destructive" className="text-xs">
                             🚨 ACİL
                           </Badge>
                         )}
 
-                        {riskLevel === "MEDIUM" && (
+                        {(riskLevel === "MEDIUM" || riskLevel === "WARNING") && (
                           <Badge variant="secondary" className="text-xs">
                             ⚠️ UYARI
                           </Badge>

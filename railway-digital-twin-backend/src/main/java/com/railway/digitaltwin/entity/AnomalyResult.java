@@ -48,4 +48,8 @@ public class AnomalyResult {
 
     @Column(name = "feature_id")
     private Long featureId;
+
+    public String getDescription() {
+        return this.xaiExplanation != null ? this.xaiExplanation : "";
+    }
 }

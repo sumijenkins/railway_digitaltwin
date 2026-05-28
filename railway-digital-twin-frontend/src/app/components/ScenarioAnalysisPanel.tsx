@@ -21,13 +21,18 @@ export function ScenarioAnalysisPanel() {
   const fetchDefaults = async (id: string) => {
     setFetchingDefaults(true);
     try {
-      const latest = await scenarioService.getLatestData(id);
+      const latest = (await scenarioService.getLatestData(id)) as any;
       if (latest) {
-        setRayTitresimi(latest.rms || 0);
-        if (latest.slopeGradient !== undefined && latest.slopeGradient !== null) {
+        setRayTitresimi(latest.rayTitresimi !== undefined ? latest.rayTitresimi : (latest.rms || 0));
+        setRaySicakligi(latest.raySicakligi !== undefined ? latest.raySicakligi : 25.0);
+        setVagonSicakligi(latest.vagonSicakligi !== undefined ? latest.vagonSicakligi : 22.0);
+        setTrenHizi(latest.trenHizi !== undefined ? latest.trenHizi : 80.0);
+        setVagonTitresimi(latest.vagonTitresimi !== undefined ? latest.vagonTitresimi : 0.8);
+        if (latest.hatEgimi !== undefined && latest.hatEgimi !== null) {
+          setHatEgimi(latest.hatEgimi);
+        } else if (latest.slopeGradient !== undefined && latest.slopeGradient !== null) {
           setHatEgimi(Math.atan(latest.slopeGradient) * 180 / Math.PI);
         }
-        // Diğer veriler feature içinde yoksa varsayılan kalsın
       }
     } catch (err) {
       console.error("Defaults could not be fetched", err);

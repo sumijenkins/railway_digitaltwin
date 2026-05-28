@@ -16,11 +16,11 @@ import com.railway.digitaltwin.entity.SensorFeature;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class TelemetryService {
 
     private final SensorReadingRepository readingRepository;

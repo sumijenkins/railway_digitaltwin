@@ -2,8 +2,7 @@ package com.railway.digitaltwin.controller;
 
 import com.railway.digitaltwin.dto.SensorChannelResponseDto;
 import com.railway.digitaltwin.dto.SensorResponseDto;
-import com.railway.digitaltwin.entity.SensorReading;
-import com.railway.digitaltwin.repository.SensorReadingRepository;
+
 import com.railway.digitaltwin.repository.TrainLocationRepository;
 import com.railway.digitaltwin.service.SensorService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/sensors")
@@ -24,8 +22,6 @@ public class SensorController {
 
     private final SensorService sensorService;
 
-    // ✅ EKLENDİ
-    private final SensorReadingRepository sensorRepository;
     private final TrainLocationRepository trainLocationRepository;
 
     /** GET /api/sensors */

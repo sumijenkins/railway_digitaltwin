@@ -36,4 +36,12 @@ export const xaiService = {
 
     return response.json();
   },
+
+  async explainFeatureForSegment(segmentId: string): Promise<XaiExplanation> {
+    const response = await fetch(`${API_URL}/xai/explain/${segmentId}`);
+    if (!response.ok) {
+      throw new Error("XAI explanation could not be loaded");
+    }
+    return response.json();
+  },
 };

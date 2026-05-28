@@ -9,5 +9,5 @@ import java.util.List;
 public interface AnomalyResultRepository extends JpaRepository<AnomalyResult, Long> {
     List<AnomalyResult> findTop50ByOrderByDetectedAtDesc();
     long countByIsAnomalyTrue();
-
+    List<AnomalyResult> findBySegmentIdOrderByDetectedAtDesc(String segmentId);
 }
